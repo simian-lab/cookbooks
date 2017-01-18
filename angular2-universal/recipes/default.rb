@@ -9,22 +9,12 @@ package "git" do
   options "--force-yes" if node["platform"] == "ubuntu" && node["platform_version"] == "14.04"
 end
 
-application app_path do
-  javascript "4"
-  environment.update("PORT" => "80")
-  environment.update(app["environment"])
+# install nvm
+include_recipe 'nvm'
 
-  git app_path do
-    repository app["app_source"]["url"]
-    revision app["app_source"]["revision"]
-  end
-
-  link "#{app_path}/server.js" do
-    to "#{app_path}/index.js"
-  end
-
-  npm_install
-  npm_start do
-    action [:stop, :enable, :start]
-  end
+# install node.js v6.2.2
+nvm_install 'v6.2.2'  do
+  from_source false
+  alias_as_default true
+  action :create
 end
