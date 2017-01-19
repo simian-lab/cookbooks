@@ -1,0 +1,32 @@
+{
+  "name": "angular2-universal",
+  "description": "Installs/Configures angular2-universal",
+  "long_description": "Installs/Configures angular2-universal",
+  "maintainer": "Simian",
+  "maintainer_email": "ivan@simian.co",
+  "license": "all_rights",
+  "platforms": {
+  },
+  "dependencies": {
+    "nvm": "~> 1.0.0"
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+  },
+  "version": "0.0.0",
+  "source_url": "",
+  "issues_url": ""
+}
