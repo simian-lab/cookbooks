@@ -1,10 +1,11 @@
 name 'angular2-universal'
-maintainer 'The Authors'
-maintainer_email 'you@example.com'
+maintainer 'Ivan Vasquez'
+maintainer_email 'ivan@simian.co'
 license 'all_rights'
 description 'Installs/Configures angular2-universal'
 long_description 'Installs/Configures angular2-universal'
 version '0.1.0'
+depends 'nvm'
 
 # The `issues_url` points to the location where issues for this cookbook are
 # tracked.  A `View Issues` link will be displayed on this cookbook's page when
