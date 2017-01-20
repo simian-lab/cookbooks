@@ -1,0 +1,8 @@
+The Amazon AWS OpsWorks Product includes the following third-party software/licensing:
+
+This product includes the following components, which are governed by
+the licenses indicated below. Notwithstanding information contained in
+source code, license files, notice files, or other files in the
+software, in cases where a software component may be licensed under
+the GNU General Public License (GPL) or any other licenses, we elect
+to make the software component available under the non-GPL license(s).
