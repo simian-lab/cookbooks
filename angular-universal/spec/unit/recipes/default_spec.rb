@@ -1,12 +1,12 @@
 #
-# Cookbook Name:: opsworks-linux-demo-cookbook-nodejs
+# Cookbook:: angular-universal
 # Spec:: default
 #
-# Copyright (c) 2015 The Authors, All Rights Reserved.
+# Copyright:: 2017, The Authors, All Rights Reserved.
 
 require 'spec_helper'
 
-describe 'opsworks-linux-demo-cookbook-nodejs::default' do
+describe 'angular-universal::default' do
   context 'When all attributes are default, on an unspecified platform' do
     let(:chef_run) do
       runner = ChefSpec::ServerRunner.new
@@ -14,7 +14,7 @@ describe 'opsworks-linux-demo-cookbook-nodejs::default' do
     end
 
     it 'converges successfully' do
-      chef_run # This should not raise an error
+      expect { chef_run }.to_not raise_error
     end
   end
 end
