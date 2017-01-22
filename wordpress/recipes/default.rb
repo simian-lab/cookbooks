@@ -1,5 +1,3 @@
-include_recipe 'apt::default'
-
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
