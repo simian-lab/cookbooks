@@ -9,11 +9,16 @@ package "git" do
   options "--force-yes" if node["platform"] == "ubuntu" && node["platform_version"] == "14.04"
 end
 
+file "~/.ssh/id_rsa" do
+  content node['deploy'][ app['shortname'] ]['scm']['ssh_key']
+end
+
 application app_path do
   environment.update(app["environment"])
 
   git app_path do
     repository app["app_source"]["url"]
     revision app["app_source"]["revision"]
+    ssh_wrapper "ssh -i ~/.ssh/id_rsa"
   end
 end
