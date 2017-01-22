@@ -11,7 +11,7 @@ application app_path do
   end
 
   web_app app['shortname'] do
-    template 'default-site.conf.erb'
+    template 'web_app.conf.erb'
     server_name app['domains'].first
     server_aliases app['domains'].drop(1)
     docroot app_path
