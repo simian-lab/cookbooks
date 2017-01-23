@@ -14,9 +14,6 @@ application app_path do
   end
 end
 
-# We install nginx
-include_recipe 'nginx'
-
 # Installing some required packages
 package "php5-mysql" do
   action :install
