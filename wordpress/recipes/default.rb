@@ -21,12 +21,4 @@ application app_path do
 end
 
 # Installing some required packages
-package "php5-mysql" do
-  action :install
-end
-
-package "php-apc" do
-  action :install
-end
-
-include_recipe 'apache2::mod_php5'
+include_recipe 'php::default'

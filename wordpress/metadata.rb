@@ -10,6 +10,7 @@ depends 'application', '~> 5.0'
 depends 'application_git', '~> 1.1.0'
 depends 'apt', '~> 5.0.1'
 depends 'apache2', '~> 3.2.2'
+depends 'php', '~> 2.2.0'
 
 # The `issues_url` points to the location where issues for this cookbook are
 # tracked.  A `View Issues` link will be displayed on this cookbook's page when
