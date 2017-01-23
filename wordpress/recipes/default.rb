@@ -20,4 +20,18 @@ application app_path do
   end
 end
 
+# Installing some required packages
+package "php5-mysql" do
+  action :install
+end
+
+package "php-apc" do
+  action :install
+end
+
+package "php5-curl" do
+  action :install
+  notifies :reload, 'service[php5-fpm]'
+end
+
 include_recipe 'apache2::mod_php5'
