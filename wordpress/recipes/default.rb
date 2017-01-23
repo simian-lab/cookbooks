@@ -3,6 +3,7 @@ include_recipe 'apt::default'
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
+# We install the app according to the config info
 application app_path do
   environment.update(app['environment'])
 
@@ -11,13 +12,21 @@ application app_path do
     revision app['app_source']['revision']
     deploy_key app['app_source']['ssh_key']
   end
-
-  web_app app['shortname'] do
-    template 'web_app.conf.erb'
-    server_name app['domains'].first
-    server_aliases app['domains'].drop(1)
-    docroot app_path
-  end
 end
 
-include_recipe 'apache2::mod_php5'
+# We install nginx
+include_recipe 'nginx'
+
+# Installing some required packages
+package "php5-mysql" do
+  action :install
+end
+
+package "php-apc" do
+  action :install
+end
+
+package "php5-curl" do
+  action :install
+  notifies :reload, 'service[php5-fpm]'
+end
