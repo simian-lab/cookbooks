@@ -29,9 +29,4 @@ package "php-apc" do
   action :install
 end
 
-package "php5-curl" do
-  action :install
-  notifies :reload, 'service[php5-fpm]'
-end
-
 include_recipe 'apache2::mod_php5'
