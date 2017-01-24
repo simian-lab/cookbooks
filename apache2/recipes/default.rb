@@ -57,6 +57,8 @@ end
 # perl is needed for the a2* scripts
 package node['apache']['perl_pkg']
 
+package 'perl-Getopt-Long-Descriptive' if platform?('fedora')
+
 %w(a2ensite a2dissite a2enmod a2dismod a2enconf a2disconf).each do |modscript|
   link "/usr/sbin/#{modscript}" do
     action :delete
@@ -127,7 +129,7 @@ end
 
 directory node['apache']['lock_dir'] do
   mode '0755'
-  if node['platform_family'] == 'debian' && node['apache']['version'] == '2.2'
+  if node['platform_family'] == 'debian'
     owner node['apache']['user']
   else
     owner 'root'
@@ -207,7 +209,7 @@ service 'apache2' do
   service_name apache_service_name
   case node['platform_family']
   when 'rhel'
-    if node['platform_version'].to_f < 7.0
+    if node['platform_version'].to_f < 7.0 && node['apache']['version'] != '2.4'
       restart_command "/sbin/service #{apache_service_name} restart && sleep 1"
       reload_command "/sbin/service #{apache_service_name} graceful && sleep 1"
     end
