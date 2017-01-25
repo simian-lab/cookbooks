@@ -25,7 +25,8 @@ elsif platform_family?('rhel', 'fedora')
   end
 
   file "#{node['apache']['dir']}/conf.d/fcgid.conf" do
-    content '# conf is under mods-available/fcgid.conf - apache2 cookbook\n'
+    action :delete
+    backup false
   end
 
   directory '/var/run/httpd/mod_fcgid' do

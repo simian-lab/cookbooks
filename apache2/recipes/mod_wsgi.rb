@@ -27,7 +27,8 @@ when 'rhel', 'fedora', 'arch'
 end
 
 file "#{node['apache']['dir']}/conf.d/wsgi.conf" do
-  content '# conf is under mods-available/wsgi.conf - apache2 cookbook\n'
+  action :delete
+  backup false
 end
 
 apache_module 'wsgi'

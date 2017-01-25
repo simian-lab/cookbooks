@@ -31,7 +31,8 @@ when 'rhel', 'fedora'
 end
 
 file "#{node['apache']['dir']}/conf.d/xsendfile.conf" do
-  content '# conf is under mods-available/xsendfile.conf - apache2 cookbook\n'
+  action :delete
+  backup false
 end
 
 apache_module 'xsendfile'
