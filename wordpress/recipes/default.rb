@@ -24,3 +24,9 @@ end
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'apache2::mod_php5'
+
+# map the environment_variables node to ENV
+app['environment'].each do |key, value|
+  Chef::Log.info("Setting ENV[#{key}] to #{value}")
+  ENV[key] = value
+end
