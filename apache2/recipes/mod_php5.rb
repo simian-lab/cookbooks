@@ -20,20 +20,14 @@
 #
 
 if node['apache']['mpm'] != 'prefork'
-  Chef::Log.warn('apache2::mod_php generally is expected to be run under a non-threaded MPM, such as prefork')
+  Chef::Log.warn('apache2::mod_php5 generally is expected to be run under a non-threaded MPM, such as prefork')
   Chef::Log.warn('See http://php.net/manual/en/faq.installation.php#faq.installation.apache2')
   Chef::Log.warn("Currently the apache2 cookbook is configured to use the '#{node['apache']['mpm']}' MPM")
 end
 
 case node['platform_family']
 when 'debian'
-  if node['platform'] == 'ubuntu' && node['platform_version'].to_f < 16.04
-    package 'libapache2-mod-php5'
-  elsif node['platform'] == 'debian' && node['platform_version'].to_f < 9
-    package 'libapache2-mod-php5'
-  else
-    package 'libapache2-mod-php'
-  end
+  package 'libapache2-mod-php'
 when 'arch'
   package 'php-apache' do
     notifies :run, 'execute[generate-module-list]', :immediately
@@ -70,31 +64,14 @@ when 'freebsd'
       options '-I'
     end
   end
-end unless node['apache']['mod_php']['install_method'] == 'source'
+end unless node['apache']['mod_php5']['install_method'] == 'source'
 
-case node['platform_family']
-when 'debian'
-  # on debian plaform_family php creates newly named incompatible config
-  file "#{node['apache']['dir']}/mods-available/php7.0.conf" do
-    content '# conf is under mods-available/php.conf - apache2 cookbook\n'
-  end
-
-  file "#{node['apache']['dir']}/mods-available/php7.0.load" do
-    content '# conf is under mods-available/php.load - apache2 cookbook\n'
-  end
-when 'rhel', 'fedora', 'suse'
-  file "#{node['apache']['dir']}/conf.d/php.conf" do
-    content '# conf is under mods-available/php.conf - apache2 cookbook\n'
-  end
+file "#{node['apache']['dir']}/conf.d/php.conf" do
+  action :delete
+  backup false
 end
 
-template "#{node['apache']['dir']}/mods-available/php.conf" do
-  source 'mods/php.conf.erb'
-  mode '0644'
-  notifies :reload, 'service[apache2]', :delayed
-end
-
-apache_module node['apache']['mod_php']['module_name'] do
-  conf false
-  filename node['apache']['mod_php']['so_filename']
+apache_module 'php5' do
+  conf true
+  filename node['apache']['mod_php5']['so_filename']
 end
