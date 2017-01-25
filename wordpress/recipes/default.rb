@@ -23,4 +23,4 @@ end
 # Installing some required packages
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
-include_recipe 'apache2::mod_php'
+include_recipe 'apache2::mod_php5'
