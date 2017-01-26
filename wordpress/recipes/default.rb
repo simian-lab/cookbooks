@@ -12,6 +12,7 @@ application app_path do
     deploy_key app['app_source']['ssh_key']
   end
 
+  # We create the site
   web_app app['shortname'] do
     template 'web_app.conf.erb'
     server_name app['domains'].first
@@ -19,6 +20,11 @@ application app_path do
     docroot app_path
   end
 end
+
+# We make sure PHP can read ENV vars
+default['php']['directives'] = {
+  'variables_order' => 'EGPCS'
+}
 
 # Installing some required packages
 include_recipe 'php::default'
@@ -37,6 +43,7 @@ ruby_block "insert_env_vars" do
   end
 end
 
+# We make sure the ENV vars are usable from the start
 bash "update_env_vars" do
   user "root"
   code <<-EOS
