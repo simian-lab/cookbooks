@@ -25,8 +25,21 @@ include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'apache2::mod_php5'
 
-# map the environment_variables node to ENV
-app['environment'].each do |key, value|
-  Chef::Log.info("Setting ENV[#{key}] to #{value}")
-  ENV[key] = value
+# map the environment_variables node to ENV variables
+ruby_block "insert_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/environment')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+      file.write_file
+    end
+  end
+end
+
+bash "update_env_vars" do
+  user "root"
+  code <<-EOS
+  source /etc/environment
+  EOS
 end
