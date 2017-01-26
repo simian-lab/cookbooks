@@ -22,7 +22,7 @@ application app_path do
 end
 
 # We make sure PHP can read ENV vars
-default['php']['directives'] = {
+node.set['php']['directives'] = {
   'variables_order' => 'EGPCS'
 }
 
