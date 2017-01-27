@@ -1,4 +1,9 @@
+# Installing some required packages
 include_recipe 'apt::default'
+include_recipe 'apache2::default'
+include_recipe 'php::default'
+include_recipe 'php::module_mysql'
+include_recipe 'apache2::mod_php5'
 
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
@@ -20,11 +25,6 @@ application app_path do
     docroot app_path
   end
 end
-
-# Installing some required packages
-include_recipe 'php::default'
-include_recipe 'php::module_mysql'
-include_recipe 'apache2::mod_php5'
 
 # map the environment_variables node to ENV variables
 ruby_block "insert_env_vars" do
