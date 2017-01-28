@@ -1,9 +1,5 @@
 # Installing some required packages
 include_recipe 'apt::default'
-include_recipe 'apache2::default'
-include_recipe 'php::default'
-include_recipe 'php::module_mysql'
-include_recipe 'apache2::mod_php5'
 
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
@@ -53,3 +49,7 @@ ruby_block "insert_env_vars" do
     file.search_file_replace_line /^variables_order =/, "variables_order = \"GPCS\""
   end
 end
+
+include_recipe 'php::default'
+include_recipe 'php::module_mysql'
+#include_recipe 'apache2::mod_php5'
