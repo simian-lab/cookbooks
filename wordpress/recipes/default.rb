@@ -42,14 +42,14 @@ bash "update_env_vars" do
   EOS
 end
 
-# Now we need to make sure php.ini can read the variables
-ruby_block "insert_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
-    file.search_file_replace_line /^variables_order =/, "variables_order = \"GPCS\""
-  end
-end
-
-include_recipe 'php::default'
-include_recipe 'php::module_mysql'
-#include_recipe 'apache2::mod_php5'
+# include_recipe 'php::default'
+# include_recipe 'php::module_mysql'
+# #include_recipe 'apache2::mod_php5'
+#
+# # Now we need to make sure php.ini can read the variables
+# ruby_block "insert_env_vars" do
+#   block do
+#     file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
+#     file.search_file_replace_line /^variables_order =/, "variables_order = \"GPCS\""
+#   end
+# end
