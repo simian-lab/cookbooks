@@ -1,0 +1,115 @@
+---
+driver:
+   name: vagrant
+
+provisioner:
+  name: chef_zero
+  data_path: test/fixtures
+
+platforms:
+- name: centos-7.2
+  run_list:
+  - recipe[yum]
+- name: ubuntu-16.04
+  run_list:
+  - recipe[apt]
+- name: debian-8.6
+  run_list:
+  - recipe[apt]
+- name: fedora-24
+  run_list:
+  - recipe[yum::dnf_yum_compat]
+- name: freebsd-10.3
+- name: amazon
+  driver:
+    box: mvbcoding/awslinux
+- name: opensuse-13.2
+  run_list:
+  - recipe[zypper]
+
+suites:
+- name: default
+  attributes:
+    machine_fqdn: working.computers.biz
+    machine_fqdn_as_hostname: true
+  run_list:
+  - recipe[fqdn]
+  - recipe[apache2_test::setup]
+  - recipe[apache2_test::default]
+  - recipe[apache2_test::basic_web_app]
+  - recipe[apache2_test::broken_conf]
+  - recipe[apache2_test::modules]
+  - recipe[apache2_test::mod_ssl]
+  - recipe[apache2_test::mod_auth_basic]
+  - recipe[apache2_test::mod_auth_digest]
+# - recipe[apache2_test::mod_auth_openid]
+# - recipe[apache2_test::mod_authnz_ldap]
+  - recipe[apache2_test::mod_authz_groupfile]
+  - recipe[apache2_test::mod_authz_listed_host]
+  - recipe[apache2_test::mod_authz_unlisted_host]
+  - recipe[apache2_test::mod_authz_user]
+  - recipe[apache2_test::mod_cgi]
+# not supported by apache 2.4 without source compile with non-maintainer patches
+# - recipe[apache2_test::mod_fastcgi]
+# - recipe[apache2_test::mod_dav_svn]
+  - recipe[apache2_test::mod_expires]
+  - recipe[apache2_test::mod_status_remote]
+- name: prefork
+  includes: [
+    'centos-7.2',
+    'debian-8.6',
+    'ubuntu-14.04',
+    'ubuntu-16.04'
+  ]
+  attributes:
+    machine_fqdn: working.computers.biz
+    machine_fqdn_as_hostname: true
+    apache:
+      mpm: prefork
+  run_list:
+  - recipe[fqdn]
+  - recipe[apache2_test::setup]
+  - recipe[apache2_test::default]
+  - recipe[apache2_test::broken_conf]
+  - recipe[apache2_test::modules]
+  - recipe[apache2_test::mod_cgi]
+# not supported by apache 2.4 without source compile with non-maintainer patches
+# - recipe[apache2_test::mod_fastcgi]
+  - recipe[apache2_test::mod_perl]
+  - recipe[apache2_test::mod_php]
+# - recipe[apache2_test::mod_proxy_ajp]
+  - recipe[apache2_test::mod_python]
+  - recipe[apache2_test::mod_ssl]
+- name: worker
+  includes: [
+    'centos-7.2',
+    'ubuntu-14.04'
+  ]
+  attributes:
+    machine_fqdn: working.computers.biz
+    machine_fqdn_as_hostname: true
+    apache:
+      mpm: worker
+  run_list:
+  - recipe[fqdn]
+  - recipe[apache2_test::setup]
+  - recipe[apache2_test::default]
+  - recipe[apache2_test::basic_web_app]
+  - recipe[apache2_test::broken_conf]
+  - recipe[apache2_test::modules]
+- name: event
+  includes: [
+    'ubuntu-16.04'
+  ]
+  attributes:
+    machine_fqdn: working.computers.biz
+    machine_fqdn_as_hostname: true
+    apache:
+      mpm: event
+  run_list:
+  - recipe[fqdn]
+  - recipe[apache2_test::setup]
+  - recipe[apache2_test::default]
+  - recipe[apache2_test::basic_web_app]
+  - recipe[apache2_test::broken_conf]
+  - recipe[apache2_test::modules]

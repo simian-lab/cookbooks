@@ -37,6 +37,10 @@ default['apache']['mpm'] =
     else
       'prefork'
     end
+  when 'suse'
+    'prefork'
+  when 'rhel'
+    'prefork'
   else
     'prefork'
   end
@@ -124,7 +128,7 @@ when 'redhat', 'centos', 'scientific', 'fedora', 'amazon', 'oracle'
     end
   default['apache']['lib_dir'] = node['kernel']['machine'] =~ /^i[36]86$/ ? '/usr/lib/httpd' : '/usr/lib64/httpd'
   default['apache']['libexec_dir'] = "#{node['apache']['lib_dir']}/modules"
-when 'suse', 'opensuse'
+when 'suse', 'opensuse', 'opensuseleap'
   default['apache']['package']     = 'apache2'
   default['apache']['perl_pkg']    = 'perl'
   default['apache']['devel_package'] = 'httpd-devel'
@@ -288,6 +292,7 @@ default['apache']['default_site_enabled'] = false
 default['apache']['default_site_port']    = '80'
 default['apache']['access_file_name'] = '.htaccess'
 default['apache']['default_release'] = nil
+default['apache']['log_level'] = 'warn'
 
 # Security
 default['apache']['servertokens']    = 'Prod'
