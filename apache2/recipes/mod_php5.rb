@@ -71,7 +71,7 @@ file "#{node['apache']['dir']}/conf.d/php.conf" do
   backup false
 end
 
-apache_module 'php5' do
+apache_module 'php' do
   conf true
-  filename node['apache']['mod_php5']['so_filename']
+  filename node['apache']['mod_php']['so_filename']
 end
