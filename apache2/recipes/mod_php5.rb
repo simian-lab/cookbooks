@@ -1,7 +1,9 @@
 #
 # Cookbook Name:: apache2
-# Attributes:: mod_php5
+# Recipe:: mod_php5
 #
+# Copyright 2008-2013, Chef Software, Inc.
+# Copyright 2014, OneHealth Solutions, Inc.
 # Copyright 2014, Viverae, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +17,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-default['apache']['mod_php5']['install_method'] = 'package'
-default['apache']['mod_php5']['so_filename'] = 'libphp5.so'
-default['apache']['mod_php5']['so_filename'] = 'mod_php5.so' if node['platform_family'] == 'suse'
-
-if node['platform'] == 'amazon' && node['apache']['version'] == '2.4'
-  default['apache']['mod_php5']['so_filename'] = 'libphp.so'
-end
+#
+log 'apache2::mod_php5 is deprecated in favor of apache2::mod_php. Please adjust your cookbooks'
+include_recipe 'apache2::mod_php'
