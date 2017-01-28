@@ -1,9 +1,9 @@
 # Installing some required packages
 include_recipe 'apt::default'
-include_recipe 'apache2::default'
+# include_recipe 'apache2::default'
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
-include_recipe 'apache2::mod_php'
+# include_recipe 'apache2::mod_php'
 
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
