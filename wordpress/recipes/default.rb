@@ -43,8 +43,8 @@ bash "update_env_vars" do
 end
 
 # include_recipe 'php::default'
-# include_recipe 'php::module_mysql'
-# #include_recipe 'apache2::mod_php5'
+include_recipe 'php::module_mysql'
+include_recipe 'apache2::mod_php5'
 #
 # # Now we need to make sure php.ini can read the variables
 # ruby_block "insert_env_vars" do
