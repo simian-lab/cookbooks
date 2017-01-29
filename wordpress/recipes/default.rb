@@ -1,4 +1,35 @@
-# Installing some required packages
+# This recipe installs the base environment needed for a WordPress site.
+# In summary, it:
+#
+# 1. Installs the minimum required packages, which are:
+#     - Apache2 (v 2.4)
+#     - PHP (v7)
+#     - PHP's MySQL connector
+#
+# 2. Makes sure the environment variables defined in the OpsWorks console are
+#    readable in PHP.
+#
+# 3. Creates the Apache VirtualHost for the site. It uses the default template
+#    which can be found in the `apache2` cookbook in this repo.
+#
+# This is all it does. Other considerations (such as giving it EFS support
+# for multi-server setups or installing a MySQL/MariaDB server for single
+# server setups) should be done in other recipes.
+#
+# The actual deployment of the application code is done in the `deploy` recipe,
+# since we don't need to build the entire environment with each deploy.
+#
+# There are some considerations that should be taken into account with this
+# recipe:
+#
+# a) It is intended solely for Opsworks, not for local installations.
+# b) It has only been tested with Ubuntu 16.04 LTS. It *should* work with other
+#    operating systems, but it probably would take some additional work.
+#
+# — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
+
+
+
 include_recipe 'apt::default'
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
