@@ -22,7 +22,27 @@ directory "#{app_path}/wp-content/uploads" do
   action :create
 end
 
-# 3. We mount the uploads folder as an EFS folder
+# 3. We make sure the ENV variables are available
+# map the environment_variables node to ENV variables
+ruby_block "insert_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/environment')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+      file.write_file
+    end
+  end
+end
+
+bash "update_env_vars" do
+  user "root"
+  code <<-EOS
+  source /etc/environment
+  EOS
+end
+
+# 4. We mount the uploads folder as an EFS folder
 execute 'mount_efs' do
   command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 $EFS_VOLUME:/ #{app_path}/wp-content/uploads"
 end
