@@ -29,22 +29,11 @@ ruby_block "php_env_vars" do
   end
 end
 
-# Now we finally configure the app
-application app_path do
-  environment.update(app['environment'])
-
-  git app_path do
-    repository app['app_source']['url']
-    revision app['app_source']['revision']
-    deploy_key app['app_source']['ssh_key']
-  end
-
-  # We create the site
-  web_app app['shortname'] do
-    template 'web_app.conf.erb'
-    allow_override 'All'
-    server_name app['domains'].first
-    server_aliases app['domains'].drop(1)
-    docroot app_path
-  end
+# We create the site
+web_app app['shortname'] do
+  template 'web_app.conf.erb'
+  allow_override 'All'
+  server_name app['domains'].first
+  server_aliases app['domains'].drop(1)
+  docroot app_path
 end
