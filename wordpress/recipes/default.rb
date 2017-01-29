@@ -31,6 +31,7 @@ application app_path do
   # We create the site
   web_app app['shortname'] do
     template 'web_app.conf.erb'
+    allow_override 'All'
     server_name app['domains'].first
     server_aliases app['domains'].drop(1)
     docroot app_path
