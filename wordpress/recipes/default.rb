@@ -19,6 +19,17 @@ ruby_block "insert_env_vars" do
   end
 end
 
+# Make sure PHP can read the vars
+ruby_block "php_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
+    Chef::Log.info("Setting the variable order for PHP")
+    file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
+    file.write_file
+  end
+end
+
+# Now we finally configure the app
 application app_path do
   environment.update(app['environment'])
 
