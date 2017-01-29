@@ -24,5 +24,5 @@ end
 
 # 3. We mount the uploads folder as an EFS folder
 execute 'mount_efs' do
-  command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 $EFS_VOLUME:/ #{app_path}/wp-content/uploads"
+  command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_VOLUME']}:/ #{app_path}/wp-content/uploads"
 end
