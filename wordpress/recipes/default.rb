@@ -6,10 +6,13 @@
 #     - PHP (v7)
 #     - PHP's MySQL connector
 #
-# 2. Makes sure the environment variables defined in the OpsWorks console are
-#    readable in PHP.
+# 2. Makes sure the variables defined in the OpsWorks console are readable
+#    in PHP.
 #
-# 3. Creates the Apache VirtualHost for the site. It uses the default template
+# 3. Sets those same variables as ENV variables so we can use them on scripts
+#    and other tasks.
+#
+# 4. Creates the Apache VirtualHost for the site. It uses the default template
 #    which can be found in the `apache2` cookbook in this repo.
 #
 # This is all it does. Other considerations (such as giving it EFS support
@@ -65,7 +68,27 @@ ruby_block "php_env_vars" do
   end
 end
 
-# 3. We create the site
+# 3. map the environment_variables node to ENV variables
+ruby_block "insert_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/environment')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+      file.write_file
+    end
+  end
+end
+
+# source the file so we can use it right away if needed
+bash "update_env_vars" do
+  user "root"
+  code <<-EOS
+  source /etc/environment
+  EOS
+end
+
+# 4. We create the site
 web_app app['shortname'] do
   template 'web_app.conf.erb'
   allow_override 'All'
