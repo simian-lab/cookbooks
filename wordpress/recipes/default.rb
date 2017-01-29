@@ -39,14 +39,14 @@ include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'apache2::mod_php'
 
-php_pear "apc" do
-  action :install
-  directives(:shm_size => 128, :enable_cli => 1)
-end
+# php_pear "apc" do
+#   action :install
+#   directives(:shm_size => 128, :enable_cli => 1)
+# end
 
-php_pear "memcache" do
-  action :install
-end
+# php_pear "memcache" do
+#   action :install
+# end
 
 php_pear "curl" do
   action :install
