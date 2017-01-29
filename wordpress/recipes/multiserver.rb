@@ -1,3 +1,18 @@
+# This recipe installs the required Software for a multiserver setup.
+# In summary, it:
+#
+# 1. Installs the required packages, which are:
+#     - NFS (for use with EFS)
+#     - Memcached (for use with ElastiCache)
+#
+# 2. Makes sure /wp-content/uploads exists
+#
+# 3. Mounts /wp-content/uploads as an EFS mount
+#
+# Keep in mind that the `deploy` recipe should be run *before* this one.
+#
+# — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
+
 # Initial setup: just a couple vars we need
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
