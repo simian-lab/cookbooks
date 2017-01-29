@@ -88,7 +88,7 @@ when 'rhel', 'fedora', 'suse'
   end
 end
 
-template "#{node['apache']['dir']}/mods-available/php.conf" do
+template "#{node['apache']['dir']}/mods-available/php7.conf" do
   source 'mods/php.conf.erb'
   mode '0644'
   notifies :reload, 'service[apache2]', :delayed
