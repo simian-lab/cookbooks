@@ -29,16 +29,18 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 
+# Initial setup: just a couple vars we need
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
 
+# 1. Installing some required packages
 include_recipe 'apt::default'
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'apache2::mod_php'
 
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
 
-# Set the environment variables for PHP
+# 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
@@ -60,7 +62,7 @@ ruby_block "php_env_vars" do
   end
 end
 
-# We create the site
+# 3. We create the site
 web_app app['shortname'] do
   template 'web_app.conf.erb'
   allow_override 'All'
