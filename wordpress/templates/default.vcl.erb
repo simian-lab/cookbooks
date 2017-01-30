@@ -11,10 +11,9 @@ vcl 4.0;
 import directors;
 import std;
 
-# Assumed 'wordpress' host, this can be docker servicename
 backend default {
-  .host = "wordpress";
-  .port = "80";
+  .host = "127.0.0.1";
+  .port = "8080";
 }
 
 acl purge {
