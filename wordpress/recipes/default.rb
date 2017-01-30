@@ -5,6 +5,7 @@
 #     - Apache2 (v 2.4)
 #     - PHP (v7)
 #     - PHP's MySQL connector
+#     - Varnish (v4)
 #
 # 2. Makes sure the variables defined in the OpsWorks console are readable
 #    in PHP.
@@ -14,6 +15,8 @@
 #
 # 4. Creates the Apache VirtualHost for the site. It uses the default template
 #    which can be found in the `apache2` cookbook in this repo.
+#
+# 5. Configures Varnish to cache most of the requests.
 #
 # This is all it does. Other considerations (such as giving it EFS support
 # for multi-server setups or installing a MySQL/MariaDB server for single
@@ -42,9 +45,14 @@ include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
+include_recipe 'varnish::default'
 
 package 'Install PHP cURL' do
   package_name 'php-curl'
+end
+
+package 'varnish' do
+  package_name 'varnish'
 end
 
 # 2. Set the environment variables for PHP
@@ -98,3 +106,25 @@ web_app app['shortname'] do
   server_aliases app['domains'].drop(1)
   docroot app_path
 end
+
+# 5. We configure Varnish
+# varnish_config 'default' do
+#   listen_address '0.0.0.0'
+#   listen_port 80
+# end
+#
+# vcl_template 'default.vcl' do
+#   action :configure
+# end
+#
+# # varnishlog
+# varnish_log 'default'
+#
+# # varnishncsa
+# varnish_log 'default_ncsa' do
+#   log_format 'varnishncsa'
+# end
+#
+# service 'varnish' do
+#   action [:enable, :start]
+# end
