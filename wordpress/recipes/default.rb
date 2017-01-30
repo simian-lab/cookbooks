@@ -116,15 +116,15 @@ end
 # vcl_template 'default.vcl' do
 #   action :configure
 # end
-#
-# # varnishlog
-# varnish_log 'default'
-#
-# # varnishncsa
-# varnish_log 'default_ncsa' do
-#   log_format 'varnishncsa'
-# end
-#
+
+# varnishlog
+varnish_log 'default'
+
+# varnishncsa
+varnish_log 'default_ncsa' do
+  log_format 'varnishncsa'
+end
+
 # service 'varnish' do
 #   action [:enable, :start]
 # end
