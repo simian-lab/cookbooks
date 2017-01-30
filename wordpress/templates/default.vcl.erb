@@ -134,66 +134,66 @@ sub vcl_backend_response {
 }
 
 sub vcl_hash {
-  #if ( req.http.X-Forwarded-Proto ) {
-  #  hash_data( req.http.X-Forwarded-Proto );
-  #}
+  if ( req.http.X-Forwarded-Proto ) {
+   hash_data( req.http.X-Forwarded-Proto );
+  }
 }
 
 sub vcl_backend_error {
   # display custom error page if backend down
-  #if (beresp.status == 503 && bereq.retries == 3) {
-  #  synthetic(std.fileread("/etc/varnish/error503.html"));
-  #  return(deliver);
-  #}
+  if (beresp.status == 503 && bereq.retries == 3) {
+   synthetic(std.fileread("/etc/varnish/error503.html"));
+   return(deliver);
+  }
 }
 
 sub vcl_synth {
   # redirect for http
-  #if (resp.status == 750) {
-  #  set resp.status = 301;
-  #  set resp.http.Location = req.http.x-redir;
-  #  return(deliver);
-  #}
+  if (resp.status == 750) {
+   set resp.status = 301;
+   set resp.http.Location = req.http.x-redir;
+   return(deliver);
+  }
 
   # display custom error page if backend down
-  #if (resp.status == 503) {
-  #  synthetic(std.fileread("/etc/varnish/error503.html"));
-  #  return(deliver);
-  #}
+  if (resp.status == 503) {
+   #synthetic(std.fileread("/etc/varnish/error503.html"));
+   return(deliver);
+  }
 }
 
 sub vcl_deliver {
   # oh noes backend is down
-  #if (resp.status == 503) {
-  #  return(restart);
-  #}
+  if (resp.status == 503) {
+   return(restart);
+  }
 
-  #if (resp.http.magicmarker) {
-  #  # Remove the magic marker
-  #  unset resp.http.magicmarker;
+  if (resp.http.magicmarker) {
+   # Remove the magic marker
+   unset resp.http.magicmarker;
 
-  #  # By definition we have a fresh object
-  #  set resp.http.age = "0";
-  #}
+   # By definition we have a fresh object
+   set resp.http.age = "0";
+  }
 
-  #if (obj.hits > 0) {
-  #  set resp.http.X-Cache = "HIT";
-  #}
-  #else {
-  #  set resp.http.X-Cache = "MISS";
-  #}
+  if (obj.hits > 0) {
+   set resp.http.X-Cache = "HIT";
+  }
+  else {
+   set resp.http.X-Cache = "MISS";
+  }
 
-  #set resp.http.Access-Control-Allow-Origin = "*";
+  set resp.http.Access-Control-Allow-Origin = "*";
 }
 
 sub vcl_hit {
-  #if (req.method == "PURGE") {
-  #  return(synth(200, "OK"));
-  #}
+  if (req.method == "PURGE") {
+   return(synth(200, "OK"));
+  }
 }
 
 sub vcl_miss {
-  #if (req.method == "PURGE") {
-  #  return (synth(404, "Not cached"));
-  #}
+  if (req.method == "PURGE") {
+   return (synth(404, "Not cached"));
+  }
 }
