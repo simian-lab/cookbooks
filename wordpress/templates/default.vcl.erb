@@ -58,26 +58,26 @@ sub vcl_recv {
   }
 
   # pass wp-admin urls
-  #if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "xmlrpc.php") {
-  #  return (pass);
-  #}
+  if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "xmlrpc.php") {
+   return (pass);
+  }
 
   # pass wp-admin cookies
-  #if (req.http.cookie) {
-  #  if (req.http.cookie ~ "(wordpress_|wp-settings-)") {
-  #    return(pass);
-  #  }
-  #else {
-  #    unset req.http.cookie;
-  #  }
-  #}
+  if (req.http.cookie) {
+   if (req.http.cookie ~ "(wordpress_|wp-settings-)") {
+     return(pass);
+   }
+  else {
+     unset req.http.cookie;
+   }
+  }
 }
 
 sub vcl_backend_response {
   # retry a few times if backend is down
-  #if (beresp.status == 503 && bereq.retries < 3 ) {
-  #  return(retry);
-  #}
+  if (beresp.status == 503 && bereq.retries < 3 ) {
+   return(retry);
+  }
 
   #if (bereq.http.Cookie ~ "(UserID|_session)") {
   #  # if we get a session cookie... caching is a no-go
@@ -119,18 +119,18 @@ sub vcl_backend_response {
   #}
 
   # unset cookies from backendresponse
-  #if (!(bereq.url ~ "(wp-login|wp-admin)"))  {
-  #  set beresp.http.X-UnsetCookies = "TRUE";
-  #  unset beresp.http.set-cookie;
-  #  set beresp.ttl = 1h;
-  #}
+  if (!(bereq.url ~ "(wp-login|wp-admin)"))  {
+   set beresp.http.X-UnsetCookies = "TRUE";
+   unset beresp.http.set-cookie;
+   set beresp.ttl = 1h;
+  }
 
   # long ttl for assets
-  #if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
-  #  set beresp.ttl = 365d;
-  #}
+  if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+   set beresp.ttl = 365d;
+  }
 
-  #set beresp.grace = 1w;
+  set beresp.grace = 1w;
 }
 
 sub vcl_hash {
