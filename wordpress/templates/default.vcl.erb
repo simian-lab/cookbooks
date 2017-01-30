@@ -155,9 +155,7 @@ sub vcl_synth {
    return(deliver);
   }
 
-  # display custom error page if backend down
   if (resp.status == 503) {
-   #synthetic(std.fileread("/etc/varnish/error503.html"));
    return(deliver);
   }
 }
