@@ -1,9 +1,9 @@
 # A heavily customized VCL to support WordPress
 # Some items of note:
-# Supports https
-# Supports admin cookies for wp-admin
-# Caches everything
-# Support for custom error html page
+# - Supports https
+# - Supports admin cookies for wp-admin
+# - Caches everything
+# - Support for custom error html page
 #
 # Taken from: https://gist.github.com/matthewjackowski/062be03b41a68edbadfc
 
@@ -79,44 +79,44 @@ sub vcl_backend_response {
    return(retry);
   }
 
-  #if (bereq.http.Cookie ~ "(UserID|_session)") {
-  #  # if we get a session cookie... caching is a no-go
-  #  set beresp.http.X-Cacheable = "NO:Got Session";
-  #  set beresp.uncacheable = true;
-  #  return (deliver);
-  #}
-  #elseif (beresp.ttl <= 0s) {
-  #  # Varnish determined the object was not cacheable
-  #  set beresp.http.X-Cacheable = "NO:Not Cacheable";
-  #}
-  #elseif (beresp.http.set-cookie) {
-  #  # You don't wish to cache content for logged in users
-  #  set beresp.http.X-Cacheable = "NO:Set-Cookie";
-  #  set beresp.uncacheable = true;
-  #  return (deliver);
-  #}
-  #elseif (beresp.http.Cache-Control ~ "private") {
-  #  # You are respecting the Cache-Control=private header from the backend
-  #  set beresp.http.X-Cacheable = "NO:Cache-Control=private";
-  #  set beresp.uncacheable = true;
-  #  return (deliver);
-  #}
-  #else {
-  #  # Varnish determined the object was cacheable
-  #  set beresp.http.X-Cacheable = "YES";
+  if (bereq.http.Cookie ~ "(UserID|_session)") {
+   # if we get a session cookie... caching is a no-go
+   set beresp.http.X-Cacheable = "NO:Got Session";
+   set beresp.uncacheable = true;
+   return (deliver);
+  }
+  elseif (beresp.ttl <= 0s) {
+   # Varnish determined the object was not cacheable
+   set beresp.http.X-Cacheable = "NO:Not Cacheable";
+  }
+  elseif (beresp.http.set-cookie) {
+   # You don't wish to cache content for logged in users
+   set beresp.http.X-Cacheable = "NO:Set-Cookie";
+   set beresp.uncacheable = true;
+   return (deliver);
+  }
+  elseif (beresp.http.Cache-Control ~ "private") {
+   # You are respecting the Cache-Control=private header from the backend
+   set beresp.http.X-Cacheable = "NO:Cache-Control=private";
+   set beresp.uncacheable = true;
+   return (deliver);
+  }
+  else {
+   # Varnish determined the object was cacheable
+   set beresp.http.X-Cacheable = "YES";
 
-  #  # Remove Expires from backend, it's not long enough
-  #  unset beresp.http.expires;
+   # Remove Expires from backend, it's not long enough
+   unset beresp.http.expires;
 
-  #  # Set the clients TTL on this object
-  #  set beresp.http.cache-control = "max-age=900";
+   # Set the clients TTL on this object
+   set beresp.http.cache-control = "max-age=900";
 
-  #  # Set how long Varnish will keep it
-  #  set beresp.ttl = 1w;
+   # Set how long Varnish will keep it
+   set beresp.ttl = 1w;
 
-  #  # marker for vcl_deliver to reset Age:
-  #  set beresp.http.magicmarker = "1";
-  #}
+   # marker for vcl_deliver to reset Age:
+   set beresp.http.magicmarker = "1";
+  }
 
   # unset cookies from backendresponse
   if (!(bereq.url ~ "(wp-login|wp-admin)"))  {
