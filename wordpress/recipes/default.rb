@@ -108,11 +108,11 @@ web_app app['shortname'] do
 end
 
 # 5. We configure Varnish
-# varnish_config 'default' do
-#   listen_address '0.0.0.0'
-#   listen_port 80
-# end
-#
+varnish_config 'default' do
+  listen_address '0.0.0.0'
+  listen_port 80
+end
+
 # vcl_template 'default.vcl' do
 #   action :configure
 # end
