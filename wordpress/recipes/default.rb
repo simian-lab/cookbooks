@@ -124,7 +124,7 @@ end
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
 end
-
-service 'varnish' do
-  action [:restart]
-end
+#
+# service 'varnish' do
+#   action [:restart]
+# end
