@@ -113,8 +113,6 @@ varnish_config 'default' do
   listen_port 80
 end
 
-vcl_file 'default.vcl'
-
 # varnishlog
 varnish_log 'default'
 
@@ -123,6 +121,10 @@ varnish_log 'default_ncsa' do
   log_format 'varnishncsa'
 end
 
-# service 'varnish' do
-#   action [:enable, :start]
-# end
+template '/etc/varnish/default.vcl' do
+  source 'default.vcl.erb'
+end
+
+service 'varnish' do
+  action [:restart]
+end
