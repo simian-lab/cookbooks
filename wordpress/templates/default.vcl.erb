@@ -27,7 +27,6 @@ sub vcl_recv {
 
   # Setting http headers for backend
   set req.http.X-Forwarded-For = client.ip;
-  set req.http.X-Forwarded-Proto = "https";
 
   # Unset headers that might cause us to cache duplicate infos
   unset req.http.Accept-Language;
