@@ -113,7 +113,7 @@ varnish_config 'default' do
   listen_port 80
 end
 
-vcl_template 'default.vcl'
+vcl_file 'default.vcl'
 
 # varnishlog
 varnish_log 'default'
