@@ -108,6 +108,10 @@ web_app app['shortname'] do
 end
 
 # 5. We configure Varnish
+template '/etc/varnish/default.vcl' do
+  source 'default.vcl.erb'
+end
+
 varnish_config 'default' do
   listen_address '0.0.0.0'
   listen_port 80
@@ -119,10 +123,6 @@ varnish_log 'default'
 # varnishncsa
 varnish_log 'default_ncsa' do
   log_format 'varnishncsa'
-end
-
-template '/etc/varnish/default.vcl' do
-  source 'default.vcl.erb'
 end
 
 service 'varnish' do
