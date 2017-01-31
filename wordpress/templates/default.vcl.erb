@@ -41,11 +41,6 @@ sub vcl_recv {
    return (purge);
   }
 
-  if ( std.port(server.ip) == 6080) {
-   set req.http.x-redir = "https://" + req.http.host + req.url;
-   return (synth(750, "Moved permanently"));
-  }
-
   # drop cookies and params from static assets
   if (req.url ~ "\.(gif|jpg|jpeg|svg|webp|webm|swf|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
    unset req.http.cookie;
@@ -140,13 +135,6 @@ sub vcl_hash {
 }
 
 sub vcl_synth {
-  # redirect for http
-  if (resp.status == 750) {
-   set resp.status = 301;
-   set resp.http.Location = req.http.x-redir;
-   return(deliver);
-  }
-
   if (resp.status == 503) {
    return(deliver);
   }
