@@ -31,7 +31,6 @@ sub vcl_recv {
   # Unset headers that might cause us to cache duplicate infos
   unset req.http.Accept-Language;
 
-  # The purge...no idea if this works
   if (req.method == "PURGE") {
     if (!client.ip ~ purge) {
       return (synth(405, "Not allowed."));
@@ -81,6 +80,8 @@ sub vcl_backend_response {
   elseif (beresp.ttl <= 0s) {
     # Varnish determined the object was not cacheable
     set beresp.http.X-Cacheable = "NO:Not Cacheable";
+    set beresp.uncacheable = true;
+    return (deliver);
   }
   elseif (beresp.http.set-cookie) {
     # You don't wish to cache content for logged in users
@@ -97,12 +98,7 @@ sub vcl_backend_response {
   else {
     # Varnish determined the object was cacheable
     set beresp.http.X-Cacheable = "YES";
-
-    # Remove Expires from backend, it's not long enough
-    unset beresp.http.expires;
-
-    # Set the clients TTL on this object
-    set beresp.http.cache-control = "max-age=900";
+    set beresp.uncacheable = false;
 
     # Set how long Varnish will keep it
     set beresp.ttl = 1w;
