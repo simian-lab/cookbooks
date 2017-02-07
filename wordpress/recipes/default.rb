@@ -5,6 +5,7 @@
 #     - Apache2 (v 2.4)
 #     - PHP (v7)
 #     - PHP's MySQL connector
+#     - PHP GD for image manipulation
 #     - Varnish (v4)
 #
 # 2. Makes sure the variables defined in the OpsWorks console are readable
@@ -43,6 +44,7 @@ app_path = "/srv/#{app['shortname']}"
 include_recipe 'apt::default'
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
+include_recipe 'php::module_gd'
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'varnish::default'

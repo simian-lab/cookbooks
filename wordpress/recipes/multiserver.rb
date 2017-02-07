@@ -33,6 +33,8 @@ end
 
 # 2. We make sure that the uploads folder exists
 directory "#{app_path}/wp-content/uploads" do
+  owner 'www-data'
+  group 'www-data'
   mode '0755'
   action :create
 end
