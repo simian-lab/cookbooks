@@ -5,9 +5,8 @@
 #     - NFS (for use with EFS)
 #     - Memcached (for use with ElastiCache)
 #
-# 2. Makes sure /wp-content/uploads exists
-#
-# 3. Mounts /wp-content/uploads as an EFS mount
+# 2. Makes sure the /wp-content/uploads and /wp-content/gallery folders exist
+# 3. Mounts /wp-content/uploads and /wp-content/gallery as EFS mounts
 #
 # Keep in mind that the `deploy` recipe should be run *before* this one.
 #
@@ -31,7 +30,7 @@ package 'Install Memcached' do
   package_name 'php-memcache'
 end
 
-# 2. We make sure that the uploads folder exists
+# 2. We make sure that the folders exist
 directory "#{app_path}/wp-content/uploads" do
   owner 'www-data'
   group 'www-data'
@@ -39,7 +38,22 @@ directory "#{app_path}/wp-content/uploads" do
   action :create
 end
 
-# 3. We mount the uploads folder as an EFS folder
-execute 'mount_efs' do
-  command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_VOLUME']}:/ #{app_path}/wp-content/uploads"
+directory "#{app_path}/wp-content/gallery" do
+  owner 'www-data'
+  group 'www-data'
+  mode '0755'
+  action :create
+end
+
+# 3. We mount the folders as EFS folders
+execute 'mount_uploads' do
+  if app['environment']['EFS_UPLOADS']
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_UPLOADS']}:/ #{app_path}/wp-content/uploads"
+  end
+end
+
+execute 'mount_gallery' do
+  if app['environment']['EFS_GALLERY']
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
+  end
 end
