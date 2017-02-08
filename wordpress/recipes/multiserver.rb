@@ -31,29 +31,33 @@ package 'Install Memcached' do
 end
 
 # 2. We make sure that the folders exist
-directory "#{app_path}/wp-content/uploads" do
-  owner 'www-data'
-  group 'www-data'
-  mode '0755'
-  action :create
+if app['environment']['EFS_UPLOADS']
+  directory "#{app_path}/wp-content/uploads" do
+    owner 'www-data'
+    group 'www-data'
+    mode '0755'
+    action :create
+  end
 end
 
-directory "#{app_path}/wp-content/gallery" do
-  owner 'www-data'
-  group 'www-data'
-  mode '0755'
-  action :create
+if app['environment']['EFS_GALLERY']
+  directory "#{app_path}/wp-content/gallery" do
+    owner 'www-data'
+    group 'www-data'
+    mode '0755'
+    action :create
+  end
 end
 
 # 3. We mount the folders as EFS folders
-execute 'mount_uploads' do
-  if app['environment']['EFS_UPLOADS']
+if app['environment']['EFS_UPLOADS']
+  execute 'mount_uploads' do
     command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_UPLOADS']}:/ #{app_path}/wp-content/uploads"
   end
 end
 
-execute 'mount_gallery' do
-  if app['environment']['EFS_GALLERY']
+if app['environment']['EFS_GALLERY']
+  execute 'mount_gallery' do
     command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
   end
 end
