@@ -1,6 +1,8 @@
 app = search("aws_opsworks_app","deploy:true").first
 app_path = "/srv/#{app['shortname']}"
 
+Chef::Log.info("Deploying #{app['shortname']}")
+
 application app_path do
   environment.update(app["environment"])
 
