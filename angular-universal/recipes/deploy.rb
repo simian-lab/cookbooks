@@ -12,3 +12,11 @@ application app_path do
     deploy_key app["app_source"]["ssh_key"]
   end
 end
+
+# make sure permissions are correct
+# execute "chown-data-www" do
+#   command "chown -R www-data:www-data #{app_path}"
+#   user "root"
+#   action :run
+#   not_if "stat -c %U #{app_path} | grep www-data"
+# end

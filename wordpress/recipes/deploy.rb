@@ -1,7 +1,6 @@
-app = search(:aws_opsworks_app).first
+app = search("aws_opsworks_app","deploy:true").first
 app_path = "/srv/#{app['shortname']}"
 
-# Now we finally configure the app
 application app_path do
   environment.update(app['environment'])
 
