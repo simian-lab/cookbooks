@@ -1,9 +1,8 @@
 #
-# Author:: Marius Ducea (marius@promethost.com)
-# Cookbook Name:: nodejs
-# Recipe:: nodejs
+# Cookbook Name:: nvm
+# Provider:: nvm_alias_default
 #
-# Copyright 2010-2012, Promet Solutions
+# Copyright 2013, HipSnip Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +17,11 @@
 # limitations under the License.
 #
 
-node.default['nodejs']['engine'] = 'node'
+actions :create
+default_action :create
 
-include_recipe 'nodejs::install'
+attribute :version, :kind_of => String, :name_attribute => true
+attribute :user, :kind_of => String
+attribute :user_home, :kind_of => String
+attribute :nvm_directory, :kind_of => String, :default => node['nvm']['directory']
+attribute :group, :kind_of => String

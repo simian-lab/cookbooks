@@ -1,11 +1,13 @@
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
+node_version = 'v6.2.2'
 
 include_recipe 'apt::default'
 include_recipe 'chef_nginx::default'
-include_recipe "nodejs::default"
-include_recipe "nodejs::npm"
+include_recipe 'nvm'
 
-nodejs_npm "angular-cli" do
-  options ['-g']
+nvm_install node_version do
+  from_source false
+  alias_as_default true
+  action :create
 end
