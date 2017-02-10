@@ -71,6 +71,18 @@ sub vcl_backend_response {
     return(retry);
   }
 
+  # unset cookies from backendresponse
+  if (!(bereq.url ~ "(wp-login|wp-admin)")) {
+    set beresp.http.X-UnsetCookies = "TRUE";
+    unset beresp.http.set-cookie;
+    set beresp.ttl = 1h;
+  }
+
+  # long ttl for assets
+  if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+    set beresp.ttl = 365d;
+  }
+
   if (bereq.http.Cookie ~ "(UserID|_session)") {
     # if we get a session cookie... caching is a no-go
     set beresp.http.X-Cacheable = "NO:Got Session";
@@ -105,18 +117,6 @@ sub vcl_backend_response {
 
     # marker for vcl_deliver to reset Age:
     set beresp.http.magicmarker = "1";
-  }
-
-  # unset cookies from backendresponse
-  if (!(bereq.url ~ "(wp-login|wp-admin)"))  {
-    set beresp.http.X-UnsetCookies = "TRUE";
-    unset beresp.http.set-cookie;
-    set beresp.ttl = 1h;
-  }
-
-  # long ttl for assets
-  if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
-    set beresp.ttl = 365d;
   }
 
   set beresp.grace = 1w;
