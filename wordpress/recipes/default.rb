@@ -119,7 +119,7 @@ end
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
-    errorpage: errorpage
+    errorpage: error_page
   })
 end
 
