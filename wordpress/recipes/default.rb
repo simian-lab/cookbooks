@@ -110,8 +110,17 @@ web_app app['shortname'] do
 end
 
 # 5. We configure Varnish
+error_page = ""
+
+if app['environment']['VARNISH_ERROR_PAGE']
+  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
+  variables({
+    errorpage: errorpage
+  })
 end
 
 varnish_config 'default' do
