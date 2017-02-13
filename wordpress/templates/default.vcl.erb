@@ -35,7 +35,10 @@ sub vcl_recv {
     if (!client.ip ~ purge) {
       return (synth(405, "Not allowed."));
     }
-    return (purge);
+
+    # We use ban instead of purge to support regex purging
+    ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
+    return (synth(200, "Purged"));
   }
 
   # drop cookies and params from static assets
