@@ -146,7 +146,7 @@ cloudfront_config = ""
 ruby_block 'cloudfront_edit' do
   block do
     w3config = Chef::Util::FileEdit.new("#{app_path}/wp-content/w3tc-config/master.php")
-    search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{app['environment']['CLOUDFRONT_DISTRIBUTION']}\",")
+    w3config.search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{app['environment']['CLOUDFRONT_DISTRIBUTION']}\",")
     w3config.write_file
   end
   only_if app['environment']['CLOUDFRONT_DISTRIBUTION']
