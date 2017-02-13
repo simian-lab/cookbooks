@@ -130,14 +130,18 @@ sub vcl_hash {
 
 sub vcl_synth {
   if (resp.status == 503) {
-    # synthetic(std.fileread(<%= @errorpage %>));
+    <% if @errorpage != '' -%>
+    synthetic(std.fileread(<%= @errorpage %>));
+    <% end -%>
     return(deliver);
   }
 }
 
 sub vcl_backend_error {
   if (beresp.status == 503 && bereq.retries == 5) {
-    # synthetic(std.fileread(<%= @errorpage %>));
+    <% if @errorpage != '' -%>
+    synthetic(std.fileread(<%= @errorpage %>));
+    <% end -%>
     return(deliver);
   }
 }

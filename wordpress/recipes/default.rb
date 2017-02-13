@@ -17,7 +17,7 @@
 # 4. Creates the Apache VirtualHost for the site. It uses the default template
 #    which can be found in the `apache2` cookbook in this repo.
 #
-# 5. Configures Varnish to cache most of the requests.
+# 5. Configures caching with Varnish and W3TC.
 #
 # This is all it does. Other considerations (such as giving it EFS support
 # for multi-server setups or installing a MySQL/MariaDB server for single
@@ -109,7 +109,9 @@ web_app app['shortname'] do
   docroot app_path
 end
 
-# 5. We configure Varnish
+# 5. We configure caching
+
+# first off, Varnish (with custom error page if present)
 error_page = ""
 
 if app['environment']['VARNISH_ERROR_PAGE']
@@ -128,14 +130,24 @@ varnish_config 'default' do
   listen_port 80
 end
 
-# varnishlog
 varnish_log 'default'
 
-# varnishncsa
 varnish_log 'default_ncsa' do
   log_format 'varnishncsa'
 end
 
 service 'varnish' do
   action [:restart]
+end
+
+# and now, W3TC's cloudfront config
+cloudfront_config = ""
+
+ruby_block 'cloudfront_edit' do
+  block do
+    w3config = Chef::Util::FileEdit.new("#{app_path}/wp-content/w3tc-config/master.php")
+    search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{app['environment']['CLOUDFRONT_DISTRIBUTION']}\",")
+    w3config.write_file
+  end
+  only_if app['environment']['CLOUDFRONT_DISTRIBUTION']
 end
