@@ -139,18 +139,3 @@ end
 service 'varnish' do
   action [:restart]
 end
-
-# and now, W3TC's cloudfront config
-cloudfront_config = ""
-
-if app['environment']['VARNISH_ERROR_PAGE']
-  cloudfront_config = app['environment']['CLOUDFRONT_DISTRIBUTION']
-
-  ruby_block 'cloudfront_edit' do
-    block do
-      w3config = Chef::Util::FileEdit.new("#{app_path}/wp-content/w3tc-config/master.php")
-      w3config.search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{cloudfront_config}\",")
-      w3config.write_file
-    end
-  end
-end
