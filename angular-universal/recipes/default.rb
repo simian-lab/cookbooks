@@ -14,6 +14,24 @@ template '/etc/nginx/sites-enabled/000-default' do
   })
 end
 
+execute "add_node_dep"
+  command "curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -"
+  user "root"
+  action :run
+end
+
+execute "install_node"
+  command "sudo apt-get install -y nodejs"
+  user "root"
+  action :run
+end
+
+execute "install_angular"
+  command "sudo npm install angular-cli -g"
+  user "root"
+  action :run
+end
+
 execute "restart_nginx" do
   command "service nginx restart"
   user "root"
