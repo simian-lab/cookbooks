@@ -1,4 +1,3 @@
-
 execute 'install_dependencies' do
   command "npm install"
   cwd app_path
