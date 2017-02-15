@@ -14,19 +14,19 @@ template '/etc/nginx/sites-enabled/000-default' do
   })
 end
 
-execute "add_node_dep"
+execute "add_node_dep" do
   command "curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -"
   user "root"
   action :run
 end
 
-execute "install_node"
+execute "install_node" do
   command "sudo apt-get install -y nodejs"
   user "root"
   action :run
 end
 
-execute "install_angular"
+execute "install_angular" do
   command "sudo npm install angular-cli -g"
   user "root"
   action :run
