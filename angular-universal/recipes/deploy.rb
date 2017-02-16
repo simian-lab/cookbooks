@@ -5,6 +5,7 @@ app = false
 app_path = false
 
 search("aws_opsworks_app","deploy:true").each do |candidate_app|
+  Chef::Log.info("Comparing #{candidate_app['environment']['LAYER_ID']} to #{layer}")
   if candidate_app['environment']['LAYER_ID'] == layer
     app = candidate_app
     app_path = "/srv/#{app['shortname']}"
