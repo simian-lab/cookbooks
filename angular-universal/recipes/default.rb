@@ -10,7 +10,7 @@ template '/etc/nginx/sites-enabled/000-default' do
   source 'nginx.erb'
   variables({
     server_name: app['domains'].first,
-    docroot: app_path
+    docroot: "#{app_path}/dist"
   })
 end
 
