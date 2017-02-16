@@ -22,13 +22,13 @@ execute "chown-data-www" do
 end
 
 execute 'install_dependencies' do
-  user "www-data"
+  user "root"
   command "npm install"
   cwd app_path
 end
 
 execute 'build_ng' do
-  user "www-data"
+  user "root"
   command "ng build --prod"
   cwd app_path
 end
