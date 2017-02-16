@@ -1,5 +1,17 @@
-app = search("aws_opsworks_app","deploy:true").first
-app_path = "/srv/#{app['shortname']}"
+instance = search("aws_opsworks_instance").first
+layer = instance.layer_ids.first
+
+search("aws_opsworks_app","deploy:true").each do |candidate_app|
+  if candidate_app['environment']['LAYER_NAME'] == layer.shortname
+    app = candidate_app
+    app_path = "/srv/#{app['shortname']}"
+  end
+end
+
+if !app
+  app = search("aws_opsworks_app","deploy:true").first
+  app_path = "/srv/#{app['shortname']}"
+end
 
 Chef::Log.info("Deploying #{app['shortname']}")
 
