@@ -13,20 +13,22 @@ application app_path do
   end
 end
 
-execute 'install_dependencies' do
-  command "npm install"
-  cwd app_path
-end
-
-execute 'build_ng' do
-  command "ng build --prod"
-  cwd app_path
-end
-
 # make sure permissions are correct
 execute "chown-data-www" do
   command "chown -R www-data:www-data #{app_path}"
   user "root"
   action :run
   not_if "stat -c %U #{app_path} | grep www-data"
+end
+
+execute 'install_dependencies' do
+  user "www-data"
+  command "npm install"
+  cwd app_path
+end
+
+execute 'build_ng' do
+  user "www-data"
+  command "ng build --prod"
+  cwd app_path
 end
