@@ -34,7 +34,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'build_ng' do
       user "root"
-      command "ng build --prod"
+      command "ng build --target=production --environment=#{['environment']['ENV_NAME']}"
       cwd app_path
     end
   end
