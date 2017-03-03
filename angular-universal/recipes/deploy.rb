@@ -40,6 +40,16 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       cwd app_path
     end
 
+    # Make sure UNIVERSAL_CACHE works
+    ruby_block "php_env_vars" do
+      block do
+        file = Chef::Util::FileEdit.new("#{app_path}/dist/client/index.html")
+        Chef::Log.info("Setting async for the js bundle")
+        file.search_file_replace /^src="client.bundle.js"/, "async=\"\" src=\"client.bundle.js\""
+        file.write_file
+      end
+    end
+
     execute 'start_pm2' do
       user "root"
       command "pm2 start server.bundle.js"
