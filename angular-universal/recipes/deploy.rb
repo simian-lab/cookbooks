@@ -45,7 +45,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       block do
         file = Chef::Util::FileEdit.new("#{app_path}/dist/client/index.html")
         Chef::Log.info("Setting async for the js bundle")
-        file.search_file_replace /^src="client.bundle.js"/, "async=\"\" src=\"client.bundle.js\""
+        file.search_file_replace /src="client.bundle.js"/, "async=\"\" src=\"client.bundle.js\""
         file.write_file
       end
     end
