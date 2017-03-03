@@ -31,7 +31,13 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     execute "install_angular" do
-      command "sudo npm install angular-cli -g"
+      command "sudo npm install angular-cli universal-cli -g"
+      user "root"
+      action :run
+    end
+
+    execute "install_pm2" do
+      command "sudo npm install pm2 -g"
       user "root"
       action :run
     end

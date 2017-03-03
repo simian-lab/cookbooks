@@ -34,8 +34,16 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'build_ng' do
       user "root"
-      command "ng build --target=production --environment=#{app['environment']['ENV_NAME']}"
+      # We don't use target=production for now.
+      #command "ung build --target=production --environment=#{app['environment']['ENV_NAME']}"
+      command "ung build --environment=#{app['environment']['ENV_NAME']}"
       cwd app_path
+    end
+
+    execute 'start_pm2' do
+      user "www-data"
+      command "pm2 start server.bundle.js"
+      cwd "#{app_path}/dist/server"
     end
   end
 end
