@@ -2,6 +2,8 @@ instance = search("aws_opsworks_instance").first
 layer = instance['layer_ids'].first
 
 search("aws_opsworks_app","deploy:true").each do |candidate_app|
+  Chef::Log.info("comparing #{layer} and #{candidate_app['environment']['LAYER_ID']}")
+
   if candidate_app['environment']['LAYER_ID'] == layer
     app = candidate_app
     app_path = "/srv/#{app['shortname']}"
