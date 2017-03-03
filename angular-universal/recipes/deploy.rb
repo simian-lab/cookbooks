@@ -41,7 +41,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     execute 'start_pm2' do
-      user "www-data"
+      user "root"
       command "pm2 start server.bundle.js"
       cwd "#{app_path}/dist/server"
     end
