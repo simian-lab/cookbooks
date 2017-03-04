@@ -36,7 +36,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       user "root"
       # We don't use target=production for now.
       #command "ung build --target=production --environment=#{app['environment']['ENV_NAME']}"
-      command "ung build --environment=#{app['environment']['ENV_NAME']}"
+      command "ung build --environment=#{app['environment']['ENV_NAME']} --target=development"
       cwd app_path
     end
 
