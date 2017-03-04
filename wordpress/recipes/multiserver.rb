@@ -49,6 +49,15 @@ if app['environment']['EFS_GALLERY']
   end
 end
 
+if app['environment']['EFS_AUTHORS']
+  directory "#{app_path}/wp-content/authors" do
+    owner 'www-data'
+    group 'www-data'
+    mode '0755'
+    action :create
+  end
+end
+
 # 3. We mount the folders as EFS folders
 if app['environment']['EFS_UPLOADS']
   execute 'mount_uploads' do
@@ -59,5 +68,11 @@ end
 if app['environment']['EFS_GALLERY']
   execute 'mount_gallery' do
     command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
+  end
+end
+
+if app['environment']['EFS_AUTHORS']
+  execute 'mount_authors' do
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
   end
 end
