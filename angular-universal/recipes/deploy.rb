@@ -1,4 +1,4 @@
-instance = search("aws_opsworks_instance").first
+instance = search("aws_opsworks_instance", "self:true").first
 layer = instance['layer_ids'].first
 
 search("aws_opsworks_app","deploy:true").each do |candidate_app|
