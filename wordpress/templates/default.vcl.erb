@@ -1,12 +1,15 @@
 # A heavily customized VCL to support WordPress
 # Some items of note:
-# - Supports https
+# - Allows for https (Via X-Forwarded-Proto)
 # - Supports admin cookies for wp-admin
 # - Caches everything
 # - Support for custom error html page
 #
-# Taken from: https://gist.github.com/matthewjackowski/062be03b41a68edbadfc
-# somewhat influenced by https://github.com/aahan/wp-server-config/blob/master/varnish/
+# Taken from:
+# https://gist.github.com/matthewjackowski/062be03b41a68edbadfc
+#
+# Somewhat influenced by:
+# https://github.com/aahan/wp-server-config/blob/master/varnish/default.vcl
 
 vcl 4.0;
 import directors;
@@ -117,7 +120,7 @@ sub vcl_backend_response {
     set beresp.uncacheable = false;
 
     # Set how long Varnish will keep it
-    set beresp.ttl = 1w;
+    set beresp.ttl = 15m;
 
     # marker for vcl_deliver to reset Age:
     set beresp.http.magicmarker = "1";
