@@ -1,0 +1,19 @@
+server {
+  listen        80;
+
+  server_name   <%= @server_name %>;
+  access_log    /var/log/nginx/localhost.access.log;
+
+  if ( $http_x_forwarded_proto != 'https' ) {
+    return 301 https://$host$request_uri;
+  }
+
+  location / {
+    proxy_pass http://localhost:4200;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+}

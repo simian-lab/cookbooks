@@ -1,0 +1,26 @@
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - ruby/**/*
+    - test/**/*
+    - files/**/*
+    - .kitchen/**/*
+
+AlignParameters:
+  Enabled: false
+Encoding:
+  Enabled: false
+UselessAssignment:
+  Enabled: false
+LineLength:
+  Max: 300
+MethodLength:
+  Max: 11
+HashSyntax:
+  Enabled: false
+IfUnlessModifier:
+  Enabled: false
+TrivialAccessors:
+  ExactNameMatch: true
+Style/RegexpLiteral:
+  Enabled: false
