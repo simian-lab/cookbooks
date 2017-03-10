@@ -1,0 +1,163 @@
+# A heavily customized VCL to support WordPress
+# Some items of note:
+# - Allows for https (Via X-Forwarded-Proto)
+# - Supports admin cookies for wp-admin
+# - Caches everything
+# - Support for custom error html page
+#
+# This was adapted from our template in the WordPress recipe
+
+vcl 4.0;
+import directors;
+import std;
+
+backend default {
+  .host = "127.0.0.1";
+  .port = "8080";
+}
+
+acl purge {
+  "localhost";
+  "127.0.0.1";
+}
+
+sub vcl_recv {
+  # Only a single backend
+  set req.backend_hint = default;
+
+  # Setting http headers for backend
+  set req.http.X-Forwarded-For = client.ip;
+
+  # Unset headers that might cause us to cache duplicate infos
+  unset req.http.Accept-Language;
+
+  if (req.method == "PURGE") {
+    if (!client.ip ~ purge) {
+      return (synth(405, "Not allowed."));
+    }
+
+    # We use ban instead of purge to support regex purging
+    ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
+    return (synth(200, "Purged"));
+  }
+
+  # drop cookies and params from static assets
+  if (req.url ~ "\.(gif|jpg|jpeg|svg|webp|webm|swf|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+    unset req.http.cookie;
+    set req.url = regsub(req.url, "\?.*$", "");
+  }
+
+  # drop tracking params
+  if (req.url ~ "\?(utm_(campaign|medium|source|term)|adParams|client|cx|eid|fbid|feed|ref(id|src)?|v(er|iew))=") {
+    set req.url = regsub(req.url, "\?.*$", "");
+  }
+
+  # pass wp-admin cookies
+  if (req.http.cookie) {
+    unset req.http.cookie;
+  }
+}
+
+sub vcl_backend_response {
+  # retry a few times if backend is down
+  if (beresp.status == 503 && bereq.retries < 3 ) {
+    return(retry);
+  }
+
+  # long ttl for assets
+  if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+    set beresp.ttl = 365d;
+  }
+
+  if (beresp.ttl <= 0s) {
+    # Varnish determined the object was not cacheable
+    set beresp.http.X-Cacheable = "NO:Not Cacheable";
+    set beresp.uncacheable = true;
+    return (deliver);
+  }
+  elseif (beresp.http.set-cookie) {
+    # You don't wish to cache content for logged in users
+    set beresp.http.X-Cacheable = "NO:Set-Cookie";
+    set beresp.uncacheable = true;
+    return (deliver);
+  }
+  elseif (beresp.http.Cache-Control ~ "private") {
+    # You are respecting the Cache-Control=private header from the backend
+    set beresp.http.X-Cacheable = "NO:Cache-Control=private";
+    set beresp.uncacheable = true;
+    return (deliver);
+  }
+  else {
+    # Varnish determined the object was cacheable
+    set beresp.http.X-Cacheable = "YES";
+    set beresp.uncacheable = false;
+
+    # Set how long Varnish will keep it
+    set beresp.ttl = 1m;
+
+    # marker for vcl_deliver to reset Age:
+    set beresp.http.magicmarker = "1";
+  }
+
+  set beresp.grace = 1w;
+}
+
+sub vcl_hash {
+  if ( req.http.X-Forwarded-Proto ) {
+    hash_data( req.http.X-Forwarded-Proto );
+  }
+}
+
+sub vcl_synth {
+  if (resp.status == 503 || resp.status == 502 || resp.status == 500) {
+    <% if @errorpage != '' -%>
+    synthetic(std.fileread("<%= @errorpage %>"));
+    <% end -%>
+    return(deliver);
+  }
+}
+
+sub vcl_backend_error {
+  if ((beresp.status == 503 || resp.status == 502 || resp.status == 500) && bereq.retries == 5) {
+    <% if @errorpage != '' -%>
+    synthetic(std.fileread("<%= @errorpage %>"));
+    <% end -%>
+    return(deliver);
+  }
+}
+
+sub vcl_deliver {
+  # oh noes backend is down
+  if (resp.status == 503 || resp.status == 502 || resp.status == 500) {
+    return(restart);
+  }
+
+  if (resp.http.magicmarker) {
+    # Remove the magic marker
+    unset resp.http.magicmarker;
+
+    # By definition we have a fresh object
+    set resp.http.age = "0";
+  }
+
+  if (obj.hits > 0) {
+    set resp.http.X-Cache = "HIT";
+  }
+  else {
+    set resp.http.X-Cache = "MISS";
+  }
+
+  set resp.http.Access-Control-Allow-Origin = "*";
+}
+
+sub vcl_hit {
+  if (req.method == "PURGE") {
+    return(synth(200, "OK"));
+  }
+}
+
+sub vcl_miss {
+  if (req.method == "PURGE") {
+    return (synth(404, "Not cached"));
+  }
+}
