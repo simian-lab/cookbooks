@@ -118,7 +118,7 @@ sub vcl_synth {
 }
 
 sub vcl_backend_error {
-  if ((beresp.status == 503 || resp.status == 502 || resp.status == 500) && bereq.retries == 5) {
+  if ((beresp.status == 503 || beresp.status == 502 || beresp.status == 500) && bereq.retries == 5) {
     <% if @errorpage != '' -%>
     synthetic(std.fileread("<%= @errorpage %>"));
     <% end -%>
