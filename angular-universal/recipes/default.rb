@@ -7,15 +7,10 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     app_path = "/srv/#{app['shortname']}"
 
     include_recipe 'apt::default'
-    include_recipe 'chef_nginx::default'
-    include_recipe 'chef_nginx::http_v2_module'
+    include_recipe 'varnish::default'
 
-    template '/etc/nginx/sites-enabled/000-default' do
-      source 'nginx.erb'
-      variables({
-        server_name: app['domains'].first,
-        docroot: "#{app_path}/dist"
-      })
+    package 'varnish' do
+      package_name 'varnish'
     end
 
     execute "add_node_dep" do
@@ -42,10 +37,32 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       action :run
     end
 
-    execute "restart_nginx" do
-      command "service nginx restart"
-      user "root"
-      action :run
+    error_page = ""
+
+    if app['environment']['VARNISH_ERROR_PAGE']
+      error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+    end
+
+    template '/etc/varnish/default.vcl' do
+      source 'default.vcl.erb'
+      variables({
+        errorpage: error_page
+      })
+    end
+
+    varnish_config 'default' do
+      listen_address '0.0.0.0'
+      listen_port 80
+    end
+
+    varnish_log 'default'
+
+    varnish_log 'default_ncsa' do
+      log_format 'varnishncsa'
+    end
+
+    service 'varnish' do
+      action [:restart]
     end
   end
 end
