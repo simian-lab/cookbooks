@@ -7,19 +7,10 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     app_path = "/srv/#{app['shortname']}"
 
     include_recipe 'apt::default'
-    include_recipe 'chef_nginx::default'
     include_recipe 'varnish::default'
 
     package 'varnish' do
       package_name 'varnish'
-    end
-
-    template '/etc/nginx/sites-enabled/000-default' do
-      source 'nginx.erb'
-      variables({
-        server_name: app['domains'].first,
-        docroot: "#{app_path}/dist"
-      })
     end
 
     execute "add_node_dep" do
