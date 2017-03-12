@@ -37,12 +37,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       action :run
     end
 
-    execute "restart_nginx" do
-      command "service nginx restart"
-      user "root"
-      action :run
-    end
-
     error_page = ""
 
     if app['environment']['VARNISH_ERROR_PAGE']
