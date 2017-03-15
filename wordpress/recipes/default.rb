@@ -53,6 +53,10 @@ package 'Install PHP cURL' do
   package_name 'php-curl'
 end
 
+package 'Mailer' do
+  package_name 'sendmail'
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
