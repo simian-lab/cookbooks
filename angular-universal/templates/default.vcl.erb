@@ -18,7 +18,7 @@ backend default {
 
 <% if @adminbackend != '' -%>
 backend backend {
-  .host = "<%= @errorpage %>";
+  .host = "<%= @adminbackend %>";
   .port = "80";
 }
 <% end -%>
