@@ -30,11 +30,14 @@ acl purge {
 
 sub vcl_recv {
   <% if @adminbackend != '' -%>
-  if(req.url ~ "sitemap*.xml")
+  if(req.url ~ "sitemap*.xml") {
     set req.backend_hint = backend;
-  else
+  }
+  else {
   <% end -%>
-    set req.backend_hint = default;
+  <% if @adminbackend != '' -%>
+  }
+  <% end -%>
 
   # Setting http headers for backend
   set req.http.X-Forwarded-For = client.ip;
