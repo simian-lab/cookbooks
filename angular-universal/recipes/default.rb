@@ -43,15 +43,20 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
     end
 
-    if app['environment']['VARNISH_ADMIN_BACKEND']
-      admin_backend = "#{app['environment']['VARNISH_ADMIN_BACKEND']}"
+    if app['environment']['VARNISH_ADMIN_BACKEND_IP']
+      admin_backend_ip = "#{app['environment']['VARNISH_ADMIN_BACKEND_IP']}"
+    end
+
+    if app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']
+      admin_backend_hostname = "#{app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']}"
     end
 
     template '/etc/varnish/default.vcl' do
       source 'default.vcl.erb'
       variables({
         errorpage: error_page,
-        adminbackend: admin_backend
+        adminbackendip: admin_backend_ip,
+        adminbackendhostname: admin_backend_hostname,
       })
     end
 

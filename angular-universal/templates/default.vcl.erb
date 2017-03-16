@@ -16,9 +16,9 @@ backend default {
   .port = "4200";
 }
 
-<% if @adminbackend != '' -%>
-backend backend {
-  .host = "<%= @adminbackend %>";
+<% if @adminbackendip != '' -%>
+backend adminbackend {
+  .host = "<%= @adminbackendip %>";
   .port = "80";
 }
 <% end -%>
@@ -29,12 +29,14 @@ acl purge {
 }
 
 sub vcl_recv {
-  <% if @adminbackend != '' -%>
-  if(req.url ~ "sitemap*.xml") {
-    set req.backend_hint = backend;
+  <% if @adminbackendip != '' -%>
+  if(req.url ~ "sitemap") {
+    set req.backend_hint = adminbackend;
+    set req.http.host = "<%= @adminbackendhostname %>";
   }
   else {
   <% end -%>
+  set req.backend_hint = default;
   <% if @adminbackend != '' -%>
   }
   <% end -%>
