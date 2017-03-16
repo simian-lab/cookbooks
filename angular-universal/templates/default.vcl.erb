@@ -16,14 +16,30 @@ backend default {
   .port = "4200";
 }
 
+<% if @adminbackendip != '' -%>
+backend adminbackend {
+  .host = "<%= @adminbackendip %>";
+  .port = "80";
+}
+<% end -%>
+
 acl purge {
   "localhost";
   "127.0.0.1";
 }
 
 sub vcl_recv {
-  # Only a single backend
+  <% if @adminbackendip != '' -%>
+  if(req.url ~ "sitemap") {
+    set req.backend_hint = adminbackend;
+    set req.http.host = "<%= @adminbackendhostname %>";
+  }
+  else {
+  <% end -%>
   set req.backend_hint = default;
+  <% if @adminbackend != '' -%>
+  }
+  <% end -%>
 
   # Setting http headers for backend
   set req.http.X-Forwarded-For = client.ip;
