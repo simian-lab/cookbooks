@@ -44,7 +44,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     if app['environment']['VARNISH_ADMIN_BACKEND']
-      admin_backend = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ADMIN_BACKEND']}"
+      admin_backend = "#{app['environment']['VARNISH_ADMIN_BACKEND']}"
     end
 
     template '/etc/varnish/default.vcl' do
