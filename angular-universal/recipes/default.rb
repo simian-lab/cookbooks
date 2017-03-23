@@ -6,6 +6,8 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     app = candidate_app
     app_path = "/srv/#{app['shortname']}"
 
+    node.override['varnish']['configure']['log']['action'] = :nothing
+
     include_recipe 'apt::default'
     include_recipe 'varnish::default'
 
