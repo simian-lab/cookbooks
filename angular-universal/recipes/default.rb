@@ -65,12 +65,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       listen_port 80
     end
 
-    varnish_log 'default'
-
-    varnish_log 'default_ncsa' do
-      log_format 'varnishncsa'
-    end
-
     service 'varnish' do
       action [:restart]
     end
