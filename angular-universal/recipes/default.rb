@@ -51,6 +51,9 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       admin_backend_hostname = "#{app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']}"
     end
 
+    node.override['varnish']['configure']['log']['action'] = :nothing
+    include_recipe 'varnish::configure'
+
     template '/etc/varnish/default.vcl' do
       source 'default.vcl.erb'
       variables({
@@ -64,9 +67,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       listen_address '0.0.0.0'
       listen_port 80
     end
-
-    node.override['varnish']['configure']['log']['action'] = :nothing
-    include_recipe 'varnish::configure'
 
     service 'varnish' do
       action [:restart]
