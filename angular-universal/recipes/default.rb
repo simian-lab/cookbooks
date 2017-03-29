@@ -65,16 +65,20 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       listen_port 80
     end
 
-    varnish_log 'default' do
-      file_name '/dev/null'
-    end
-
-    varnish_log 'default_ncsa' do
-      file_name '/dev/null'
-    end
-
     service 'varnish' do
       action [:restart]
+    end
+
+    execute "disable varnish log" do
+      command "ln -sf /dev/null /var/log/varnish/varnish.log"
+      user "root"
+      action :run
+    end
+
+    execute "disable varnishncsa log" do
+      command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
+      user "root"
+      action :run
     end
   end
 end
