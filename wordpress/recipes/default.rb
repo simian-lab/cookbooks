@@ -143,3 +143,15 @@ end
 service 'varnish' do
   action [:restart]
 end
+
+execute "disable varnish log" do
+  command "ln -sf /dev/null /var/log/varnish/varnish.log"
+  user "root"
+  action :run
+end
+
+execute "disable varnishncsa log" do
+  command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
+  user "root"
+  action :run
+end
