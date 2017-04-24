@@ -38,13 +38,9 @@ NameVirtualHost *:<%= @params[:server_port] %>
   </Location>
 
   RewriteEngine On
-  <%- if node['apache']['version'] == '2.4' -%>
-  LogLevel info rewrite:trace1
-  <%- else -%>
-  LogLevel info
-  RewriteLog <%= node['apache']['log_dir'] %>/<%= @application_name %>-rewrite.log
-  RewriteLogLevel 0
-  <%- end -%>
+
+  # Set the log level to warning for all modules
+  LogLevel warn
 
   ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-error.log
   CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined
