@@ -126,7 +126,7 @@ end
 cors = ""
 
 if app['environment']['CORS']
-  cors = "/srv/#{app['shortname']}/#{app['environment']['CORS']}"
+  cors = "#{app['environment']['CORS']}"
 end
 
 template '/etc/varnish/default.vcl' do
