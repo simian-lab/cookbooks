@@ -122,10 +122,18 @@ if app['environment']['VARNISH_ERROR_PAGE']
   error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
 end
 
+# define a CORS header
+cors = ""
+
+if app['environment']['CORS']
+  cors = "#{app['environment']['CORS']}"
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
-    errorpage: error_page
+    errorpage: error_page,
+    cors: cors
   })
 end
 

@@ -5,10 +5,13 @@
 #     - NFS (for use with EFS)
 #     - Memcached (for use with ElastiCache)
 #
-# 2. Makes sure the /wp-content/uploads and /wp-content/gallery folders exist
-# 3. Mounts /wp-content/uploads and /wp-content/gallery as EFS mounts
+# 2. Makes sure the /wp-content/uploads, /wp-content/gallery and
+# /wp-content/authors folders exist (the latter two only if required)
+# 3. Mounts /wp-content/uploads, /wp-content/gallery and /wp-content/authors
+# as EFS mounts.
 #
-# Keep in mind that the `deploy` recipe should be run *before* this one.
+# Keep in mind that the `deploy` recipe should be run *before* this one, since
+# the default WordPress file layout must be present.
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
