@@ -47,10 +47,16 @@ include_recipe 'php::module_mysql'
 include_recipe 'php::module_gd'
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
+include_recipe 'apache2::mod_expires'
+include_recipe 'apache2::mod_ext_filter'
 include_recipe 'varnish::default'
 
 package 'Install PHP cURL' do
   package_name 'php-curl'
+end
+
+package 'Memcached' do
+  package_name 'php-memcached'
 end
 
 package 'Mailer' do
