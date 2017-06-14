@@ -41,8 +41,8 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'start_pm2' do
       user "root"
-      command "pm2 start server.ts -f"
-      cwd "#{app_path}/src"
+      command "pm2 start server.ts"
+      cwd "#{app_path}/dist"
     end
   end
 end
