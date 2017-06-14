@@ -14,7 +14,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     execute "add_node_dep" do
-      command "curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -"
+      command "curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -"
       user "root"
       action :run
     end

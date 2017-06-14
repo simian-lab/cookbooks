@@ -26,6 +26,12 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       not_if "stat -c %U #{app_path} | grep www-data"
     end
 
+    execute 'remove_npm_cache' do
+      user "root"
+      command "npm cache clean"
+      cwd app_path
+    end
+
     execute 'install_dependencies' do
       user "root"
       command "npm install"
