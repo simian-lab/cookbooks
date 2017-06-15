@@ -38,6 +38,18 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       cwd app_path
     end
 
+    execute 'remove_npm' do
+      user "root"
+      command "rm -Rf node_modules/"
+      cwd app_path
+    end
+
+    execute 'rinse_repeat' do
+      user "root"
+      command "npm install"
+      cwd app_path
+    end
+
     execute 'build_npm' do
       user "root"
       # We don't use target=production for now.
@@ -47,7 +59,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'start_pm2' do
       user "root"
-      command "pm2 start server.ts -f"
+      command "pm2 start server.ts"
       cwd "#{app_path}/src"
     end
   end
