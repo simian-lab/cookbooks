@@ -34,8 +34,14 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'build_npm' do
       user "root"
-      # We don't use target=production for now.
       command "npm run build:#{app['environment']['ENV_NAME']}"
+      cwd app_path
+    end
+
+    execute 'define_config' do
+      user "root"
+      # We don't use target=production for now.
+      command "mv #{app_path}/src/environments/environment.#{app['environment']['ENV_NAME']}.ts #{app_path}/src/environments/environment.ts"
       cwd app_path
     end
 
