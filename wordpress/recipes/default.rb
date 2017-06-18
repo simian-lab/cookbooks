@@ -67,6 +67,12 @@ package 'varnish' do
   package_name 'varnish'
 end
 
+execute "install_htop" do
+  command "sudo apt-get install -y htop"
+  user "root"
+  action :run
+end
+
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
