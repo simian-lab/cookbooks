@@ -19,6 +19,12 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       action :run
     end
 
+    execute "install_htop" do
+      command "sudo apt-get install -y htop"
+      user "root"
+      action :run
+    end
+
     execute "install_node" do
       command "sudo apt-get install -y nodejs"
       user "root"
