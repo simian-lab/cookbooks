@@ -47,7 +47,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     execute 'start_pm2' do
       user "root"
-      command "pm2 start pm2.json"
+      command "pm2 start pm2.json -e /dev/null -o /dev/null"
       cwd app_path
     end
   end
