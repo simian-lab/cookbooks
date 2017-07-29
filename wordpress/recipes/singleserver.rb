@@ -10,4 +10,21 @@ mysql_service 'wp' do
   action [:create, :start]
 end
 
-# TODO: Set up the backup procedures for both /uploads and the Database
+# We mount the folders as EFS folders
+if app['environment']['EFS_UPLOADS']
+  execute 'mount_uploads' do
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_UPLOADS']}:/ #{app_path}/wp-content/uploads"
+  end
+end
+
+if app['environment']['EFS_GALLERY']
+  execute 'mount_gallery' do
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
+  end
+end
+
+if app['environment']['EFS_AUTHORS']
+  execute 'mount_authors' do
+    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
+  end
+end
