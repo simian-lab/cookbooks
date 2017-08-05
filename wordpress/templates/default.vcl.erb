@@ -30,7 +30,12 @@ sub vcl_recv {
   set req.backend_hint = default;
 
   # Setting http headers for backend
-  set req.http.X-Forwarded-For = client.ip;
+  if(req.http.X-Forwarded-For) {
+    set req.http.X-Forwarded-For = req.http.X-Forwarded-For + ", " + client.ip;
+  }
+  else {
+    set req.http.X-Forwarded-For = client.ip;
+  }
 
   # Unset headers that might cause us to cache duplicate infos
   unset req.http.Accept-Language;
