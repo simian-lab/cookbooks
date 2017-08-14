@@ -22,7 +22,7 @@ end
 # and now, W3TC's cloudfront config
 cloudfront_config = ""
 
-if app['environment']['VARNISH_ERROR_PAGE']
+if app['environment']['CLOUDFRONT_DISTRIBUTION']
   cloudfront_config = app['environment']['CLOUDFRONT_DISTRIBUTION']
 
   ruby_block 'cloudfront_edit' do
