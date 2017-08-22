@@ -38,13 +38,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       cwd app_path
     end
 
-    execute 'define_config' do
-      user "root"
-      # We don't use target=production for now.
-      command "cp #{app_path}/src/environments/environment.#{app['environment']['ENV_NAME']}.ts #{app_path}/src/environments/environment.ts"
-      cwd app_path
-    end
-
     execute 'start_pm2' do
       user "root"
       command "pm2 start pm2.json"
