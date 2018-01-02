@@ -73,6 +73,13 @@ execute "install_htop" do
   action :run
 end
 
+# Optionally Install php-ssh2 dependency
+if app['environment']['PHP_SSH_ENABLE']
+  package 'Install PHP ssh' do
+    package_name 'php-ssh2'
+  end
+end
+
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
