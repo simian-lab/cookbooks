@@ -29,9 +29,7 @@ acl purge {
 }
 
 sub vcl_recv {
-  <% if @adminbackend != '' -%>
   set req.backend_hint = default;
-  <% end -%>
 
   <% if @adminbackendip != '' -%>
   if(req.url ~ "sitemap") {
