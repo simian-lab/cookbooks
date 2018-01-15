@@ -29,15 +29,12 @@ acl purge {
 }
 
 sub vcl_recv {
+  set req.backend_hint = default;
+
   <% if @adminbackendip != '' -%>
   if(req.url ~ "sitemap") {
     set req.backend_hint = adminbackend;
     set req.http.host = "<%= @adminbackendhostname %>";
-  }
-  else {
-  <% end -%>
-  set req.backend_hint = default;
-  <% if @adminbackend != '' -%>
   }
   <% end -%>
 

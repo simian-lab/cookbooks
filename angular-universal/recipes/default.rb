@@ -50,15 +50,16 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     error_page = ""
-
     if app['environment']['VARNISH_ERROR_PAGE']
       error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
     end
 
+    admin_backend_ip = ""
     if app['environment']['VARNISH_ADMIN_BACKEND_IP']
       admin_backend_ip = "#{app['environment']['VARNISH_ADMIN_BACKEND_IP']}"
     end
 
+    admin_backend_hostname = ""
     if app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']
       admin_backend_hostname = "#{app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']}"
     end
