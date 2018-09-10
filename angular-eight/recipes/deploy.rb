@@ -18,16 +18,9 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       end
     end
 
-    # Make sure permissions are correct for installation
-    execute "chmod-install" do
-      command "chmod 777 -R #{app_path}"
-      user "root"
-      action :run
-    end
-
     execute 'install_dependencies' do
       user "root"
-      command "npm install"
+      command "npm install --unsafe-perm"
       cwd app_path
     end
 
