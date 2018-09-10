@@ -20,7 +20,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
 
     # Make sure permissions are correct for installation
     execute "chmod-install" do
-      command "chown -R 777 #{app_path}"
+      command "chmod 777 -R #{app_path}"
       user "root"
       action :run
       not_if "stat -c %U #{app_path} | grep www-data"
