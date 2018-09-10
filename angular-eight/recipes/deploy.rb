@@ -31,8 +31,14 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       action :run
     end
 
-    execute "chmod-standart" do
+    execute "chmod-755" do
       command "chmod -R 755 #{app_path}"
+      user "root"
+      action :run
+    end
+
+    execute "cp-template-ecosystem" do
+      command "cp #{app_path}/ecosystem.config.js.templ #{app_path}/ecosystem.config.js"
       user "root"
       action :run
     end
