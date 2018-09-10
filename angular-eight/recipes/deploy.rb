@@ -18,24 +18,39 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       end
     end
 
+    # Make sure permissions are correct for installation
+    execute "chmod-install" do
+      command "chown -R 777 #{app_path}"
+      user "root"
+      action :run
+      not_if "stat -c %U #{app_path} | grep www-data"
+    end
+
     execute 'install_dependencies' do
       user "root"
       command "npm install"
       cwd app_path
     end
 
-    execute 'build_npm' do
-      user "root"
-      command "npm run build:#{app['environment']['ENV_NAME']}"
-      cwd app_path
-    end
-
-    # make sure permissions are correct
+    # Fix permissions
     execute "chown-data-www" do
       command "chown -R www-data:www-data #{app_path}"
       user "root"
       action :run
       not_if "stat -c %U #{app_path} | grep www-data"
+    end
+
+    execute "chmod-standart" do
+      command "chmod -R 755 #{app_path}"
+      user "root"
+      action :run
+      not_if "stat -c %U #{app_path} | grep www-data"
+    end
+
+    execute 'build_npm' do
+      user "root"
+      command "npm run build:#{app['environment']['ENV_NAME']}"
+      cwd app_path
     end
 
     execute 'start_pm2' do
