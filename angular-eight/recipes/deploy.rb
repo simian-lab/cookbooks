@@ -23,7 +23,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       command "chmod 777 -R #{app_path}"
       user "root"
       action :run
-      not_if "stat -c %U #{app_path} | grep www-data"
     end
 
     execute 'install_dependencies' do
@@ -37,14 +36,12 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       command "chown -R www-data:www-data #{app_path}"
       user "root"
       action :run
-      not_if "stat -c %U #{app_path} | grep www-data"
     end
 
     execute "chmod-standart" do
       command "chmod -R 755 #{app_path}"
       user "root"
       action :run
-      not_if "stat -c %U #{app_path} | grep www-data"
     end
 
     execute 'build_npm' do
