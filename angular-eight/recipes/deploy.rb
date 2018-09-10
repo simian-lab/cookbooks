@@ -27,13 +27,13 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
     end
 
     execute 'install_dependencies' do
-      user "root"
+      user "www-data"
       command "npm install"
       cwd app_path
     end
 
     execute 'build_npm' do
-      user "root"
+      user "www-data"
       command "npm run build:#{app['environment']['ENV_NAME']}"
       cwd app_path
     end
