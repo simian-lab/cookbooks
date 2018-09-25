@@ -115,6 +115,7 @@ web_app app['shortname'] do
   server_port 80
   server_aliases app['domains'].drop(1)
   docroot app_path
+  multisite app['environment']['MULTISITE']
 end
 
 # 6. Call the WordPress cron
