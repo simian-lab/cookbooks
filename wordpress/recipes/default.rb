@@ -130,6 +130,7 @@ web_app app['shortname'] do
   server_port 8080
   server_aliases app['domains'].drop(1)
   docroot app_path
+  multisite app['environment']['MULTISITE']
 end
 
 # 5. We configure caching
