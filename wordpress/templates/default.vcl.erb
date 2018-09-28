@@ -129,6 +129,13 @@ sub vcl_backend_response {
 
     # marker for vcl_deliver to reset Age:
     set beresp.http.magicmarker = "1";
+
+    # Set expires from varnish not backend
+    unset beresp.http.expires;
+    set beresp.http.expires = beresp.ttl;
+
+    # Set How long browsers will keep the cache
+    set beresp.http.cache-control = "max-age=900";
   }
 
   set beresp.grace = 1w;
