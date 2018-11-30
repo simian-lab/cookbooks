@@ -62,7 +62,7 @@ sub vcl_recv {
   }
 
   # pass wp-admin urls
-  if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "xmlrpc.php" || req.url ~ "wp-cron") {
+  if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "v1/preview"  || req.url ~ "xmlrpc.php" || req.url ~ "wp-cron") {
     return (pass);
   }
 
