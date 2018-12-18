@@ -80,6 +80,20 @@ if app['environment']['PHP_SSH_ENABLE']
   end
 end
 
+# Optionally Install php-zip dependency
+if app['environment']['PHP_ZIP_ENABLE']
+  package 'Install PHP zip' do
+    package_name 'php-zip'
+  end
+end
+
+# Optionally Install php-imagick dependency
+if app['environment']['PHP_IMAGICK_ENABLE']
+  package 'Install PHP imagick' do
+    package_name 'php-imagick'
+  end
+end
+
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
