@@ -139,7 +139,9 @@ sub vcl_backend_response {
     if ((bereq.url ~ "(preview=true|v1/preview)")) {
       set beresp.http.cache-control = "no-cache";
     } else {
-      set beresp.http.cache-control = "max-age=900";
+      if ( !(beresp.http.cache-control ~ "max-age") ) {
+        set beresp.http.cache-control = "public, max-age=900";
+      }
     }
 
   }
