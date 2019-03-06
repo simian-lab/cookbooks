@@ -63,12 +63,19 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       admin_backend_hostname = "#{app['environment']['VARNISH_ADMIN_BACKEND_HOSTNAME']}"
     end
 
+    browser_cache = ""
+
+    if app['environment']['LONG_BROWSER_CACHE']
+      browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+    end
+
     template '/etc/varnish/default.vcl' do
       source 'default.vcl.erb'
       variables({
         errorpage: error_page,
         adminbackendip: admin_backend_ip,
         adminbackendhostname: admin_backend_hostname,
+        browser_cache: browser_cache
       })
     end
 
