@@ -104,6 +104,17 @@ sub vcl_backend_response {
     return (deliver);
   }
   else {
+
+    <% if @browser_cache != '' -%>
+      if(bereq.url ~ "\.(gif|swf|svg|webp|webm|ttf|woff|css|js|flv|mp3|mp4|pdf|ico)(\?.*|)$") {
+        set beresp.http.cache-control = "max-age=31536000";
+      } elseif(bereq.url ~ "\.(jpg|jpeg|png)(\?.*|)$") {
+        set beresp.http.cache-control = "max-age=1296000";
+      } else {
+        set beresp.http.cache-control = "max-age=900";
+      }
+    <% end -%>
+
     # Varnish determined the object was cacheable
     set beresp.http.X-Cacheable = "YES";
     set beresp.uncacheable = false;

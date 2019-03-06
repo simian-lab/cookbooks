@@ -163,11 +163,19 @@ if app['environment']['CORS']
   cors = "#{app['environment']['CORS']}"
 end
 
+# Add a long max-age header if present
+browser_cache = ""
+
+if app['environment']['LONG_BROWSER_CACHE']
+  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
     errorpage: error_page,
-    cors: cors
+    cors: cors,
+    browser_cache: browser_cache
   })
 end
 
