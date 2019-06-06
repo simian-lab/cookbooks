@@ -29,6 +29,13 @@ sub vcl_recv {
   # Only a single backend
   set req.backend_hint = default;
 
+  <% if @force_ssl_dns != '' -%>
+    # Redirect to SSL
+    if ( (req.http.host ~ "^(?i)<%= @force_ssl_dns%>") && req.http.X-Forwarded-Proto !~ "(?i)https") {
+      return (synth(750, ""));
+    }
+  <% end -%>
+
   # Setting http headers for backend
   if(req.http.X-Forwarded-For) {
     set req.http.X-Forwarded-For = req.http.X-Forwarded-For + ", " + client.ip;
@@ -220,3 +227,13 @@ sub vcl_miss {
     return (synth(404, "Not cached"));
   }
 }
+
+<% if @force_ssl_dns != '' -%>
+sub vcl_synth {
+  if (resp.status == 750) {
+    set resp.status = 301;
+    set resp.http.Location = "https://<%= @force_ssl_dns%>" + req.url;
+    return(deliver);
+  }
+}
+<% end -%>
