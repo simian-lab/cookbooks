@@ -170,12 +170,20 @@ if app['environment']['LONG_BROWSER_CACHE']
   browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
 end
 
+# Add a force SSL redirection if present
+force_ssl_dns = ""
+
+if app['environment']['FORCE_SSL_DNS']
+  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
     errorpage: error_page,
     cors: cors,
-    browser_cache: browser_cache
+    browser_cache: browser_cache,
+    force_ssl_dns: force_ssl_dns
   })
 end
 
