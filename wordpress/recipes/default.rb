@@ -94,6 +94,13 @@ if app['environment']['PHP_IMAGICK_ENABLE']
   end
 end
 
+# Optionally Install php-mbstring dependency
+if app['environment']['PHP_MBSTRING_ENABLE']
+  package 'Install PHP mbstring' do
+    package_name 'php-mbstring'
+  end
+end
+
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
