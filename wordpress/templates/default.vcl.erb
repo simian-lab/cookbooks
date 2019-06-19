@@ -85,9 +85,9 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
-  # retry a few times if backend is down
-  if (beresp.status == 503 && bereq.retries < 3 ) {
-    return(retry);
+  # avoid cache error responses
+  if ( beresp.status == 500 || beresp.status == 502 || beresp.status == 503 || beresp.status == 504 ) {
+    return(abandon);
   }
 
   # unset cookies from backendresponse
