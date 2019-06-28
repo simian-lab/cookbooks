@@ -57,6 +57,13 @@ ruby_block "insert_apache_env_vars" do
   end
 end
 
+# test debug this part
+execute "start_virtualhost" do
+  command "sudo cp /etc/apache2/envvars /tmp/"
+  user "root"
+  action :run
+end
+
 # Make sure PHP can read the vars
 ruby_block "php_env_vars" do
   block do
