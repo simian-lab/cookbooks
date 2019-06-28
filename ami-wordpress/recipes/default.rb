@@ -105,6 +105,12 @@ execute "start_virtualhost" do
   action :run
 end
 
+execute "delete_other_virtualhost" do
+  command "sudo a2dissite 000-default"
+  user "root"
+  action :run
+end
+
 # Reload apache
 service 'apache2' do
   action [:reload, :restart]
