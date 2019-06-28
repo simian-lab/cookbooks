@@ -45,25 +45,6 @@ app_path = "/srv/#{app['shortname']}"
 # Include recipes
 include_recipe 'varnish::default'
 
-# Set the environment variables for PHP
-ruby_block "insert_apache_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
-    app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
-      file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
-      file.write_file
-    end
-  end
-end
-
-# test debug this part
-execute "start_virtualhost" do
-  command "sudo cp /etc/apache2/envvars /tmp/"
-  user "root"
-  action :run
-end
-
 # Make sure PHP can read the vars
 ruby_block "php_env_vars" do
   block do
@@ -103,6 +84,18 @@ web_app app['shortname'] do
   server_aliases app['domains'].drop(1)
   docroot app_path
   multisite app['environment']['MULTISITE']
+end
+
+# Set the environment variables for PHP
+ruby_block "insert_apache_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
+      file.write_file
+    end
+  end
 end
 
 # Register and Start virtualhost
