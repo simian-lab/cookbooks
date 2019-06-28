@@ -46,7 +46,7 @@ app_path = "/srv/#{app['shortname']}"
 include_recipe 'varnish::default'
 
 # Set the environment variables for PHP
-ruby_block "insert_env_vars" do
+ruby_block "insert_apache_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
     app['environment'].each do |key, value|
