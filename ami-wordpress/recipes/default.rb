@@ -38,147 +38,154 @@
 # — Sebastian Giraldo (sebastian@simian.co) / Jun 28, 2019
 
 
-# Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
+# Initial setup
+instance = search("aws_opsworks_instance", "self:true").first
+layer = instance['layer_ids'].first
 
-# Include recipes
-include_recipe 'varnish::default'
+search("aws_opsworks_app","deploy:true").each do |candidate_app|
+  if candidate_app['environment']['LAYER_ID'] == layer
+    app = candidate_app
+    app_path = "/srv/#{app['shortname']}"
 
-# Make sure PHP can read the vars
-ruby_block "php_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
-    Chef::Log.info("Setting the variable order for PHP")
-    file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
-    file.write_file
-  end
-end
+    # Include recipes
+    include_recipe 'varnish::default'
 
-# map the environment_variables node to ENV variables
-ruby_block "insert_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/environment')
-    app['environment'].each do |key, value|
-      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
-      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
-      file.write_file
+    # Make sure PHP can read the vars
+    ruby_block "php_env_vars" do
+      block do
+        file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
+        Chef::Log.info("Setting the variable order for PHP")
+        file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
+        file.write_file
+      end
+    end
+
+    # map the environment_variables node to ENV variables
+    ruby_block "insert_env_vars" do
+      block do
+        file = Chef::Util::FileEdit.new('/etc/environment')
+        app['environment'].each do |key, value|
+          Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+          file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+          file.write_file
+        end
+      end
+    end
+
+    # source the file so we can use it right away if needed
+    bash "update_env_vars" do
+      user "root"
+      code <<-EOS
+      source /etc/environment
+      EOS
+    end
+
+    # We create the site
+    web_app app['shortname'] do
+      template 'web_app.conf.erb'
+      allow_override 'All'
+      server_name app['domains'].first
+      server_port 8080
+      server_aliases app['domains'].drop(1)
+      docroot app_path
+      multisite app['environment']['MULTISITE']
+    end
+
+    # Set the environment variables for PHP
+    ruby_block "insert_apache_env_vars" do
+      block do
+        file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
+        app['environment'].each do |key, value|
+          Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+          file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
+          file.write_file
+        end
+      end
+    end
+
+    # Register and Start virtualhost
+    execute "start_virtualhost" do
+      command "sudo a2ensite #{app['shortname']}"
+      user "root"
+      action :run
+    end
+
+    # Reload apache
+    service 'apache2' do
+      action [:reload, :restart]
+    end
+
+    # We configure caching
+
+    # first off, Varnish (with custom error page if present)
+    error_page = ""
+
+    if app['environment']['VARNISH_ERROR_PAGE']
+      error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+    end
+
+    # define a CORS header
+    cors = ""
+
+    if app['environment']['CORS']
+      cors = "#{app['environment']['CORS']}"
+    end
+
+    # Add a long max-age header if present
+    browser_cache = ""
+
+    if app['environment']['LONG_BROWSER_CACHE']
+      browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+    end
+
+    # Add a force SSL redirection if present
+    force_ssl_dns = ""
+
+    if app['environment']['FORCE_SSL_DNS']
+      force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+    end
+
+    template '/etc/varnish/default.vcl' do
+      source 'default.vcl.erb'
+      variables({
+        errorpage: error_page,
+        cors: cors,
+        browser_cache: browser_cache,
+        force_ssl_dns: force_ssl_dns
+      })
+    end
+
+    varnish_config 'default' do
+      listen_address '0.0.0.0'
+      listen_port 80
+    end
+
+    varnish_log 'default'
+
+    varnish_log 'default_ncsa' do
+      log_format 'varnishncsa'
+    end
+
+    service 'varnish' do
+      action [:restart]
+    end
+
+    execute "disable varnish log" do
+      command "ln -sf /dev/null /var/log/varnish/varnish.log"
+      user "root"
+      action :run
+    end
+
+    execute "disable varnishncsa log" do
+      command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
+      user "root"
+      action :run
+    end
+
+    # Call the WordPress cron
+    cron 'wpcron' do
+      minute '*'
+      command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
     end
   end
-end
-
-# source the file so we can use it right away if needed
-bash "update_env_vars" do
-  user "root"
-  code <<-EOS
-  source /etc/environment
-  EOS
-end
-
-# We create the site
-web_app app['shortname'] do
-  template 'web_app.conf.erb'
-  allow_override 'All'
-  server_name app['domains'].first
-  server_port 8080
-  server_aliases app['domains'].drop(1)
-  docroot app_path
-  multisite app['environment']['MULTISITE']
-end
-
-# Set the environment variables for PHP
-ruby_block "insert_apache_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
-    app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
-      file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
-      file.write_file
-    end
-  end
-end
-
-# Register and Start virtualhost
-execute "start_virtualhost" do
-  command "sudo a2ensite #{app['shortname']}"
-  user "root"
-  action :run
-end
-
-# Reload apache
-service 'apache2' do
-  action [:reload, :restart]
-end
-
-# We configure caching
-
-# first off, Varnish (with custom error page if present)
-error_page = ""
-
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
-end
-
-# define a CORS header
-cors = ""
-
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
-end
-
-# Add a long max-age header if present
-browser_cache = ""
-
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
-end
-
-# Add a force SSL redirection if present
-force_ssl_dns = ""
-
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-end
-
-template '/etc/varnish/default.vcl' do
-  source 'default.vcl.erb'
-  variables({
-    errorpage: error_page,
-    cors: cors,
-    browser_cache: browser_cache,
-    force_ssl_dns: force_ssl_dns
-  })
-end
-
-varnish_config 'default' do
-  listen_address '0.0.0.0'
-  listen_port 80
-end
-
-varnish_log 'default'
-
-varnish_log 'default_ncsa' do
-  log_format 'varnishncsa'
-end
-
-service 'varnish' do
-  action [:restart]
-end
-
-execute "disable varnish log" do
-  command "ln -sf /dev/null /var/log/varnish/varnish.log"
-  user "root"
-  action :run
-end
-
-execute "disable varnishncsa log" do
-  command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
-  user "root"
-  action :run
-end
-
-# Call the WordPress cron
-cron 'wpcron' do
-  minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 end
