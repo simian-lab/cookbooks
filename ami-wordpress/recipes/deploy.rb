@@ -16,12 +16,18 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       end
     end
 
-    # make sure permissions are correct
+    # make sure permissions are correct on project folder
     execute "chown-data-www" do
       command "chown -R www-data:www-data #{app_path}"
       user "root"
       action :run
       not_if "stat -c %U #{app_path} | grep www-data"
+    end
+    # Fix file ownership after deploy
+    execute "file-chown-www-data" do
+      command "find #{app_path} -not -path \"*/uploads*\" -and -not -path \"*/gallery*\" -exec chown www-data:www-data {} \\"
+      user "root"
+      action :run
     end
 
     # Fix author permissions if exists
