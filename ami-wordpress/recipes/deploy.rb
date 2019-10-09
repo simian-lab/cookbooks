@@ -23,12 +23,6 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       action :run
       not_if "stat -c %U #{app_path} | grep www-data"
     end
-    # Fix file ownership after deploy
-    execute "file-chown-www-data" do
-      command "find #{app_path} -not -path '*/uploads*' -and -not -path '*/gallery*' -exec chown www-data:www-data {} \\;"
-      user "root"
-      action :run
-    end
 
     # Fix author permissions if exists
     if app['environment']['EFS_AUTHORS']
