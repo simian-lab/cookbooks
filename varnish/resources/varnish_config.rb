@@ -57,8 +57,7 @@ action :configure do
   malloc_default = percent_of_total_mem(node['memory']['total'], new_resource.malloc_percent)
 
   service 'varnish' do
-    supports restart: true, reload: true
-    action :nothing
+    supports [:restart, :reload]
   end
 
   template new_resource.conf_path do
