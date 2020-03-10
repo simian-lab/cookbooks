@@ -56,6 +56,10 @@ action :configure do
 
   malloc_default = percent_of_total_mem(node['memory']['total'], new_resource.malloc_percent)
 
+  service 'varnish' do
+    supports [:restart, :reload]
+    action [:nothing]
+  end
 
   template new_resource.conf_path do
     path new_resource.conf_path
@@ -70,10 +74,6 @@ action :configure do
       config: new_resource
     )
     notifies :run, 'execute[systemctl-daemon-reload]', :immediately if node['init_package'] == 'systemd'
-  end
-
-  service 'varnish' do
-    supports [:restart, :reload]
-    action [:restart]
+    notifies :restart, 'service[varnish]', :delayed
   end
 end
