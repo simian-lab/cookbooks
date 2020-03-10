@@ -74,6 +74,5 @@ action :configure do
       config: new_resource
     )
     notifies :run, 'execute[systemctl-daemon-reload]', :immediately if node['init_package'] == 'systemd'
-    notifies :restart, 'service[varnish]', :delayed
   end
 end
