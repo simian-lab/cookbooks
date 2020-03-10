@@ -95,7 +95,7 @@ when 'debian'
   case node['platform']
   when 'ubuntu'
     case node['platform_version'].to_f
-    when 16.04
+    when 16.04..18.04
       default['php']['version']          = '7.0.4'
       default['php']['checksum']         = 'f6cdac2fd37da0ac0bbcee0187d74b3719c2f83973dfe883d5cde81c356fe0a8'
       default['php']['conf_dir']         = '/etc/php/7.0/cli'
