@@ -218,6 +218,7 @@ service 'apache2' do
   when 'arch'
     service_name apache_service_name
   end
-  action [:enable, :restart]
+  supports [:start, :restart, :reload, :status, :graceful, :reload]
+  action [:enable, :start]
   only_if "#{node['apache']['binary']} -t", :environment => { 'APACHE_LOG_DIR' => node['apache']['log_dir'] }, :timeout => 10
 end
