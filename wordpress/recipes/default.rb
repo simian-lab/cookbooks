@@ -199,11 +199,6 @@ if app['environment']['FORCE_SSL_DNS']
   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
 end
 
-service 'varnish' do
-  supports [:restart, :reload]
-  subscribes :restart, 'file[/etc/default/varnish]', :immediately
-end
-
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
@@ -232,6 +227,11 @@ execute "disable varnishncsa log" do
   command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
   user "root"
   action :run
+end
+
+service 'varnish' do
+  supports [:restart, :reload]
+  subscribes :restart, 'template[/etc/default/varnish]', :immediately
 end
 
 # 6. Call the WordPress cron
