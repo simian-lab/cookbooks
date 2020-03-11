@@ -212,7 +212,6 @@ template '/etc/varnish/default.vcl' do
     browser_cache: browser_cache,
     force_ssl_dns: force_ssl_dns
   })
-  notifies :restart, 'service[varnish]', :immediately
 end
 
 template '/etc/systemd/system/varnish.service' do
@@ -221,7 +220,7 @@ end
 
 template '/etc/default/varnish' do
   source 'varnish.erb'
-  notifies :restart, 'service[varnish]', :immediately
+  notifies :restart, 'service[varnish]', :delayed
 end
 
 execute "disable varnish log" do
