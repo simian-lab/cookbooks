@@ -231,6 +231,7 @@ end
 
 service 'varnish' do
   supports [:restart, :reload]
+  action :restart
   subscribes :restart, 'template[/etc/default/varnish]', :immediately
 end
 

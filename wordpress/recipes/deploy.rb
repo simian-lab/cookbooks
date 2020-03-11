@@ -19,6 +19,11 @@ execute "chown-data-www" do
   not_if "stat -c %U #{app_path} | grep www-data"
 end
 
+# Clean cache
+service 'varnish' do
+  action [:restart]
+end
+
 # and now, W3TC's cloudfront config
 cloudfront_config = ""
 
