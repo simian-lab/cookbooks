@@ -213,6 +213,10 @@ template '/etc/systemd/system/varnish.service' do
   source 'varnish.service.erb'
 end
 
+template '/etc/default/varnish' do
+  source 'varnish.erb'
+end
+
 service 'varnish' do
   action [:restart]
 end
