@@ -201,7 +201,7 @@ end
 
 service 'varnish' do
   supports [:restart, :reload]
-  action [:nothing]
+  subscribes :restart, 'file[/etc/default/varnish]', :immediately
 end
 
 template '/etc/varnish/default.vcl' do
@@ -220,7 +220,6 @@ end
 
 template '/etc/default/varnish' do
   source 'varnish.erb'
-  notifies :restart, 'service[varnish]', :delayed
 end
 
 execute "disable varnish log" do
