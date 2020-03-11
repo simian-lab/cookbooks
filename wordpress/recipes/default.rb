@@ -221,7 +221,6 @@ end
 template '/etc/default/varnish' do
   source 'varnish.erb'
   notifies :restart, 'service[varnish]', :delayed
-  notifies :run, 'execute[systemctl-daemon-reload]', :immediately if node['init_package'] == 'systemd'
 end
 
 execute "disable varnish log" do
@@ -232,6 +231,12 @@ end
 
 execute "disable varnishncsa log" do
   command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
+  user "root"
+  action :run
+end
+
+execute 'systemctl-daemon-reload' do
+  command '/bin/systemctl --system daemon-reload'
   user "root"
   action :run
 end
