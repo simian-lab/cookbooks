@@ -1,9 +1,9 @@
-# Cookbook Name:: varnish
+# Cookbook:: varnish
 # Recipe:: default
 #
-# Copyright 2008-2009, Joe Williams <joe@joetify.com>
-# Copyright 2014. Patrick Connolly <patrick@myplanetdigital.com>
-# Copyright 2015. Rackspace, US Inc.
+# Copyright:: 2008-2009, Joe Williams <joe@joetify.com>
+# Copyright:: 2014. Patrick Connolly <patrick@myplanetdigital.com>
+# Copyright:: 2015. Rackspace, US Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-include_recipe 'apt'
+include_recipe 'yum-epel'
 
 varnish_repo 'configure' do
   node['varnish']['configure']['repo'].each do |key, value|
@@ -33,12 +33,6 @@ package 'varnish' do
   end
 end
 
-service 'varnish' do
-  node['varnish']['configure']['service'].each do |key, value|
-    send(key, value) unless value.nil?
-  end
-end
-
 varnish_config 'default' do
   node['varnish']['configure']['config'].each do |key, value|
     send(key, value) unless value.nil?
@@ -47,6 +41,12 @@ end
 
 vcl_template 'default.vcl' do
   node['varnish']['configure']['vcl_template'].each do |key, value|
+    send(key, value) unless value.nil?
+  end
+end
+
+service 'varnish' do
+  node['varnish']['configure']['service'].each do |key, value|
     send(key, value) unless value.nil?
   end
 end

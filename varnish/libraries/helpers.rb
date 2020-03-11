@@ -1,9 +1,11 @@
+require 'mixlib/shellout'
+
 module VarnishCookbook
   # Helper methods used by the varnish cookbook
   module Helpers
     extend Chef::Mixin::ShellOut
 
-    # rubocop:disable ModuleFunction
+    # rubocop:disable Style/ModuleFunction
     extend self # Stubbing with module_function doesn't seem to work
 
     def installed_major_version
@@ -18,7 +20,7 @@ module VarnishCookbook
       version_found = matches && matches[0] && matches[1]
       raise "Cannot parse varnish version from #{cmd_stdout}" unless version_found
 
-      return matches[1].to_f
+      matches[1].to_f
     rescue => ex
       Chef::Log.warn 'Unable to run varnishd to get version.'
       raise ex
@@ -26,6 +28,11 @@ module VarnishCookbook
 
     def percent_of_total_mem(total_mem, percent)
       "#{(total_mem[0..-3].to_i * (percent / 100.0)).to_i}K"
+    end
+
+    # Varnish expects `hostname` which isn't always the same as node["hostname"]
+    def hostname
+      shell_out!('hostname').stdout.strip
     end
 
     def systemd_daemon_reload

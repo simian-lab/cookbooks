@@ -2,13 +2,31 @@
 ## Resource settings
 ##
 
+default['varnish']['conf_cookbook'] = 'varnish'
+default['varnish']['major_version'] = 4.1
+
+default['varnish']['configure']['repo']['action'] = :configure
+
+# Prevent installation of distro varnish on RHEL/CentOS
+default['yum']['epel']['exclude'] = 'varnish' unless node['varnish']['configure']['repo']['action'].to_sym == :nothing
+
 if platform_family?('debian')
   default['varnish']['conf_path'] = '/etc/default/varnish'
-  default['varnish']['reload_cmd'] = '/usr/share/varnish/reload-vcl'
+  # Install specific version of Varnish on Debian/Ubuntu
+  default['varnish']['configure']['package']['version'] = "#{node['varnish']['major_version']}.\*" unless node['varnish']['configure']['repo']['action'].to_sym == :nothing
 else
   default['varnish']['conf_path'] = '/etc/sysconfig/varnish'
-  default['varnish']['reload_cmd'] = '/usr/sbin/varnish_reload_vcl'
 end
+
+default['varnish']['reload_cmd'] = if node['varnish']['major_version'] >= 6.1
+                                     '/usr/sbin/varnishreload'
+                                   elsif node['varnish']['major_version'] < 4
+                                     '/usr/bin/varnish_reload_vcl'
+                                   elsif platform_family?('debian')
+                                     '/usr/share/varnish/reload-vcl'
+                                   else
+                                     '/usr/sbin/varnish_reload_vcl'
+                                   end
 
 if node['init_package'] == 'init'
   default['varnish']['conf_source'] = 'default.erb'
@@ -20,11 +38,6 @@ else
   default['varnish']['conf_source'] = 'default.erb'
 end
 
-default['varnish']['conf_cookbook'] = 'varnish'
-
-default['varnish']['major_version'] = 4.1
-
-##
 ## varnish::configure recipe settings
 ##
 ## This recipe uses namespaced attributes to configure resources.
@@ -49,8 +62,6 @@ default['varnish']['major_version'] = 4.1
 # Disable logs:
 # override['varnish']['configure']['log']['action'] = :nothing
 
-default['varnish']['configure']['repo']['action'] = :configure
-
 default['varnish']['configure']['package']['action'] = :install
 
 default['varnish']['configure']['service']['action'] = [:start, :enable]
@@ -61,8 +72,8 @@ default['varnish']['configure']['vcl_template']['source']    = 'default.vcl.erb'
 default['varnish']['configure']['vcl_template']['variables'] = {
   config: {
     backend_host: '127.0.0.1',
-    backend_port: '8080'
-  }
+    backend_port: '8080',
+  },
 }
 
 default['varnish']['configure']['log'] = {}
