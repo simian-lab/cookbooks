@@ -199,6 +199,11 @@ if app['environment']['FORCE_SSL_DNS']
   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
 end
 
+service 'varnish' do
+  supports [:restart, :reload]
+  action [:nothing]
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
@@ -207,6 +212,7 @@ template '/etc/varnish/default.vcl' do
     browser_cache: browser_cache,
     force_ssl_dns: force_ssl_dns
   })
+  notifies :restart, 'service[varnish]', :immediately
 end
 
 template '/etc/systemd/system/varnish.service' do
@@ -215,10 +221,7 @@ end
 
 template '/etc/default/varnish' do
   source 'varnish.erb'
-end
-
-service 'varnish' do
-  action [:restart]
+  notifies :restart, 'service[varnish]', :immediately
 end
 
 execute "disable varnish log" do
