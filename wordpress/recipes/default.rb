@@ -215,12 +215,6 @@ varnish_config 'default' do
   listen_port 80
 end
 
-varnish_log 'default'
-
-varnish_log 'default_ncsa' do
-  log_format 'varnishncsa'
-end
-
 service 'varnish' do
   action [:restart]
 end
