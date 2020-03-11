@@ -49,7 +49,6 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
-include_recipe 'varnish::default'
 
 package 'Install PHP cURL' do
   package_name 'php-curl'
@@ -210,9 +209,8 @@ template '/etc/varnish/default.vcl' do
   })
 end
 
-varnish_config 'default' do
-  listen_address '0.0.0.0'
-  listen_port 80
+template '/etc/systemd/system/varnish.service' do
+  source 'varnish.service.erb'
 end
 
 service 'varnish' do
