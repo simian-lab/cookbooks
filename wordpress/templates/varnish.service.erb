@@ -1,13 +1,17 @@
 [Unit]
 Description=Varnish HTTP accelerator
+Documentation=https://www.varnish-cache.org/docs/4.1/ man:varnishd
 
 [Service]
-Type=forking
+Type=simple
 LimitNOFILE=131072
 LimitMEMLOCK=82000
-ExecStartPre=/usr/sbin/varnishd -C -f /etc/varnish/default.vcl
-ExecStart=/usr/sbin/varnishd -a 0.0.0.0:80 -T 127.0.0.1:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s file,/var/lib/varnish/default_storage.bin,1GB -p thread_pools=4 -p thread_pool_min=5 -p thread_pool_max=500 -p thread_pool_timeout=300
+ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a :80 -T localhost:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,256m
 ExecReload=/usr/share/varnish/reload-vcl
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
 
 [Install]
 WantedBy=multi-user.target
