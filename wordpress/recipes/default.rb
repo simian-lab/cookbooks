@@ -66,10 +66,8 @@ package 'varnish' do
   package_name 'varnish'
 end
 
-execute "install_htop" do
-  command "sudo apt-get install -y htop"
-  user "root"
-  action :run
+package 'htop' do
+  package_name 'htop'
 end
 
 # Optionally Install php-ssh2 dependency
@@ -205,6 +203,14 @@ end
 
 template '/etc/systemd/system/varnish.service' do
   source 'varnish.service.erb'
+end
+
+template '/etc/systemd/system/varnishlog.service' do
+  source 'varnishlog.service.erb'
+end
+
+template '/etc/systemd/system/varnishncsa.service' do
+  source 'varnishncsa.service.erb'
 end
 
 template '/etc/default/varnish' do
