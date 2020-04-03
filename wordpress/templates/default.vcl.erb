@@ -70,10 +70,7 @@ sub vcl_recv {
 
   # Avoid xmlrpc attacks
   if (req.url ~ "xmlrpc.php") {
-    <% if @errorpage != '' -%>
-    synthetic(std.fileread("<%= @errorpage %>"));
-    <% end -%>
-    return(deliver);
+    return(synth(405, "Not allowed."));
   }
 
   # pass wp-admin urls
