@@ -54,6 +54,10 @@ package 'Install PHP cURL' do
   package_name 'php-curl'
 end
 
+package 'Install PHP Mail' do
+  package_name 'php-mail'
+end
+
 package 'Memcached' do
   package_name 'php-memcached'
 end
