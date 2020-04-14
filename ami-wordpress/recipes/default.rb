@@ -4,7 +4,7 @@
 # 1. Uses the "SimianDefaultUbuntu" AMI wich contains:
 #     - Apache2 (v 2.4)
 #     - PHP (v7)
-#     - PHP-(curl,mbstring,mysql,xml,gd,ssh2,zip,memcached,imagick,mbstring)
+#     - PHP-(curl,mysql,xml,gd,ssh2,zip,memcached,imagick,mbstring)
 #     - Varnish (v4)
 #     - Sendmail
 #     - nfs-common

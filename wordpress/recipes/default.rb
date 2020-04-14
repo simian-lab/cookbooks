@@ -49,10 +49,13 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
-include_recipe 'varnish::default'
 
 package 'Install PHP cURL' do
   package_name 'php-curl'
+end
+
+package 'Install PHP Mail' do
+  package_name 'php-mail'
 end
 
 package 'Memcached' do
@@ -67,10 +70,8 @@ package 'varnish' do
   package_name 'varnish'
 end
 
-execute "install_htop" do
-  command "sudo apt-get install -y htop"
-  user "root"
-  action :run
+package 'htop' do
+  package_name 'htop'
 end
 
 # Optionally Install php-ssh2 dependency
@@ -114,9 +115,14 @@ ruby_block "insert_env_vars" do
 end
 
 # Make sure PHP can read the vars
+if node['php']['version']=='7.0.4'
+  php_ver = '7.0'
+else
+  php_ver = node['php']['version']
+end
 ruby_block "php_env_vars" do
   block do
-    file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
+    file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
     Chef::Log.info("Setting the variable order for PHP")
     file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
     file.write_file
@@ -184,6 +190,11 @@ if app['environment']['FORCE_SSL_DNS']
   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
 end
 
+service 'varnish' do
+  supports [:restart, :start, :stop]
+  action [:nothing]
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
   variables({
@@ -194,19 +205,21 @@ template '/etc/varnish/default.vcl' do
   })
 end
 
-varnish_config 'default' do
-  listen_address '0.0.0.0'
-  listen_port 80
+template '/etc/systemd/system/varnish.service' do
+  source 'varnish.service.erb'
 end
 
-varnish_log 'default'
-
-varnish_log 'default_ncsa' do
-  log_format 'varnishncsa'
+template '/etc/systemd/system/varnishlog.service' do
+  source 'varnishlog.service.erb'
 end
 
-service 'varnish' do
-  action [:restart]
+template '/etc/systemd/system/varnishncsa.service' do
+  source 'varnishncsa.service.erb'
+end
+
+template '/etc/default/varnish' do
+  source 'varnish.erb'
+  notifies :restart, 'service[varnish]', :delayed
 end
 
 execute "disable varnish log" do
@@ -217,6 +230,12 @@ end
 
 execute "disable varnishncsa log" do
   command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
+  user "root"
+  action :run
+end
+
+execute 'systemctl-daemon-reload' do
+  command '/bin/systemctl --system daemon-reload'
   user "root"
   action :run
 end

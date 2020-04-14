@@ -16,7 +16,7 @@ search("aws_opsworks_app","deploy:true").each do |candidate_app|
       end
     end
 
-    # make sure permissions are correct
+    # make sure permissions are correct on project folder
     execute "chown-data-www" do
       command "chown -R www-data:www-data #{app_path}"
       user "root"

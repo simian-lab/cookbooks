@@ -95,6 +95,28 @@ when 'debian'
   case node['platform']
   when 'ubuntu'
     case node['platform_version'].to_f
+    when 18.04
+      default['php']['version']          = '7.2'
+      default['php']['checksum']         = 'f6cdac2fd37da0ac0bbcee0187d74b3719c2f83973dfe883d5cde81c356fe0a8'
+      default['php']['conf_dir']         = '/etc/php/7.2/cli'
+      default['php']['src_deps']         = %w(libbz2-dev libc-client2007e-dev libcurl4-gnutls-dev libfreetype6-dev libgmp3-dev libjpeg62-dev libkrb5-dev libmcrypt-dev libpng12-dev libssl-dev pkg-config)
+      default['php']['packages']         = %w(php7.2-cgi php7.2 php7.2-dev php7.2-cli php-pear)
+      default['php']['mysql']['package'] = 'php7.2-mysql'
+      default['php']['curl']['package']  = 'php7.2-curl'
+      default['php']['apc']['package']   = 'php-apc'
+      default['php']['apcu']['package']  = 'php-apcu'
+      default['php']['gd']['package']    = 'php7.2-gd'
+      default['php']['ldap']['package']  = 'php7.2-ldap'
+      default['php']['pgsql']['package'] = 'php7.2-pgsql'
+      default['php']['sqlite']['package'] = 'php7.2-sqlite3'
+      default['php']['fpm_package']      = 'php7.2-fpm'
+      default['php']['fpm_pooldir']      = '/etc/php/7.2/fpm/pool.d'
+      default['php']['fpm_service']      = 'php7.2-fpm'
+      default['php']['fpm_socket']       = '/var/run/php/php7.2-fpm.sock'
+      default['php']['fpm_default_conf'] = '/etc/php/7.2/fpm/pool.d/www.conf'
+      default['php']['enable_mod']       = '/usr/sbin/phpenmod'
+      default['php']['disable_mod']      = '/usr/sbin/phpdismod'
+      default['php']['ext_conf_dir']     = '/etc/php/7.2/mods-available'
     when 16.04
       default['php']['version']          = '7.0.4'
       default['php']['checksum']         = 'f6cdac2fd37da0ac0bbcee0187d74b3719c2f83973dfe883d5cde81c356fe0a8'
