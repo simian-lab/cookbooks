@@ -99,12 +99,16 @@ sub vcl_backend_response {
   if (!(bereq.url ~ "(wp-login|wp-admin)")) {
     set beresp.http.X-UnsetCookies = "TRUE";
     unset beresp.http.set-cookie;
-    set beresp.ttl = 1h;
+    # Set how long Varnish will keep it
+    set beresp.ttl = 15m;
+    set beresp.http.cache-control = "public, max-age=900";
   }
 
   # long ttl for assets
   if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+    # Set how long Varnish will keep it
     set beresp.ttl = 365d;
+    set beresp.http.cache-control = "public, max-age=31536000";
   }
 
   if (bereq.http.Cookie ~ "(UserID|_session)") {
@@ -136,8 +140,13 @@ sub vcl_backend_response {
     set beresp.http.X-Cacheable = "YES";
     set beresp.uncacheable = false;
 
-    # Set how long Varnish will keep it
-    set beresp.ttl = 15m;
+    # If not defined set how long Varnish will keep it
+    if (!beresp.ttl) {
+      set beresp.ttl = 15m;
+    }
+    if (!beresp.http.cache-control) {
+      set beresp.http.cache-control = "public, max-age=900";
+    }
 
     # marker for vcl_deliver to reset Age:
     set beresp.http.magicmarker = "1";
@@ -150,22 +159,12 @@ sub vcl_backend_response {
     # Set How long browsers will keep the cache
     if ((bereq.url ~ "(preview=true|v1/preview)")) {
       set beresp.http.cache-control = "no-cache";
-    } else {
-      <% if @browser_cache != '' -%>
-        if(bereq.url ~ "\.(gif|swf|svg|webp|webm|ttf|woff|css|js|flv|mp3|mp4|pdf|ico)(\?.*|)$") {
-          set beresp.http.cache-control = "max-age=31536000";
-        } elseif(bereq.url ~ "\.(jpg|jpeg|png)(\?.*|)$") {
-          set beresp.http.cache-control = "max-age=1296000";
-        } else {
-          set beresp.http.cache-control = "max-age=900";
-        }
-      <% else %>
-        set beresp.http.cache-control = "public, max-age=900";
-      <% end -%>
     }
 
   }
 
+  unset beresp.http.server;
+  unset beresp.http.Powered-By-X;
   set beresp.grace = 1w;
 }
 
