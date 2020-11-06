@@ -1,12 +1,12 @@
 #
-# Cookbook:: wordpress
+# Cookbook:: buddypress
 # Spec:: default
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
 
 require 'spec_helper'
 
-describe 'wordpress::default' do
+describe 'buddypress::default' do
   context 'When all attributes are default, on an unspecified platform' do
     let(:chef_run) do
       runner = ChefSpec::ServerRunner.new
