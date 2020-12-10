@@ -78,6 +78,15 @@ sub vcl_recv {
     return (pass);
   }
 
+  # pass custom excluded urls
+  <% if @url_exclusions != '' -%>
+    <% @url_exclusions.each do |exclusion| %>
+      if (req.url ~ "<%= @exclusion%>") {
+        return (pass);
+      }
+    <%end %>
+  <% end -%>
+
   # pass wp-admin cookies
   if (req.http.cookie) {
     if (req.http.cookie ~ "(wordpress_|wp-settings-)") {

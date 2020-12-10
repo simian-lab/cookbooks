@@ -190,6 +190,14 @@ if app['environment']['FORCE_SSL_DNS']
   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
 end
 
+# Add url exclusions if exists
+url_exclusions = ""
+
+if app['environment']['VARNISH_URL_EXCLUSIONS']
+  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
+  url_exclusions = string_url_exclusions.split(",")
+end
+
 service 'varnish' do
   supports [:restart, :start, :stop]
   action [:nothing]
@@ -201,6 +209,7 @@ template '/etc/varnish/default.vcl' do
     errorpage: error_page,
     cors: cors,
     browser_cache: browser_cache,
+    url_exclusions: url_exclusions,
     force_ssl_dns: force_ssl_dns
   })
 end
