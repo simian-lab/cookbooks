@@ -198,6 +198,14 @@ if app['environment']['VARNISH_URL_EXCLUSIONS']
   url_exclusions = string_url_exclusions.split(",")
 end
 
+# Add host exclusions if exists
+host_exclusions = ""
+
+if app['environment']['VARNISH_HOST_EXCLUSIONS']
+  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
+  host_exclusions = string_host_exclusions.split(",")
+end
+
 service 'varnish' do
   supports [:restart, :start, :stop]
   action [:nothing]
@@ -210,6 +218,7 @@ template '/etc/varnish/default.vcl' do
     cors: cors,
     browser_cache: browser_cache,
     url_exclusions: url_exclusions,
+    host_exclusions: host_exclusions,
     force_ssl_dns: force_ssl_dns
   })
 end

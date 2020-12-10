@@ -87,6 +87,15 @@ sub vcl_recv {
     <%end -%>
   <% end -%>
 
+  # pass custom excluded hosts
+  <% if @host_exclusions != '' -%>
+    <% @host_exclusions.each do |value| -%>
+      if (req.http.host ~ "<%= value %>") {
+        return (pass);
+      }
+    <%end -%>
+  <% end -%>
+
   # pass wp-admin cookies
   if (req.http.cookie) {
     if (req.http.cookie ~ "(wordpress_|wp-settings-)") {
