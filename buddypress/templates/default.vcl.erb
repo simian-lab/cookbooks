@@ -17,7 +17,7 @@ import std;
 
 backend default {
   .host = "127.0.0.1";
-  .port = "8080";
+  .port = "80";
 }
 
 acl purge {
@@ -77,24 +77,6 @@ sub vcl_recv {
   if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "v1/preview" || req.url ~ "wp-cron") {
     return (pass);
   }
-
-  # pass custom excluded urls
-  <% if @url_exclusions != '' -%>
-    <% @url_exclusions.each do |value| -%>
-      if (req.url ~ "<%= value %>") {
-        return (pass);
-      }
-    <%end -%>
-  <% end -%>
-
-  # pass custom excluded hosts
-  <% if @host_exclusions != '' -%>
-    <% @host_exclusions.each do |value| -%>
-      if (req.http.host ~ "<%= value %>") {
-        return (pass);
-      }
-    <%end -%>
-  <% end -%>
 
   # pass wp-admin cookies
   if (req.http.cookie) {

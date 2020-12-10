@@ -6,7 +6,6 @@
 #     - PHP (v7)
 #     - PHP's MySQL connector
 #     - PHP GD for image manipulation
-#     - Varnish (v4)
 #
 # 2. Makes sure the variables defined in the OpsWorks console are readable
 #    in PHP.
@@ -16,8 +15,6 @@
 #
 # 4. Creates the Apache VirtualHost for the site. It uses the default template
 #    which can be found in the `apache2` cookbook in this repo.
-#
-# 5. Configures caching with Varnish and W3TC.
 #
 # This is all it does. Other considerations (such as giving it EFS support
 # for multi-server setups or installing a MySQL/MariaDB server for single
@@ -54,10 +51,6 @@ package 'Install PHP cURL' do
   package_name 'php-curl'
 end
 
-package 'Install PHP Mail' do
-  package_name 'php-mail'
-end
-
 package 'Memcached' do
   package_name 'php-memcached'
 end
@@ -66,40 +59,10 @@ package 'Mailer' do
   package_name 'sendmail'
 end
 
-package 'varnish' do
-  package_name 'varnish'
-end
-
-package 'htop' do
-  package_name 'htop'
-end
-
-# Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
-end
-
-# Optionally Install php-zip dependency
-if app['environment']['PHP_ZIP_ENABLE']
-  package 'Install PHP zip' do
-    package_name 'php-zip'
-  end
-end
-
-# Optionally Install php-imagick dependency
-if app['environment']['PHP_IMAGICK_ENABLE']
-  package 'Install PHP imagick' do
-    package_name 'php-imagick'
-  end
-end
-
-# Optionally Install php-mbstring dependency
-if app['environment']['PHP_MBSTRING_ENABLE']
-  package 'Install PHP mbstring' do
-    package_name 'php-mbstring'
-  end
+execute "install_htop" do
+  command "sudo apt-get install -y htop"
+  user "root"
+  action :run
 end
 
 # 2. Set the environment variables for PHP
@@ -115,14 +78,9 @@ ruby_block "insert_env_vars" do
 end
 
 # Make sure PHP can read the vars
-if node['php']['version']=='7.0.4'
-  php_ver = '7.0'
-else
-  php_ver = node['php']['version']
-end
 ruby_block "php_env_vars" do
   block do
-    file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
+    file = Chef::Util::FileEdit.new('/etc/php/7.0/apache2/php.ini')
     Chef::Log.info("Setting the variable order for PHP")
     file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
     file.write_file
@@ -154,108 +112,10 @@ web_app app['shortname'] do
   template 'web_app.conf.erb'
   allow_override 'All'
   server_name app['domains'].first
-  server_port 8080
+  server_port 80
   server_aliases app['domains'].drop(1)
   docroot app_path
   multisite app['environment']['MULTISITE']
-end
-
-# 5. We configure caching
-
-# first off, Varnish (with custom error page if present)
-error_page = ""
-
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
-end
-
-# define a CORS header
-cors = ""
-
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
-end
-
-# Add a long max-age header if present
-browser_cache = ""
-
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
-end
-
-# Add a force SSL redirection if present
-force_ssl_dns = ""
-
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-end
-
-# Add url exclusions if exists
-url_exclusions = ""
-
-if app['environment']['VARNISH_URL_EXCLUSIONS']
-  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-  url_exclusions = string_url_exclusions.split(",")
-end
-
-# Add host exclusions if exists
-host_exclusions = ""
-
-if app['environment']['VARNISH_HOST_EXCLUSIONS']
-  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-  host_exclusions = string_host_exclusions.split(",")
-end
-
-service 'varnish' do
-  supports [:restart, :start, :stop]
-  action [:nothing]
-end
-
-template '/etc/varnish/default.vcl' do
-  source 'default.vcl.erb'
-  variables({
-    errorpage: error_page,
-    cors: cors,
-    browser_cache: browser_cache,
-    url_exclusions: url_exclusions,
-    host_exclusions: host_exclusions,
-    force_ssl_dns: force_ssl_dns
-  })
-end
-
-template '/etc/systemd/system/varnish.service' do
-  source 'varnish.service.erb'
-end
-
-template '/etc/systemd/system/varnishlog.service' do
-  source 'varnishlog.service.erb'
-end
-
-template '/etc/systemd/system/varnishncsa.service' do
-  source 'varnishncsa.service.erb'
-end
-
-template '/etc/default/varnish' do
-  source 'varnish.erb'
-  notifies :restart, 'service[varnish]', :delayed
-end
-
-execute "disable varnish log" do
-  command "ln -sf /dev/null /var/log/varnish/varnish.log"
-  user "root"
-  action :run
-end
-
-execute "disable varnishncsa log" do
-  command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
-  user "root"
-  action :run
-end
-
-execute 'systemctl-daemon-reload' do
-  command '/bin/systemctl --system daemon-reload'
-  user "root"
-  action :run
 end
 
 # 6. Call the WordPress cron

@@ -17,23 +17,6 @@
 # 4. Creates the Apache VirtualHost for the site. It uses the default template
 #    which can be found in the `apache2` cookbook in this repo.
 #
-# 5. Configures caching with Varnish and W3TC.
-#
-# This is all it does. Other considerations (such as giving it EFS support
-# for multi-server setups or installing a MySQL/MariaDB server for single
-# server setups) should be done in other recipes.
-#
-# The actual deployment of the application code is done in the `deploy` recipe,
-# since we don't need to build the entire environment with each deploy.
-#
-# There are some considerations that should be taken into account with this
-# recipe:
-#
-# a) It is intended solely for Opsworks, not for local installations.
-# b) It has only been tested with Ubuntu 16.04 LTS. It *should* work with other
-#    operating systems, but it probably would take some additional work.
-#
-# — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 
 # Initial setup: just a couple vars we need
@@ -64,10 +47,6 @@ end
 
 package 'Mailer' do
   package_name 'sendmail'
-end
-
-package 'varnish' do
-  package_name 'varnish'
 end
 
 package 'htop' do
@@ -154,103 +133,13 @@ web_app app['shortname'] do
   template 'web_app.conf.erb'
   allow_override 'All'
   server_name app['domains'].first
-  server_port 8080
+  server_port 80
   server_aliases app['domains'].drop(1)
   docroot app_path
   multisite app['environment']['MULTISITE']
 end
 
-# 5. We configure caching
-
-# first off, Varnish (with custom error page if present)
-error_page = ""
-
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
-end
-
-# define a CORS header
-cors = ""
-
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
-end
-
-# Add a long max-age header if present
-browser_cache = ""
-
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
-end
-
-# Add a force SSL redirection if present
-force_ssl_dns = ""
-
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-end
-
-# Add url exclusions if exists
-url_exclusions = ""
-
-if app['environment']['VARNISH_URL_EXCLUSIONS']
-  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-  url_exclusions = string_url_exclusions.split(",")
-end
-
-# Add host exclusions if exists
-host_exclusions = ""
-
-if app['environment']['VARNISH_HOST_EXCLUSIONS']
-  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-  host_exclusions = string_host_exclusions.split(",")
-end
-
-service 'varnish' do
-  supports [:restart, :start, :stop]
-  action [:nothing]
-end
-
-template '/etc/varnish/default.vcl' do
-  source 'default.vcl.erb'
-  variables({
-    errorpage: error_page,
-    cors: cors,
-    browser_cache: browser_cache,
-    url_exclusions: url_exclusions,
-    host_exclusions: host_exclusions,
-    force_ssl_dns: force_ssl_dns
-  })
-end
-
-template '/etc/systemd/system/varnish.service' do
-  source 'varnish.service.erb'
-end
-
-template '/etc/systemd/system/varnishlog.service' do
-  source 'varnishlog.service.erb'
-end
-
-template '/etc/systemd/system/varnishncsa.service' do
-  source 'varnishncsa.service.erb'
-end
-
-template '/etc/default/varnish' do
-  source 'varnish.erb'
-  notifies :restart, 'service[varnish]', :delayed
-end
-
-execute "disable varnish log" do
-  command "ln -sf /dev/null /var/log/varnish/varnish.log"
-  user "root"
-  action :run
-end
-
-execute "disable varnishncsa log" do
-  command "ln -sf /dev/null /var/log/varnish/varnishncsa.log"
-  user "root"
-  action :run
-end
+# 5. Last steps
 
 execute 'systemctl-daemon-reload' do
   command '/bin/systemctl --system daemon-reload'

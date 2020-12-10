@@ -1,0 +1,11 @@
+[Unit]
+Description=Varnish HTTP accelerator logging daemon
+After=varnish.service
+
+[Service]
+Type=forking
+PIDFile=/var/run/varnishlog.pid
+ExecStart=/usr/bin/varnishlog -a -w /var/log/varnish/varnishlog.log -D -P /var/run/varnishlog.pid -n acerola
+
+[Install]
+WantedBy=multi-user.target
