@@ -179,6 +179,25 @@ sub vcl_backend_response {
       set beresp.http.cache-control = "no-cache";
     }
 
+    # set headers for excluded urls - avoid browser cache
+    <% if @url_exclusions != '' -%>
+      <% @url_exclusions.each do |value| -%>
+        if (bereq.url ~ "<%= value %>") {
+          set beresp.http.cache-control = "no-cache";
+          set beresp.http.X-Cacheable = "NO:Not Cacheable";
+        }
+      <%end -%>
+    <% end -%>
+
+    # set headers for excluded hosts - avoid browser cache
+    <% if @host_exclusions != '' -%>
+      <% @host_exclusions.each do |value| -%>
+        if (bereq.http.host ~ "<%= value %>") {
+          set beresp.http.cache-control = "no-cache";
+          set beresp.http.X-Cacheable = "NO:Not Cacheable";
+        }
+      <%end -%>
+    <% end -%>
   }
 
   unset beresp.http.server;
