@@ -81,7 +81,7 @@ sub vcl_recv {
   # pass custom excluded urls
   <% if @url_exclusions != '' -%>
     <% @url_exclusions.each do |key, value| %>
-      if (req.url ~ "<%= @value %>") {
+      if (req.url ~ "<%= #{value} %>") {
         return (pass);
       }
     <%end %>
