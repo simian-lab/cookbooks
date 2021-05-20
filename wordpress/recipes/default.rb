@@ -42,6 +42,12 @@ app_path = "/srv/#{app['shortname']}"
 
 # 1. Installing some required packages
 include_recipe 'apt::default'
+
+# Add php latest ppa
+apt_repository 'latest-php' do
+  uri          'ppa:ondrej/php'
+end
+
 include_recipe 'php::default'
 include_recipe 'php::module_mysql'
 include_recipe 'php::module_gd'
@@ -49,6 +55,7 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
+
 
 package 'Install PHP cURL' do
   package_name 'php-curl'
