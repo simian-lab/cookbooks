@@ -22,7 +22,7 @@ default['apache']['mod_php']['so_filename'] = 'libphp5.so'
 default['apache']['mod_php']['so_filename'] = 'mod_php5.so' if node['platform_family'] == 'suse'
 
 if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 18.04
-  default['apache']['mod_php']['module_name'] = 'php7'
+  default['apache']['mod_php']['module_name'] = 'php8.0'
   default['apache']['mod_php']['so_filename'] = 'libphp8.0.so'
 end
 if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 16.04
