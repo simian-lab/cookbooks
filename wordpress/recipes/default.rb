@@ -126,10 +126,30 @@ if node['php']['version']=='7.0.4'
   php_ver = '7.0'
 else
   php_ver = node['php']['version']
+
+  file '/etc/apache2/mods-available/php7.0.load' do
+    action :delete
+  end
+  file '/etc/apache2/mods-available/php7.0.conf' do
+    action :delete
+  end
+  file '/etc/apache2/mods-available/php7.load' do
+    action :delete
+  end
+  file '/etc/apache2/mods-available/php7.conf' do
+    action :delete
+  end
 end
+
 ruby_block "php_env_vars" do
   block do
     file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/cli/php.ini")
+    Chef::Log.info("Setting the variable order for PHP")
+    file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
+    file.write_file
+  end
+  block do
+    file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
     Chef::Log.info("Setting the variable order for PHP")
     file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
     file.write_file

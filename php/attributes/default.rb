@@ -96,7 +96,7 @@ when 'debian'
   when 'ubuntu'
     case node['platform_version'].to_f
     when 18.04
-      default['php']['version']          = '7.4'
+      default['php']['version']          = '8.0'
       default['php']['checksum']         = 'f6cdac2fd37da0ac0bbcee0187d74b3719c2f83973dfe883d5cde81c356fe0a8'
       default['php']['conf_dir']         = '/etc/php/7.4/cli'
       default['php']['src_deps']         = %w(libbz2-dev libc-client2007e-dev libcurl4-gnutls-dev libfreetype6-dev libgmp3-dev libjpeg62-dev libkrb5-dev libmcrypt-dev libpng12-dev libssl-dev pkg-config)
