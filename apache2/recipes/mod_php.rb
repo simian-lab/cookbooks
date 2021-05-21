@@ -88,10 +88,12 @@ when 'rhel', 'fedora', 'suse'
   end
 end
 
-template "#{node['apache']['dir']}/mods-available/php7.conf" do
-  source 'mods/php.conf.erb'
-  mode '0644'
-  notifies :reload, 'service[apache2]', :delayed
+if node['platform'] == 'ubuntu' && node['platform_version'].to_f <= 16.04
+  template "#{node['apache']['dir']}/mods-available/php7.conf" do
+    source 'mods/php.conf.erb'
+    mode '0644'
+    notifies :reload, 'service[apache2]', :delayed
+  end
 end
 
 apache_module node['apache']['mod_php']['module_name'] do

@@ -45,7 +45,7 @@ include_recipe 'apt::default'
 
 # Add php latest ppa
 apt_repository 'latest-php' do
-  uri          'ppa:ondrej/php'
+  uri 'ppa:ondrej/php'
 end
 
 include_recipe 'php::default'
