@@ -101,11 +101,11 @@ when 'debian'
       default['php']['checksum']         = 'f6cdac2fd37da0ac0bbcee0187d74b3719c2f83973dfe883d5cde81c356fe0a8'
       default['php']['conf_dir']         = '/etc/php/7.4/cli'
       default['php']['src_deps']         = %w(libbz2-dev libc-client2007e-dev libcurl4-gnutls-dev libfreetype6-dev libgmp3-dev libjpeg62-dev libkrb5-dev libmcrypt-dev libpng12-dev libssl-dev pkg-config)
-      default['php']['packages']         = %w(php7.4-cgi php7.4 php7.4-dev php7.4-cli php-pear)
+      default['php']['packages']         = %w(php7.4-cgi php7.4 php7.4-cli)
       default['php']['mysql']['package'] = 'php7.4-mysql'
       default['php']['curl']['package']  = 'php7.4-curl'
-      default['php']['apc']['package']   = 'php-apc'
-      default['php']['apcu']['package']  = 'php-apcu'
+      default['php']['apc']['package']   = 'php7.4-apc'
+      default['php']['apcu']['package']  = 'php7.4-apcu'
       default['php']['gd']['package']    = 'php7.4-gd'
       default['php']['ldap']['package']  = 'php7.4-ldap'
       default['php']['pgsql']['package'] = 'php7.4-pgsql'
