@@ -69,10 +69,6 @@ package 'Memcached' do
   package_name 'php-memcached'
 end
 
-package 'Mailer' do
-  package_name 'sendmail'
-end
-
 package 'varnish' do
   package_name 'varnish'
 end
