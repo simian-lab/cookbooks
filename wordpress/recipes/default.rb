@@ -60,7 +60,7 @@ package 'Install PHP' do
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php'
+  package_name 'libapache2-mod-php7.4'
 end
 
 package 'Install PHP cURL' do
