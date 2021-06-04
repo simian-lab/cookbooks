@@ -25,28 +25,57 @@ app_path = "/srv/#{app['shortname']}"
 
 # 1. Installing some required packages
 include_recipe 'apt::default'
-include_recipe 'php::default'
-include_recipe 'php::module_mysql'
-include_recipe 'php::module_gd'
+
+# Add php latest ppa
+apt_repository 'latest-php' do
+  uri 'ppa:ondrej/php'
+end
+
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
 
-package 'Install PHP cURL' do
-  package_name 'php-curl'
+# Install php
+
+package 'Install PHP' do
+  package_name 'php7.4'
 end
 
-package 'Install PHP Mail' do
-  package_name 'php-mail'
+package 'Install PHP libapache' do
+  package_name 'libapache2-mod-php7.4'
+end
+
+package 'Install PHP cURL' do
+  package_name 'php7.4-curl'
+end
+
+package 'Install PHP mbstring' do
+  package_name 'php7.4-mbstring'
+end
+
+package 'Install PHP mysql' do
+  package_name 'php7.4-mysql'
+end
+
+package 'Install PHP xml' do
+  package_name 'php7.4-xml'
+end
+
+package 'Install PHP gd' do
+  package_name 'php7.4-gd'
 end
 
 package 'Memcached' do
-  package_name 'php-memcached'
+  package_name 'php7.4-memcached'
 end
 
-package 'Mailer' do
-  package_name 'sendmail'
+package 'Install PHP imagick' do
+  package_name 'php7.4-imagick'
+end
+
+package 'Install PHP Mail' do
+  package_name 'php7.4-mail'
 end
 
 package 'htop' do
@@ -67,19 +96,6 @@ if app['environment']['PHP_ZIP_ENABLE']
   end
 end
 
-# Optionally Install php-imagick dependency
-if app['environment']['PHP_IMAGICK_ENABLE']
-  package 'Install PHP imagick' do
-    package_name 'php-imagick'
-  end
-end
-
-# Optionally Install php-mbstring dependency
-if app['environment']['PHP_MBSTRING_ENABLE']
-  package 'Install PHP mbstring' do
-    package_name 'php-mbstring'
-  end
-end
 
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
