@@ -29,10 +29,6 @@ package 'Install NFS' do
   end
 end
 
-package 'Install Memcached' do
-  package_name 'php-memcache'
-end
-
 # 2. We make sure that the folders exist
 if app['environment']['EFS_UPLOADS']
   directory "#{app_path}/wp-content/uploads" do
