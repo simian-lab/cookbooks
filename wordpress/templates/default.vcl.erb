@@ -58,7 +58,7 @@ sub vcl_recv {
   }
 
   # drop cookies and params from static assets
-  if (req.url ~ "\.(gif|jpg|jpeg|svg|webp|webm|swf|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
+  if (req.url ~ "\.(webm|swf|ttf|css|js|flv|mp3|mp4|pdf)(\?.*|)$") {
     unset req.http.cookie;
     set req.url = regsub(req.url, "\?.*$", "");
   }
@@ -160,10 +160,10 @@ sub vcl_backend_response {
 
     # If not defined set how long Varnish will keep it
     if (!beresp.ttl) {
-      set beresp.ttl = 15m;
+      set beresp.ttl = 5m;
     }
     if (!beresp.http.cache-control) {
-      set beresp.http.cache-control = "public, max-age=900";
+      set beresp.http.cache-control = "public, max-age=300";
     }
 
     # marker for vcl_deliver to reset Age:
