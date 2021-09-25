@@ -160,10 +160,10 @@ sub vcl_backend_response {
 
     # If not defined set how long Varnish will keep it
     if (!beresp.ttl) {
-      set beresp.ttl = 5m;
+      set beresp.ttl = 1m;
     }
     if (!beresp.http.cache-control) {
-      set beresp.http.cache-control = "public, max-age=300";
+      set beresp.http.cache-control = "public, max-age=60";
     }
 
     # marker for vcl_deliver to reset Age:
