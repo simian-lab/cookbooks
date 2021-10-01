@@ -50,7 +50,7 @@ include_recipe 'apt::default'
 
 # Add php latest ppa
 execute "latest-php" do
-  command "apt-get --allow-unauthenticated add-apt-repository ppa:ondrej/php"
+  command "sudo add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
 end
