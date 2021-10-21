@@ -43,9 +43,16 @@ app_path = "/srv/#{app['shortname']}"
 # 1. Installing some required packages
 include_recipe 'apt::default'
 
+# # Add php latest ppa
+# apt_repository 'latest-php' do
+#   uri 'ppa:ondrej/php'
+# end
+
 # Add php latest ppa
-apt_repository 'latest-php' do
-  uri 'ppa:ondrej/php'
+execute "latest-php" do
+  command "sudo add-apt-repository ppa:ondrej/php -y"
+  user "root"
+  action :run
 end
 
 include_recipe 'apache2::mod_php'
