@@ -75,3 +75,10 @@ if app['environment']['EFS_AUTHORS']
     command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
   end
 end
+
+
+# 4. Call the custom cron
+cron 'wpcron' do
+  minute '*'
+  command "wget -q -O - #{app['domains'].first}/custom-cron.php?doing_wp_cron"
+end
