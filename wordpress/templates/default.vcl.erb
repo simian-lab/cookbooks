@@ -73,6 +73,11 @@ sub vcl_recv {
     return(synth(405, "Not allowed."));
   }
 
+  # Don't cache PDF files
+  if (req.url ~ "\.(pdf)(\?.*|)$") {
+    return (pass);
+  }
+
   # pass wp-admin urls
   if (req.url ~ "(wp-login|wp-admin)" || req.url ~ "preview=true" || req.url ~ "v1/preview" || req.url ~ "wp-cron") {
     return (pass);
