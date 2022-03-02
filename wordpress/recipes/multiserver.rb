@@ -86,4 +86,5 @@ if app['environment']['WP_CRON_HOSTS']
       minute '*'
       command "wget -q -O -  https://#{host}/wp-cron.php?doing_wp_cron"
     end
+  end
 end
