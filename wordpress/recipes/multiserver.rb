@@ -78,13 +78,7 @@ end
 
 
 # 4. Call the custom cron
-if app['environment']['WP_CRON_HOSTS']
-  string_wp_cron_hosts = "#{app['environment']['WP_CRON_HOSTS']}"
-  wp_cron_hosts = string_wp_cron_hosts.split(",")
-  wp_cron_hosts.each do |host|
-    cron 'wpcron' do
-      minute '*'
-      command "wget -q -O -  https://#{host}/wp-cron.php?doing_wp_cron"
-    end
-  end
+cron "wpcron" do
+  minute "*"
+  command "wget -q -O - https://procesal.simianlab.co/wp-cron.php?doing_wp_cron"
 end
