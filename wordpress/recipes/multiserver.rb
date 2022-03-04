@@ -94,3 +94,4 @@ if app['environment']['WP_CRON_HOSTS']
       end
     end
   end
+end
