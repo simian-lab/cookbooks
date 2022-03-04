@@ -80,5 +80,5 @@ end
 # 4. Call the custom cron
 cron "wpcron" do
   minute "*"
-  command "wget -q -O - https://procesal.simianlab.co/wp-cron.php?doing_wp_cron"
+  command "curl --user simian:s1m14nadmin https://procesal.simianlab.co/wp-cron.php?doing_wp_cron"
 end
