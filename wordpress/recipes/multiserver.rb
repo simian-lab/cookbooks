@@ -83,12 +83,12 @@ if app['environment']['WP_CRON_HOSTS']
   wp_cron_hosts.each do |host|
     # If the site is protected by username and password, we must pass those credentials for the cron to work.
     if app['environment']['ACCESS_CREDENTIALS']
-      cron "cron job for #{host}" do
+      cron "wpcron" do
         minute '*'
         command "curl --user #{app["environment"]["ACCESS_CREDENTIALS"]} https://#{host}/wp-cron.php?doing_wp_cron"
       end
     else
-      cron "cron job for #{host}" do
+      cron "wpcron" do
         minute '*'
         command "wget -q -O -  https://#{host}/wp-cron.php?doing_wp_cron"
       end
