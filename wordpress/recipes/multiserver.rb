@@ -77,8 +77,20 @@ if app['environment']['EFS_AUTHORS']
 end
 
 # 4. Call the custom cron
-puts "Test the exact route"
-cron "wpcron" do
-  minute "*"
-  command "curl --user simian:s1m14nadmin https://procesal.simianlab.co/wp-cron.php?doing_wp_cron"
-end
+if app['environment']['WP_CRON_HOSTS']
+  string_wp_cron_hosts = "#{app['environment']['WP_CRON_HOSTS']}"
+  wp_cron_hosts = string_wp_cron_hosts.split(',')
+  wp_cron_hosts.each do |host|
+    # If the site is protected by username and password, we must pass those credentials for the cron to work.
+    if app['environment']['ACCESS_CREDENTIALS']
+      cron "cron job for #{host}" do
+        minute '*'
+        command "curl --user #{app["environment"]["ACCESS_CREDENTIALS"]} https://#{host}/wp-cron.php?doing_wp_cron"
+      end
+    else
+      cron "cron job for #{host}" do
+        minute '*'
+        command "wget -q -O -  https://#{host}/wp-cron.php?doing_wp_cron"
+      end
+    end
+  end
