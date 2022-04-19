@@ -1,6 +1,16 @@
 app = search("aws_opsworks_app","deploy:true").first
 app_path = "/srv/#{app['shortname']}"
 
+log 'Current recipe' do
+  message 'Running the deploy recipe for WordPress.'
+  level :info
+end
+
+execute 'Add an exception for this directory' do
+  command "git config --global --add safe.directory #{app_path}"
+  user "root"
+end
+
 application app_path do
   environment.update(app['environment'])
 
