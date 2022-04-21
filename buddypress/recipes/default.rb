@@ -83,17 +83,13 @@ package 'htop' do
 end
 
 # Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
+package 'Install PHP ssh' do
+  package_name 'php7.4-ssh2'
 end
 
 # Optionally Install php-zip dependency
-if app['environment']['PHP_ZIP_ENABLE']
-  package 'Install PHP zip' do
-    package_name 'php-zip'
-  end
+package 'Install PHP zip' do
+  package_name 'php7.4-zip'
 end
 
 
