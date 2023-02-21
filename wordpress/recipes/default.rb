@@ -102,6 +102,10 @@ package 'Install PHP Mail' do
   package_name 'php7.4-mail'
 end
 
+package 'Install PHP zip' do
+  package_name 'php7.4-zip'
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
@@ -116,14 +120,6 @@ if app['environment']['PHP_SSH_ENABLE']
     package_name 'php-ssh2'
   end
 end
-
-# Optionally Install php-zip dependency
-if app['environment']['PHP_ZIP_ENABLE']
-  package 'Install PHP zip' do
-    package_name 'php-zip'
-  end
-end
-
 
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
