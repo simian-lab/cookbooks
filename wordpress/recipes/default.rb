@@ -41,7 +41,7 @@ app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
 log 'debug' do
-  message 'Simian: Add repository'
+  message 'Simian-debug: Add repository'
   level :info
 end
 
@@ -60,9 +60,18 @@ include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
 
 # Install php
+log 'debug' do
+  message 'Simian-debug: Install PHP'
+  level :info
+end
 
 package 'Install PHP' do
   package_name 'php7.4'
+end
+
+log 'debug' do
+  message 'Simian-debug: Install PHP libapache'
+  level :info
 end
 
 package 'Install PHP libapache' do
