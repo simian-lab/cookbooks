@@ -45,9 +45,10 @@ log 'debug' do
   level :info
 end
 
-# Add php latest ppa
-apt_repository 'latest-php' do
-  uri 'ppa:ondrej/php'
+execute "latest-php" do
+  command "sudo add-apt-repository ppa:ondrej/php -y"
+  user "root"
+  action :run
 end
 
 # Installing some required packages
@@ -65,7 +66,7 @@ package 'Install PHP' do
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.4'
+  package_name 'libapache2-mod-php7.2'
 end
 
 package 'Install PHP cURL' do
