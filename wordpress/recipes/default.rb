@@ -40,11 +40,14 @@
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
+log 'debug' do
+  message 'Simian: Add repository'
+  level :info
+end
+
 # Add php latest ppa
-execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
-  user "root"
-  action :run
+apt_repository 'latest-php' do
+  uri 'ppa:ondrej/php'
 end
 
 # Installing some required packages
