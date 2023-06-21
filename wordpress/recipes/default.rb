@@ -40,6 +40,9 @@
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
+# Installing some required packages
+include_recipe 'apt::default'
+
 log 'debug' do
   message 'Simian-debug: Add repository'
   level :info
@@ -50,9 +53,6 @@ execute "latest-php" do
   user "root"
   action :run
 end
-
-# Installing some required packages
-include_recipe 'apt::default'
 
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
@@ -75,7 +75,7 @@ log 'debug' do
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.2'
+  package_name 'libapache2-mod-php7.4'
 end
 
 package 'Install PHP cURL' do

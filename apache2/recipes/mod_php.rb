@@ -32,7 +32,7 @@ when 'debian'
   elsif node['platform'] == 'debian' && node['platform_version'].to_f < 9
     package 'libapache2-mod-php5'
   else
-    package 'libapache2-mod-php'
+    package 'libapache2-mod-php7.4'
   end
 when 'arch'
   package 'php-apache' do
