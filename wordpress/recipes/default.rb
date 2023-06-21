@@ -65,6 +65,55 @@ log 'debug' do
   level :info
 end
 
+package 'Install PHP' do
+  package_name 'php7.4'
+end
+
+log 'debug' do
+  message 'Simian-debug: Install PHP libapache'
+  level :info
+end
+
+package 'Install PHP libapache' do
+  package_name 'libapache2-mod-php7.4'
+end
+
+package 'Install PHP cURL' do
+  package_name 'php7.4-curl'
+end
+
+package 'Install PHP mbstring' do
+  package_name 'php7.4-mbstring'
+end
+
+package 'Install PHP mysql' do
+  package_name 'php7.4-mysql'
+end
+
+package 'Install PHP xml' do
+  package_name 'php7.4-xml'
+end
+
+package 'Install PHP gd' do
+  package_name 'php7.4-gd'
+end
+
+package 'Memcached' do
+  package_name 'php7.4-memcached'
+end
+
+package 'Install PHP imagick' do
+  package_name 'php7.4-imagick'
+end
+
+package 'Install PHP Mail' do
+  package_name 'php7.4-mail'
+end
+
+package 'Install PHP zip' do
+  package_name 'php7.4-zip'
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
