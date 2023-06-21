@@ -66,7 +66,7 @@ log 'debug' do
 end
 
 package 'Install PHP' do
-  package_name 'php7.4'
+  package_name 'php7.2'
 end
 
 log 'debug' do
@@ -75,43 +75,43 @@ log 'debug' do
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.4'
+  package_name 'libapache2-mod-php7.2'
 end
 
 package 'Install PHP cURL' do
-  package_name 'php7.4-curl'
+  package_name 'php7.2-curl'
 end
 
 package 'Install PHP mbstring' do
-  package_name 'php7.4-mbstring'
+  package_name 'php7.2-mbstring'
 end
 
 package 'Install PHP mysql' do
-  package_name 'php7.4-mysql'
+  package_name 'php7.2-mysql'
 end
 
 package 'Install PHP xml' do
-  package_name 'php7.4-xml'
+  package_name 'php7.2-xml'
 end
 
 package 'Install PHP gd' do
-  package_name 'php7.4-gd'
+  package_name 'php7.2-gd'
 end
 
 package 'Memcached' do
-  package_name 'php7.4-memcached'
+  package_name 'php7.2-memcached'
 end
 
 package 'Install PHP imagick' do
-  package_name 'php7.4-imagick'
+  package_name 'php7.2-imagick'
 end
 
 package 'Install PHP Mail' do
-  package_name 'php7.4-mail'
+  package_name 'php7.2-mail'
 end
 
 package 'Install PHP zip' do
-  package_name 'php7.4-zip'
+  package_name 'php7.2-zip'
 end
 
 package 'varnish' do
@@ -142,11 +142,13 @@ ruby_block "insert_env_vars" do
 end
 
 # Make sure PHP can read the vars
-if node['php']['version']=='7.0.4'
-  php_ver = '7.0'
-else
-  php_ver = node['php']['version']
-end
+#if node['php']['version']=='7.0.4'
+#  php_ver = '7.0'
+#else
+#  php_ver = node['php']['version']
+#end
+
+php_ver = '7.2'
 
 ruby_block "php_env_vars" do
   block do
