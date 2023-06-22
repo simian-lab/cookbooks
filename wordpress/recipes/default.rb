@@ -50,6 +50,18 @@ include_recipe 'yum::default'
 #  action :run
 #end
 
+execute "update-y" do
+  command "sudo yum update -y"
+  user "root"
+  action :run
+end
+
+execute "install-httpd" do
+  command "sudo yum install httpd -y"
+  user "root"
+  action :run
+end
+
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
