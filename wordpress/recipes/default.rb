@@ -35,83 +35,68 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
+Chef::Log.warn("Current 'platform_family' is '#{node['platform_family']}'.")
 
 # Initial setup: just a couple vars we need
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
-include_recipe 'apt::default'
+include_recipe 'yum::default'
 
-log 'debug' do
-  message 'Simian-debug: Add repository'
-  level :info
-end
-
-execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
-  user "root"
-  action :run
-end
+#execute "latest-php" do
+#  command "sudo add-apt-repository ppa:ondrej/php -y"
+#  user "root"
+#  action :run
+#end
 
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
 
-# Install php
-log 'debug' do
-  message 'Simian-debug: Install PHP'
-  level :info
-end
-
 package 'Install PHP' do
-  package_name 'php7.2'
-end
-
-log 'debug' do
-  message 'Simian-debug: Install PHP libapache'
-  level :info
+  package_name 'php7.4'
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.2'
+  package_name 'libapache2-mod-php7.4'
 end
 
 package 'Install PHP cURL' do
-  package_name 'php7.2-curl'
+  package_name 'php7.4-curl'
 end
 
 package 'Install PHP mbstring' do
-  package_name 'php7.2-mbstring'
+  package_name 'php7.4-mbstring'
 end
 
 package 'Install PHP mysql' do
-  package_name 'php7.2-mysql'
+  package_name 'php7.4-mysql'
 end
 
 package 'Install PHP xml' do
-  package_name 'php7.2-xml'
+  package_name 'php7.4-xml'
 end
 
 package 'Install PHP gd' do
-  package_name 'php7.2-gd'
+  package_name 'php7.4-gd'
 end
 
 package 'Memcached' do
-  package_name 'php7.2-memcached'
+  package_name 'php7.4-memcached'
 end
 
 package 'Install PHP imagick' do
-  package_name 'php7.2-imagick'
+  package_name 'php7.4-imagick'
 end
 
 package 'Install PHP Mail' do
-  package_name 'php7.2-mail'
+  package_name 'php7.4-mail'
 end
 
 package 'Install PHP zip' do
-  package_name 'php7.2-zip'
+  package_name 'php7.4-zip'
 end
 
 package 'varnish' do
@@ -148,7 +133,7 @@ end
 #  php_ver = node['php']['version']
 #end
 
-php_ver = '7.2'
+php_ver = '7.4'
 
 ruby_block "php_env_vars" do
   block do
