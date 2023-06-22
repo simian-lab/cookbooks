@@ -74,7 +74,7 @@ package 'perl-Getopt-Long-Descriptive' if platform?('fedora')
   end
 end
 
-if platform_family?('debian')
+unless platform_family?('debian')
   cookbook_file '/usr/local/bin/apache2_module_conf_generate.pl' do
     source 'apache2_module_conf_generate.pl'
     mode '0755'
