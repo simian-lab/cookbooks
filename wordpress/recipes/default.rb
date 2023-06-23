@@ -36,6 +36,7 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 Chef::Log.warn("Current 'platform_family' is '#{node['platform_family']}'.")
+Chef::Log.warn("Current 'platform' is '#{node['platform_family']}'.")
 
 # Initial setup: just a couple vars we need
 app = search(:aws_opsworks_app).first
@@ -50,16 +51,14 @@ include_recipe 'yum::default'
 #  action :run
 #end
 
-execute "update-y" do
-  command "sudo yum update -y"
-  user "root"
-  action :run
-end
-
-execute "install-httpd" do
-  command "sudo yum install httpd -y"
-  user "root"
-  action :run
+package 'apache2' do
+  case node[:platform]
+  when 'centos','redhat','fedora','amazon'
+    package_name 'httpd'
+  when 'debian','ubuntu'
+    package_name 'apache2'
+  end
+  action :install
 end
 
 include_recipe 'apache2::mod_php'
