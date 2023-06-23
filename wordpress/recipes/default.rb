@@ -61,54 +61,40 @@ package 'apache2' do
   action :install
 end
 
+execute "Add Remi Repository" do
+  command "sudo yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
+  user "root"
+  action :run
+end
+
+execute "Enable Remi" do
+  command "sudo yum-config-manager --enable remi-php74"
+  user "root"
+  action :run
+end
+
+execute "Install PHP" do
+  command "sudo yum install php php-cli -y"
+  user "root"
+  action :run
+end
+
+execute "Install additional packages" do
+  command "sudo yum install php php-cli php-fpm php-mysqlnd php-zip php-devel php-gd php-mcrypt php-mbstring php-curl php-xml php-pear php-bcmath php-json -y"
+  user "root"
+  action :run
+end
+
+execute "Check the PHP version" do
+  command "php -v"
+  user "root"
+  action :run
+end
+
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
-
-package 'Install PHP' do
-  package_name 'php7.4'
-end
-
-package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.4'
-end
-
-package 'Install PHP cURL' do
-  package_name 'php7.4-curl'
-end
-
-package 'Install PHP mbstring' do
-  package_name 'php7.4-mbstring'
-end
-
-package 'Install PHP mysql' do
-  package_name 'php7.4-mysql'
-end
-
-package 'Install PHP xml' do
-  package_name 'php7.4-xml'
-end
-
-package 'Install PHP gd' do
-  package_name 'php7.4-gd'
-end
-
-package 'Memcached' do
-  package_name 'php7.4-memcached'
-end
-
-package 'Install PHP imagick' do
-  package_name 'php7.4-imagick'
-end
-
-package 'Install PHP Mail' do
-  package_name 'php7.4-mail'
-end
-
-package 'Install PHP zip' do
-  package_name 'php7.4-zip'
-end
 
 package 'varnish' do
   package_name 'varnish'
