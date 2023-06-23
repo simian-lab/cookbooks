@@ -46,8 +46,6 @@ when 'rhel'
     else
       package_name 'php'
     end
-    notifies :run, :immediately
-    not_if 'which php'
   end
 when 'fedora'
   package 'which'
