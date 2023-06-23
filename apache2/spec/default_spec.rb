@@ -67,7 +67,7 @@ describe 'apache2::default' do
             end
           end
 
-          if %w(amazon redhat centos fedora arch suse freebsd).include?(platform)
+          if %w(amazon redhat centos fedora arch suse freebsd rhel).include?(platform)
             it 'creates /usr/local/bin/apache2_module_conf_generate.pl' do
               expect(chef_run).to create_cookbook_file('/usr/local/bin/apache2_module_conf_generate.pl').with(
                 :mode =>  '0755',
@@ -185,7 +185,7 @@ describe 'apache2::default' do
             expect(chef_run).to_not create_template("#{property[:apache][:dir]}/sites-available/#{property[:apache][:default_site_name]}.conf")
           end
 
-          if %w(amazon redhat centos fedora suse opensuse).include?(platform)
+          if %w(amazon redhat centos fedora suse opensuse rhel).include?(platform)
             it "creates /etc/sysconfig/#{property[:apache][:package]}" do
               expect(chef_run).to create_template("/etc/sysconfig/#{property[:apache][:package]}").with(
                 :source => 'etc-sysconfig-httpd.erb',

@@ -74,19 +74,19 @@ package 'perl-Getopt-Long-Descriptive' if platform?('fedora')
   end
 end
 
-#unless platform_family?('debian')
-#  cookbook_file '/usr/local/bin/apache2_module_conf_generate.pl' do
-#    source 'apache2_module_conf_generate.pl'
-#    mode '0755'
-#    owner 'root'
-#    group node['apache']['root_group']
-#  end
-#
-#  execute 'generate-module-list' do
-#    command "/usr/local/bin/apache2_module_conf_generate.pl #{node['apache']['lib_dir']} #{node['apache']['dir']}/mods-available"
-#    action :nothing
-#  end
-#end
+unless platform_family?('debian')
+  cookbook_file '/usr/local/bin/apache2_module_conf_generate.pl' do
+    source 'apache2_module_conf_generate.pl'
+    mode '0755'
+    owner 'root'
+    group node['apache']['root_group']
+  end
+
+  execute 'generate-module-list' do
+    command "/usr/local/bin/apache2_module_conf_generate.pl #{node['apache']['lib_dir']} #{node['apache']['dir']}/mods-available"
+    action :nothing
+  end
+end
 
 if platform_family?('freebsd')
 
