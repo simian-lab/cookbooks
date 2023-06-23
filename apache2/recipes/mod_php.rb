@@ -46,7 +46,7 @@ when 'rhel'
     else
       package_name 'php'
     end
-    notifies :run, 'execute[generate-module-list]', :immediately
+    notifies :run, :immediately
     not_if 'which php'
   end
 when 'fedora'
