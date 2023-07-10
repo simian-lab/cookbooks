@@ -100,12 +100,8 @@ ruby_block "insert_env_vars" do
   end
 end
 
-# Make sure PHP can read the vars
-if node['php']['version']=='7.0.4'
-  php_ver = '7.0'
-else
-  php_ver = node['php']['version']
-end
+php_ver = '7.2'
+
 ruby_block "php_env_vars" do
   block do
     file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
