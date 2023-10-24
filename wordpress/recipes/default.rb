@@ -114,6 +114,10 @@ package 'Install PHP zip' do
   package_name 'php7.2-zip'
 end
 
+package 'Install PHP BCmath extension' do
+  package_name 'php7.2-bcmath'
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
