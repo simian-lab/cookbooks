@@ -35,27 +35,6 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
-# Instala el plugin de Parameter Store
-chef_gem 'chef-aws-ssm'
-
-# Carga los data bags desde Parameter Store
-require 'aws-sdk-ssm'
-ssm = Aws::SSM::Client.new(region: 'us-west-2')
-
-# Define el nombre de tu data bag en Parameter Store
-data_bag_name = '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/EnvironmentVariables'
-
-# Obtiene los nombres de los items de tu data bag
-resp = ssm.get_parameters_by_path({
-  path: "/#{data_bag_name}/",
-  recursive: false,
-  with_decryption: true
-})
-
-# Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
-
 # Installing some required packages
 include_recipe 'apt::default'
 
@@ -141,6 +120,10 @@ end
 package 'htop' do
   package_name 'htop'
 end
+
+# Initial setup: just a couple vars we need
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
 
 # Optionally Install php-ssh2 dependency
 if app['environment']['PHP_SSH_ENABLE']
