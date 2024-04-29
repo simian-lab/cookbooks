@@ -38,7 +38,16 @@
 
 # Initial setup: just a couple vars we need
 #app = search(:aws_opsworks_app).first
-app = data_bag('EnvironmentVariables')
+#app = data_bag('EnvironmentVariables')
+require 'aws-sdk-ssm'
+
+ssm = Aws::SSM::Client.new(region: 'your_region')
+
+resp = ssm.get_parameter({
+  name: 'arn:aws:ssm:us-west-2:969355835785:parameter/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/EnvironmentVariables',
+  with_decryption: false
+})
+
 app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
