@@ -37,7 +37,8 @@
 
 
 # Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
+#app = search(:aws_opsworks_app).first
+app = data_bag('EnvironmentVariables')
 app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
