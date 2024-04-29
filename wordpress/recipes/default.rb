@@ -38,6 +38,15 @@
 # Installing some required packages
 include_recipe 'apt::default'
 
+# Initial setup: just a couple vars we need
+#app = data_bag("Deploy")
+
+data_bag('Deploy').each do |user|
+  data_bag_item('Deploy', user)
+end
+
+app_path = "/srv/#{app['shortname']}"
+
 log 'debug' do
   message 'Simian-debug: Add repository'
   level :info
@@ -120,10 +129,6 @@ end
 package 'htop' do
   package_name 'htop'
 end
-
-# Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
 
 # Optionally Install php-ssh2 dependency
 if app['environment']['PHP_SSH_ENABLE']
