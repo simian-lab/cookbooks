@@ -35,17 +35,12 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
+# Initial setup: just a couple vars we need
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
+
 # Installing some required packages
 include_recipe 'apt::default'
-
-# Initial setup: just a couple vars we need
-#app = data_bag("Deploy")
-
-data_bag('Deploy').each do |user|
-  data_bag_item('Deploy', user)
-end
-
-app_path = "/srv/#{app['shortname']}"
 
 log 'debug' do
   message 'Simian-debug: Add repository'
