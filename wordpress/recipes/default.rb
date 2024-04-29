@@ -35,6 +35,12 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
+# Agrega el repositorio de gemas de AWS
+source 'https://rubygems.org'
+source 'https://gems.chef.io' do
+  gem 'chef-aws-ssm', '>= 0'
+end
+
 # Instala el plugin de Parameter Store
 chef_gem 'chef-aws-ssm'
 
