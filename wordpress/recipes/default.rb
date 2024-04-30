@@ -37,15 +37,15 @@
 
 # Initial setup: just a couple vars we need
 
-aws_ssm_parameter_store 'getParametersbypath' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
-  recursive true
-  with_decryption false
-  return_key 'path_values'
-  action :get_parameters_by_path
-end
+# aws_ssm_parameter_store 'getParametersbypath' do
+#   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+#   recursive true
+#   with_decryption false
+#   return_key 'path_values'
+#   action :get_parameters_by_path
+# end
 
-app_path = "/srv/#{app['shortname']}"
+#app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
 include_recipe 'apt::default'
@@ -134,23 +134,23 @@ package 'htop' do
 end
 
 # Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
-end
+# if app['environment']['PHP_SSH_ENABLE']
+#   package 'Install PHP ssh' do
+#     package_name 'php-ssh2'
+#   end
+# end
 
 # 2. Set the environment variables for PHP
-ruby_block "insert_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
-    app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
-      file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
-      file.write_file
-    end
-  end
-end
+# ruby_block "insert_env_vars" do
+#   block do
+#     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
+#     app['environment'].each do |key, value|
+#       Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+#       file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
+#       file.write_file
+#     end
+#   end
+# end
 
 # Make sure PHP can read the vars
 #if node['php']['version']=='7.0.4'
@@ -171,16 +171,16 @@ ruby_block "php_env_vars" do
 end
 
 # 3. map the environment_variables node to ENV variables
-ruby_block "insert_env_vars" do
-  block do
-    file = Chef::Util::FileEdit.new('/etc/environment')
-    app['environment'].each do |key, value|
-      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
-      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
-      file.write_file
-    end
-  end
-end
+# ruby_block "insert_env_vars" do
+#   block do
+#     file = Chef::Util::FileEdit.new('/etc/environment')
+#     app['environment'].each do |key, value|
+#       Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+#       file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+#       file.write_file
+#     end
+#   end
+# end
 
 # source the file so we can use it right away if needed
 bash "update_env_vars" do
@@ -191,61 +191,61 @@ bash "update_env_vars" do
 end
 
 # 4. We create the site
-web_app app['shortname'] do
-  template 'web_app.conf.erb'
-  allow_override 'All'
-  server_name app['domains'].first
-  server_port 8080
-  server_aliases app['domains'].drop(1)
-  docroot app_path
-  multisite app['environment']['MULTISITE']
-end
+# web_app app['shortname'] do
+#   template 'web_app.conf.erb'
+#   allow_override 'All'
+#   server_name app['domains'].first
+#   server_port 8080
+#   server_aliases app['domains'].drop(1)
+#   docroot app_path
+#   multisite app['environment']['MULTISITE']
+# end
 
 # 5. We configure caching
 
 # first off, Varnish (with custom error page if present)
 error_page = ""
 
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
-end
+# if app['environment']['VARNISH_ERROR_PAGE']
+#   error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+# end
 
 # define a CORS header
 cors = ""
 
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
-end
+# if app['environment']['CORS']
+#   cors = "#{app['environment']['CORS']}"
+# end
 
 # Add a long max-age header if present
 browser_cache = ""
 
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
-end
+# if app['environment']['LONG_BROWSER_CACHE']
+#   browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+# end
 
 # Add a force SSL redirection if present
 force_ssl_dns = ""
 
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-end
+# if app['environment']['FORCE_SSL_DNS']
+#   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+# end
 
 # Add url exclusions if exists
 url_exclusions = ""
 
-if app['environment']['VARNISH_URL_EXCLUSIONS']
-  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-  url_exclusions = string_url_exclusions.split(",")
-end
+# if app['environment']['VARNISH_URL_EXCLUSIONS']
+#   string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
+#   url_exclusions = string_url_exclusions.split(",")
+# end
 
 # Add host exclusions if exists
 host_exclusions = ""
 
-if app['environment']['VARNISH_HOST_EXCLUSIONS']
-  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-  host_exclusions = string_host_exclusions.split(",")
-end
+# if app['environment']['VARNISH_HOST_EXCLUSIONS']
+#   string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
+#   host_exclusions = string_host_exclusions.split(",")
+# end
 
 service 'varnish' do
   supports [:restart, :start, :stop]
@@ -300,7 +300,7 @@ execute 'systemctl-daemon-reload' do
 end
 
 # 6. Call the WordPress cron
-cron 'wpcron' do
-  minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
-end
+# cron 'wpcron' do
+#   minute '*'
+#   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+# end
