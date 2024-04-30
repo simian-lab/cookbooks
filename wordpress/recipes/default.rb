@@ -36,7 +36,15 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 # Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
+
+aws_ssm_parameter_store 'getParametersbypath' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+  recursive true
+  with_decryption false
+  return_key 'path_values'
+  action :get_parameters_by_path
+end
+
 app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
