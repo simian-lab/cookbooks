@@ -45,9 +45,16 @@ aws_ssm_parameter_store 'getParametersbypath' do
   action :get_parameters_by_path
 end
 
-log 'path_values' do
-  message "Valores obtenidos: #{node['path_values'].inspect}"
-  level :info
+if node['path_values'].nil?
+  log 'path_values' do
+    message 'No se encontraron parámetros en la ruta especificada.'
+    level :info
+  end
+else
+  log 'path_values' do
+    message "Valores obtenidos: #{node['path_values'].inspect}"
+    level :info
+  end
 end
 
 #app_path = "/srv/#{app['shortname']}"
