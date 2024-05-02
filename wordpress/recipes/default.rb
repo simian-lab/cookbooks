@@ -45,8 +45,10 @@ aws_ssm_parameter_store 'getParametersbypath' do
   action :get_parameters_by_path
 end
 
-# Puedes usar el valor del parámetro en tu receta de Chef
-log "El valor del parámetro es #{path_values}"
+log 'path_values' do
+  message "Valores obtenidos: #{node['path_values'].inspect}"
+  level :info
+end
 
 #app_path = "/srv/#{app['shortname']}"
 
