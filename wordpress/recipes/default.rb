@@ -37,19 +37,16 @@
 
 # Initial setup: just a couple vars we need
 
-# aws_ssm_parameter_store 'getParametersbypath' do
-#   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
-#   recursive true
-#   with_decryption false
-#   return_key 'path_values'
-#   action :get_parameters_by_path
-# end
-
-# Obtiene el valor del parámetro de Parameter Store
-parameter_value = Chef::AWS::SSMParameterStore.new('/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test').value
+aws_ssm_parameter_store 'getParametersbypath' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+  recursive true
+  with_decryption false
+  return_key 'path_values'
+  action :get_parameters_by_path
+end
 
 # Puedes usar el valor del parámetro en tu receta de Chef
-log "El valor del parámetro es #{parameter_value}"
+log "El valor del parámetro es #{path_values}"
 
 #app_path = "/srv/#{app['shortname']}"
 
