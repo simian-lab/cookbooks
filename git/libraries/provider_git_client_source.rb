@@ -5,7 +5,7 @@ class Chef
         include Chef::DSL::IncludeRecipe
 
         action :install do
-          return "#{node['platform']} is not supported by the #{cookbook_name}::#{recipe_name} recipe" unless platform_family?('rhel', 'suse', 'fedora', 'debian')
+          return "#{node['platform']} is not supported by the #{cookbook_name}::#{recipe_name} recipe" if node['platform'] == 'windows'
 
           include_recipe 'build-essential'
           include_recipe 'yum-epel' if node['platform_family'] == 'rhel' && node['platform_version'].to_i == 5
@@ -34,7 +34,9 @@ class Chef
             pkgs += %w( libpcre2-devel ) if new_resource.source_use_pcre
           end
 
-          package pkgs
+          pkgs.each do |pkg|
+            package pkg
+          end
 
           # reduce line-noise-eyness
           remote_file "#{Chef::Config['file_cache_path']}/git-#{new_resource.source_version}.tar.gz" do

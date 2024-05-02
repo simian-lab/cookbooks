@@ -1,7 +1,4 @@
 if defined?(ChefSpec)
-  ChefSpec.define_matcher(:git_client)
-  ChefSpec.define_matcher(:git_service)
-
   def set_git_config(resource_name) # rubocop:disable Style/AccessorMethodName
     ChefSpec::Matchers::ResourceMatcher.new(:git_config, :set, resource_name)
   end
