@@ -1,4 +1,3 @@
-unified_mode true
 property :listeners,             Array
 property :security_groups,       Array
 property :subnets,               Array # for VPC networking

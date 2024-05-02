@@ -2,91 +2,6 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
-## Unreleased
-
-## 9.1.4 - *2023-12-27*
-
-## 9.1.3 - *2023-10-31*
-
-## 9.1.2 - *2023-09-28*
-
-## 9.1.1 - *2023-09-28*
-
-## 9.1.0 - *2023-08-17*
-
-Allow attributes group and owner of s3_file to be String or Integer
-
-## 9.0.16 - *2023-07-10*
-
-## 9.0.15 - *2023-05-17*
-
-## 9.0.14 - *2023-04-07*
-
-- Standardise files with files in sous-chefs/repo-management
-- Update workflows
-
-## 9.0.13 - *2023-04-01*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.12 - *2023-04-01*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.11 - *2023-04-01*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.10 - *2023-03-02*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.9 - *2023-03-01*
-
-Update workflows
-
-## 9.0.8 - *2023-02-18*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.7 - *2023-02-16*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.6 - *2023-02-15*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.5 - *2023-02-14*
-
-Standardise files with files in sous-chefs/repo-management
-
-## 9.0.4 - *2023-02-02*
-
-Update checkout to v3 in ci.yml
-
-## 9.0.3 - *2022-12-08*
-
-- Standardise files with files in sous-chefs/repo-management
-- Remove delivery folder
-
-## 9.0.2 - *2021-11-06*
-
-- Fixed array length comparison in ec2 `fallback_region` function
-
-## 9.0.1 - *2021-11-04*
-
-- Fixed a logic bug when relying on ec2 `fallback_region` from a local zone. Local zones have weird AZ names.
-
-## 9.0.0 - *2021-09-01*
-
-- resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
-- resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
-- resolved cookstyle error: resources/ssm_parameter_store.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
-- resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/ssm_parameter_store.rb:93:7 convention: `Layout/LeadingCommentSpace`
-- Require Chef 15.3+ for unified mode
-- Require unified_mode for Chef 17+ support
-
 ## 8.4.1 - *2021-08-26*
 
 ## 8.4.0 - *2021-01-24*
@@ -100,7 +15,7 @@ Update checkout to v3 in ci.yml
 
 ## 8.3.1 (2020-12-04)
 
-- Resolve cookstyle warnings - [@cookstyle](https://github.com/chef/cookstyle)
+- Resolve cookstyle warnings - [@cookstyle](https://github.com/cookstyle)
 - Update AWS S3 gem dependency - [@arothian](https://github.com/arothian)
 
 ## 8.3.0 (2020-08-06)
@@ -228,13 +143,12 @@ Update checkout to v3 in ci.yml
 ## 7.1.0 (2017-06-16)
 
 - Refactor and fix the secondary_ip resource
-
-   - Fix failures that occured when assigning IPs via the resource (aka make it actually work)
-   - Move all helpers out of the EC2 libary and into the resource itself
-   - Instead of using open-uri to query the metadata endpoint use EC2 data from Ohai
-   - Make IP a required property since we need that to run
-   - Refactor the wait loop that broke notification when the resources updated
-   - Reload Ohai data in the resource so downstream recipes will know about the new IP
+  - Fix failures that occured when assigning IPs via the resource (aka make it actually work)
+  - Move all helpers out of the EC2 libary and into the resource itself
+  - Instead of using open-uri to query the metadata endpoint use EC2 data from Ohai
+  - Make IP a required property since we need that to run
+  - Refactor the wait loop that broke notification when the resources updated
+  - Reload Ohai data in the resource so downstream recipes will know about the new IP
 
 ## 7.0.0 (2017-06-15)
 
@@ -512,7 +426,7 @@ Update checkout to v3 in ci.yml
 
 ### Improvement
 
-- [COOK-4008] - Add name property for aws_elastic_ip LWRP
+- **[COOK-4008](https://tickets.opscode.com/browse/COOK-4008)** - Add name property for aws_elastic_ip LWRP
 
 ## v2.0.0 (2014-02-19)
 
@@ -535,18 +449,18 @@ Update checkout to v3 in ci.yml
 
 ### Bug
 
-- [COOK-3475] - Fix an issue where invoking action detach in the `ebs_volume` provider when the volume is already detached resulted in a failure
+- **[COOK-3475](https://tickets.opscode.com/browse/COOK-3475)** - Fix an issue where invoking action detach in the `ebs_volume` provider when the volume is already detached resulted in a failure
 
 ## v0.101.4
 
 ### Improvement
 
-- [COOK-3345] - Add `aws_s3_file` LWRP
-- [COOK-3264] - Allow specifying of file ownership for `ebs_raid` resource `mount_point`
+- **[COOK-3345](https://tickets.opscode.com/browse/COOK-3345)** - Add `aws_s3_file` LWRP
+- **[COOK-3264](https://tickets.opscode.com/browse/COOK-3264)** - Allow specifying of file ownership for `ebs_raid` resource `mount_point`
 
 ### Bug
 
-- [COOK-3308] - Ensure mdadm properly allocates the device number
+- **[COOK-3308](https://tickets.opscode.com/browse/COOK-3308)** - Ensure mdadm properly allocates the device number
 
 ## v0.101.2
 

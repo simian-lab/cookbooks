@@ -1,4 +1,3 @@
-unified_mode true
 property :group_name, String, name_property: true
 property :path, String, default: '/'
 property :members, Array, default: []

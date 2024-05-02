@@ -1,4 +1,3 @@
-unified_mode true
 property :description, String
 property :private, [true, false], default: false
 property :vpc_id, String
