@@ -38,7 +38,7 @@
 # Initial setup: just a couple vars we need
 
 aws_ssm_parameter_store 'getParametersbypath' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/'
   recursive true
   with_decryption false
   return_key 'path_values'
