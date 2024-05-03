@@ -37,22 +37,20 @@
 
 # Initial setup: just a couple vars we need
 
-aws_ssm_parameter_store 'getParametersbypath' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/'
-  recursive true
-  with_decryption false
-  return_key 'path_values'
-  action :get_parameters_by_path
+aws_ssm_parameter_store 'getParameters' do
+  path ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
+  return_key 'parameter_values'
+  action :get_parameters
 end
 
-if node['path_values'].nil?
-  log 'path_values' do
+if node['parameter_values'].nil?
+  log 'parameter_values' do
     message 'No se encontraron parámetros en la ruta especificada.'
     level :info
   end
 else
-  log 'path_values' do
-    message "Valores obtenidos: #{node['path_values'].inspect}"
+  log 'parameter_values' do
+    message "Valores obtenidos: #{node['parameter_values'].inspect}"
     level :info
   end
 end
