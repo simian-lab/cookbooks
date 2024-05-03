@@ -305,7 +305,7 @@ aws_ssm_parameter_store 'getParameters' do
 end
 
 log 'ssm_parameters' do
-  message lazy { "SSM Parameters: #{node.run_state['parameter_values'].inspect}" }
+  message lazy { "SSM Parameters: #{node.run_state['parameter_values']}" }
   level :info
   action :nothing
 end
