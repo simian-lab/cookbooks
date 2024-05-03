@@ -303,9 +303,13 @@ aws_ssm_parameter_store 'getParameters' do
   action :get
 end
 
+require 'chef/json_compat'
+
+json_obj = Chef::JSONCompat.from_json(node.run_state['parameter_values'])
+
 ruby_block 'log_parameter_values' do
   block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
+    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{json_obj}")
   end
   action :run
 end
