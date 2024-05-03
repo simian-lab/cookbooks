@@ -305,7 +305,7 @@ end
 
 ruby_block 'log_parameter_values' do
   block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
+    Chef::Log.info("El valor de node.run_state['parameter_values']['db_name'] es: #{node.run_state['parameter_values']['db_name']}")
   end
   action :run
 end
