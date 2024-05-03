@@ -298,14 +298,7 @@ end
 # end
 
 aws_ssm_parameter_store 'getParameters' do
-  path ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
+  names ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
   return_key 'parameter_values'
   action :get_parameters
-  notifies :write, 'log[ssm_parameters]', :immediately
-end
-
-log 'ssm_parameters' do
-  message lazy { "SSM Parameters: #{node.run_state['parameter_values']}" }
-  level :info
-  action :nothing
 end
