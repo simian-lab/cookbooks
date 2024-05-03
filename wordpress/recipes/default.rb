@@ -302,3 +302,5 @@ aws_ssm_parameter_store 'getParameters' do
   return_key 'parameter_values'
   action :get
 end
+
+Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
