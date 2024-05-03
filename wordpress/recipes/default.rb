@@ -305,7 +305,7 @@ end
 
 require 'chef/json_compat'
 
-json_obj = Chef::JSONCompat.from_json('#{node.run_state['parameter_values']}')
+json_obj = Chef::JSONCompat.from_json("#{node.run_state['parameter_values']}")
 
 ruby_block 'log_parameter_values' do
   block do
