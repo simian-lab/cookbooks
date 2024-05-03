@@ -41,18 +41,13 @@ aws_ssm_parameter_store 'getParameters' do
   path ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
   return_key 'parameter_values'
   action :get_parameters
+  notifies :write, 'log[ssm_parameters]', :immediately
 end
 
-if node['parameter_values'].nil?
-  log 'parameter_values' do
-    message 'No se encontraron parámetros en la ruta especificada.'
-    level :info
-  end
-else
-  log 'parameter_values' do
-    message "Valores obtenidos: #{node['parameter_values'].inspect}"
-    level :info
-  end
+log 'ssm_parameters' do
+  message lazy { "SSM Parameters: #{node.run_state['parameter_values'].inspect}" }
+  level :info
+  action :nothing
 end
 
 #app_path = "/srv/#{app['shortname']}"
