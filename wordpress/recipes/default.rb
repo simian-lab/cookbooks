@@ -37,19 +37,6 @@
 
 # Initial setup: just a couple vars we need
 
-aws_ssm_parameter_store 'getParameters' do
-  path ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
-  return_key 'parameter_values'
-  action :get_parameters
-  notifies :write, 'log[ssm_parameters]', :immediately
-end
-
-log 'ssm_parameters' do
-  message lazy { "SSM Parameters: #{node.run_state['parameter_values'].inspect}" }
-  level :info
-  action :nothing
-end
-
 #app_path = "/srv/#{app['shortname']}"
 
 # Installing some required packages
@@ -309,3 +296,16 @@ end
 #   minute '*'
 #   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 # end
+
+aws_ssm_parameter_store 'getParameters' do
+  path ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
+  return_key 'parameter_values'
+  action :get_parameters
+  notifies :write, 'log[ssm_parameters]', :immediately
+end
+
+log 'ssm_parameters' do
+  message lazy { "SSM Parameters: #{node.run_state['parameter_values'].inspect}" }
+  level :info
+  action :nothing
+end
