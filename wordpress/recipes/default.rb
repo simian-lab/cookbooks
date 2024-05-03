@@ -298,7 +298,7 @@ end
 # end
 
 aws_ssm_parameter_store 'getParameters' do
-  names ['/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test']
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
   return_key 'parameter_values'
-  action :get_parameters
+  action :get
 end
