@@ -65,14 +65,26 @@ if node.run_state['parameter_values'] && node.run_state['parameter_values'].is_a
   begin
     # Intentar analizar node.run_state['parameter_values'] como JSON y pasarlo a una función
     app = JSON.parse(node.run_state['parameter_values'])
-    Chef::Log.info("El valor de app es #{app}")
+    ruby_block 'is_ok' do
+      block do
+        Chef::Log.info("El valor de app es #{app}")
+      end
+    end
   rescue JSON::ParserError => e
     # Manejar el error si node.run_state['parameter_values'] no es un JSON válido
-    Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
+    ruby_block 'not_valid_json' do
+      block do
+        Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
+      end
+    end
   end
 else
   # Manejar el caso en que node.run_state['parameter_values'] es nil o no es una cadena de texto
-  Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
+  ruby_block 'is_nil' do
+    block do
+      Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
+    end
+  end
 end
 
 # Installing some required packages
