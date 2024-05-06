@@ -43,17 +43,21 @@ aws_ssm_parameter_store 'getShortName' do
   action :get
 end
 
-log 'Current path' do
-  message "El path es #{node.run_state['short_name']}"
-  level :info
+ruby_block 'log_parameter_values' do
+  block do
+    Chef::Log.info("El valor de short name es: #{node.run_state['short_name']}")
+  end
+  action :run
 end
 
 app['short_name'] = node.run_state['short_name'];
 app_path = "/srv/#{node.run_state['short_name']}"
 
-log 'Current path' do
-  message "El path es #{app_path}"
-  level :info
+ruby_block 'log_parameter_values' do
+  block do
+    Chef::Log.info("El valor de app path es: #{app_path}")
+  end
+  action :run
 end
 
 execute 'Add an exception for this directory' do
