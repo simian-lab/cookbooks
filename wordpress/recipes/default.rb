@@ -318,4 +318,9 @@ ruby_block 'log_parameter_type' do
 end
 
 require 'json'
-json = JSON.parse(node.run_state['parameter_values'])
+
+if node.run_state['parameter_values'].is_a?(String)
+  json = JSON.parse(node.run_state['parameter_values'])
+else
+  # Manejar el caso en el que no sea una cadena de texto válida en JSON
+end
