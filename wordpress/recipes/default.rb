@@ -321,7 +321,7 @@ end
 
 require 'json'
 
-json_object = JSON.parse('{"key": "value"}')
+json_object = JSON.parse(node.run_state['parameter_values'])
 
 ruby_block 'log_json_type' do
   block do
