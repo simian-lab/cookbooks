@@ -139,6 +139,12 @@ aws_ssm_parameter_store 'getDomains' do
   action :get
 end
 
+aws_ssm_parameter_store 'getMultisite' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/MULTISITE'
+  return_key 'multisite'
+  action :get
+end
+
 app = {
   'domains' => [node.run_state['domains']],
   'environment': {
