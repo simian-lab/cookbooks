@@ -133,10 +133,17 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   action :get
 end
 
+aws_ssm_parameter_store 'getDomains' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DOMAINS'
+  return_key 'domains'
+  action :get
+end
+
 app = {
-    'environment': {
-        'DB_HOST': node.run_state['db_host']
-    }
+  'domains': [node.run_state['domains']],
+  'environment': {
+      'DB_HOST': node.run_state['db_host']
+  }
 }
 
 #2. Set the environment variables for PHP
