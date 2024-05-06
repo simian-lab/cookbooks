@@ -128,6 +128,11 @@ aws_ssm_parameter_store 'getDBHost' do
   action :get
 end
 
+log 'DB Host' do
+  message "El db_host es #{node.run_state['db_host']}"
+  level :info
+end
+
 aws_ssm_parameter_store 'getVarnishErrorPage' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/VARNISH_ERROR_PAGE'
   return_key 'varnish_error_page'
