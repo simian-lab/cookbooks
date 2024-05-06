@@ -309,3 +309,9 @@ ruby_block 'log_parameter_values' do
   end
   action :run
 end
+
+ruby_block 'log_parameter_type' do
+  block do
+    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
+  end
+end
