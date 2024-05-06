@@ -205,7 +205,7 @@ bash "update_env_vars" do
 end
 
 aws_ssm_parameter_store 'getShortName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/SHORT_NAME'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
   return_key 'short_name'
   action :get
 end
