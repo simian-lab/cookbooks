@@ -133,11 +133,11 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   action :get
 end
 
-app = {}
-app['enviroment'] = {}
-
-app['environment']['DB_HOST'] = node.run_state['db_host']
-app['environment']['VARNISH_ERROR_PAGE'] = node.run_state['varnish_error_page']
+app = {
+    'environment': {
+        'DB_HOST': node.run_state['db_host']
+    }
+}
 
 #2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
