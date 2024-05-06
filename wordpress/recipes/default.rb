@@ -122,26 +122,26 @@ package 'Install PHP ssh' do
 end
 
 aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_HOST'
   with_decryption false
   return_key 'db_host'
   action :get
 end
 
 aws_ssm_parameter_store 'getVarnishErrorPage' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/VARNISH_ERROR_PAGE'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/VARNISH_ERROR_PAGE'
   return_key 'varnish_error_page'
   action :get
 end
 
 aws_ssm_parameter_store 'getDomains' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DOMAINS'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
   return_key 'domains'
   action :get
 end
 
 aws_ssm_parameter_store 'getMultisite' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/MULTISITE'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/MULTISITE'
   return_key 'multisite'
   action :get
 end
