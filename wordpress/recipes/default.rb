@@ -321,10 +321,7 @@ end
 
 require 'json'
 
-json_object = JSON.parse(parameter_values)
-
-ruby_block 'log_json_type' do
-  block do
-    Chef::Log.info("El tipo de dato es #{json_object}")
-  end
+if parameter_values && !parameter_values.empty?
+  json_object = JSON.parse(parameter_values)
 end
+
