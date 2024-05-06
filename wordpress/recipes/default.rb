@@ -140,7 +140,7 @@ app['environment'] = {
   'VARNISH_ERROR_PAGE' => node.run_state['varnish_error_page']
 }
 
-2. Set the environment variables for PHP
+#2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
