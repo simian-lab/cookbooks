@@ -4,6 +4,13 @@ aws_ssm_parameter_store 'getAppSourceUrl' do
   action :get
 end
 
+ruby_block 'log_parameter_values' do
+  block do
+    Chef::Log.info("El valor de app source es: #{node.run_state['app_source_url']}")
+  end
+  action :run
+end
+
 aws_ssm_parameter_store 'getAppSourceRevision' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_REVISION'
   return_key 'app_source_revision'
