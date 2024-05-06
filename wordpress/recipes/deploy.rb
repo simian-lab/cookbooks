@@ -39,6 +39,11 @@ end
 app['short_name'] = node.run_state['short_name'];
 app_path = "/srv/#{app['short_name']}"
 
+log 'Current path' do
+  message "El path es #{app_path}"
+  level :info
+end
+
 execute 'Add an exception for this directory' do
   command "git config --global --add safe.directory #{app_path}"
   user "root"
