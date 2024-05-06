@@ -319,11 +319,15 @@ end
 
 require 'json'
 
-json = JSON.parse(node.run_state['parameter_values'])
-
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de json es: #{json}")
+if node.run_state['parameter_values'] && node.run_state['parameter_values'].is_a?(String)
+  begin
+    # Intentar analizar node.run_state['parameter_values'] como JSON y pasarlo a una función
+    json = JSON.parse(node.run_state['parameter_values'])
+  rescue JSON::ParserError => e
+    # Manejar el error si node.run_state['parameter_values'] no es un JSON válido
+    Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
   end
-  action :run
+else
+  # Manejar el caso en que node.run_state['parameter_values'] es nil o no es una cadena de texto
+  Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
 end
