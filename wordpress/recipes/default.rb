@@ -313,20 +313,9 @@ end
 
 ruby_block 'log_parameter_type' do
   block do
-    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values']}")
+    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
   end
 end
 
 require 'json'
-
-if node.run_state['parameter_values'] && !node.run_state['parameter_values'].empty?
-  json_object = JSON.parse(node.run_state['parameter_values'])
-
-  ruby_block 'log_parameter_values' do
-    block do
-      Chef::Log.info("El valor de json_object es: #{json_object}")
-    end
-    action :run
-  end
-end
-
+json = JSON.parse(node.run_state['parameter_values'])
