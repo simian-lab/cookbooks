@@ -299,6 +299,7 @@ end
 
 aws_ssm_parameter_store 'getParameters' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+  with_decryption false
   return_key 'parameter_values'
   action :get
 end
@@ -318,7 +319,7 @@ end
 
 require 'json'
 
-json_object = JSON.parse(node.run_state['parameter_values'])
+json_object = JSON.parse('{"key": "value"}')
 
 ruby_block 'log_json_type' do
   block do
