@@ -297,6 +297,8 @@ end
 #   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 # end
 
+node.run_state['parameter_values'] = ''
+
 aws_ssm_parameter_store 'getParameters' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
   with_decryption false
@@ -323,6 +325,6 @@ json_object = JSON.parse('{"key": "value"}')
 
 ruby_block 'log_json_type' do
   block do
-    Chef::Log.info("El tipo de dato es #{json_object.class}")
+    Chef::Log.info("El tipo de dato es #{json_object.key}")
   end
 end
