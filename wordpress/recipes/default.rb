@@ -297,8 +297,6 @@ end
 #   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 # end
 
-node.run_state['parameter_values'] = ''
-
 aws_ssm_parameter_store 'getParameters' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
   with_decryption false
