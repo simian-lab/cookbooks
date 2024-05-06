@@ -151,7 +151,7 @@ ruby_block "insert_env_vars" do
   end
 end
 
-Make sure PHP can read the vars
+#Make sure PHP can read the vars
 if node['php']['version']=='7.0.4'
   php_ver = '7.0'
 else
