@@ -39,6 +39,42 @@
 
 #app_path = "/srv/#{app['shortname']}"
 
+aws_ssm_parameter_store 'getParameters' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
+  with_decryption false
+  return_key 'parameter_values'
+  action :get
+end
+
+ruby_block 'log_parameter_values' do
+  block do
+    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
+  end
+  action :run
+end
+
+ruby_block 'log_parameter_type' do
+  block do
+    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
+  end
+end
+
+require 'json'
+
+if node.run_state['parameter_values'] && node.run_state['parameter_values'].is_a?(String)
+  begin
+    # Intentar analizar node.run_state['parameter_values'] como JSON y pasarlo a una función
+    app = JSON.parse(node.run_state['parameter_values'])
+    Chef::Log.info("El valor de app es #{app}")
+  rescue JSON::ParserError => e
+    # Manejar el error si node.run_state['parameter_values'] no es un JSON válido
+    Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
+  end
+else
+  # Manejar el caso en que node.run_state['parameter_values'] es nil o no es una cadena de texto
+  Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
+end
+
 # Installing some required packages
 include_recipe 'apt::default'
 
@@ -125,12 +161,9 @@ package 'htop' do
   package_name 'htop'
 end
 
-# Optionally Install php-ssh2 dependency
-# if app['environment']['PHP_SSH_ENABLE']
-#   package 'Install PHP ssh' do
-#     package_name 'php-ssh2'
-#   end
-# end
+package 'Install PHP ssh' do
+  package_name 'php-ssh2'
+end
 
 # 2. Set the environment variables for PHP
 # ruby_block "insert_env_vars" do
@@ -297,37 +330,4 @@ end
 #   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 # end
 
-aws_ssm_parameter_store 'getParameters' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
-  with_decryption false
-  return_key 'parameter_values'
-  action :get
-end
 
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
-  end
-  action :run
-end
-
-ruby_block 'log_parameter_type' do
-  block do
-    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
-  end
-end
-
-require 'json'
-
-if node.run_state['parameter_values'] && node.run_state['parameter_values'].is_a?(String)
-  begin
-    # Intentar analizar node.run_state['parameter_values'] como JSON y pasarlo a una función
-    json = JSON.parse(node.run_state['parameter_values'])
-  rescue JSON::ParserError => e
-    # Manejar el error si node.run_state['parameter_values'] no es un JSON válido
-    Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
-  end
-else
-  # Manejar el caso en que node.run_state['parameter_values'] es nil o no es una cadena de texto
-  Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
-end
