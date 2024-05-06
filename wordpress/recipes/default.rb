@@ -37,63 +37,13 @@
 
 # Initial setup: just a couple vars we need
 
-#app_path = "/srv/#{app['shortname']}"
-
-aws_ssm_parameter_store 'getParameters' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/Test'
-  with_decryption false
-  return_key 'parameter_values'
-  action :get
-end
-
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
-  end
-  action :run
-end
-
-ruby_block 'log_parameter_type' do
-  block do
-    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
-  end
-end
-
-require 'json'
-
-if node.run_state['parameter_values'] && node.run_state['parameter_values'].is_a?(String)
-  begin
-    # Intentar analizar node.run_state['parameter_values'] como JSON y pasarlo a una función
-    app = JSON.parse(node.run_state['parameter_values'])
-    ruby_block 'is_ok' do
-      block do
-        Chef::Log.info("El valor de app es #{app}")
-      end
-    end
-  rescue JSON::ParserError => e
-    # Manejar el error si node.run_state['parameter_values'] no es un JSON válido
-    ruby_block 'not_valid_json' do
-      block do
-        Chef::Log.warn("El valor de node.run_state['parameter_values'] no es un JSON válido: #{e.message}")
-      end
-    end
-  end
-else
-  # Manejar el caso en que node.run_state['parameter_values'] es nil o no es una cadena de texto
-  ruby_block 'is_nil' do
-    block do
-      Chef::Log.warn("El valor de node.run_state['parameter_values'] no es válido.")
-    end
-  end
+log 'debug' do
+  message 'Simian-debug: Start default.rb'
+  level :info
 end
 
 # Installing some required packages
 include_recipe 'apt::default'
-
-log 'debug' do
-  message 'Simian-debug: Add repository'
-  level :info
-end
 
 execute "latest-php" do
   command "sudo add-apt-repository ppa:ondrej/php -y"
@@ -105,12 +55,6 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
-
-# Install php
-log 'debug' do
-  message 'Simian-debug: Install PHP'
-  level :info
-end
 
 package 'Install PHP' do
   package_name 'php7.2'
@@ -177,24 +121,43 @@ package 'Install PHP ssh' do
   package_name 'php-ssh2'
 end
 
-# 2. Set the environment variables for PHP
-# ruby_block "insert_env_vars" do
-#   block do
-#     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
-#     app['environment'].each do |key, value|
-#       Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
-#       file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
-#       file.write_file
-#     end
-#   end
-# end
+app = []
 
-# Make sure PHP can read the vars
-#if node['php']['version']=='7.0.4'
-#  php_ver = '7.0'
-#else
-#  php_ver = node['php']['version']
-#end
+aws_ssm_parameter_store 'getDBHost' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
+  return_key 'db_host'
+  action :get
+end
+
+aws_ssm_parameter_store 'getVarnishErrorPage' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/VARNISH_ERROR_PAGE'
+  return_key 'varnish_error_page'
+  action :get
+end
+
+app['environment'] = {
+  'DB_HOST' => node.run_state['db_host'],
+  'VARNISH_ERROR_PAGE' => node.run_state['varnish_error_page']
+}
+
+2. Set the environment variables for PHP
+ruby_block "insert_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
+      file.write_file
+    end
+  end
+end
+
+Make sure PHP can read the vars
+if node['php']['version']=='7.0.4'
+  php_ver = '7.0'
+else
+  php_ver = node['php']['version']
+end
 
 php_ver = '7.2'
 
@@ -207,17 +170,17 @@ ruby_block "php_env_vars" do
   end
 end
 
-# 3. map the environment_variables node to ENV variables
-# ruby_block "insert_env_vars" do
-#   block do
-#     file = Chef::Util::FileEdit.new('/etc/environment')
-#     app['environment'].each do |key, value|
-#       Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
-#       file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
-#       file.write_file
-#     end
-#   end
-# end
+3. map the environment_variables node to ENV variables
+ruby_block "insert_env_vars" do
+  block do
+    file = Chef::Util::FileEdit.new('/etc/environment')
+    app['environment'].each do |key, value|
+      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
+      file.write_file
+    end
+  end
+end
 
 # source the file so we can use it right away if needed
 bash "update_env_vars" do
@@ -227,25 +190,34 @@ bash "update_env_vars" do
   EOS
 end
 
+aws_ssm_parameter_store 'getShortName' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/SHORT_NAME'
+  return_key 'short_name'
+  action :get
+end
+
+app['short_name'] = node.run_state['short_name'];
+app_path = "/srv/#{app['short_name']}"
+
 # 4. We create the site
-# web_app app['shortname'] do
-#   template 'web_app.conf.erb'
-#   allow_override 'All'
-#   server_name app['domains'].first
-#   server_port 8080
-#   server_aliases app['domains'].drop(1)
-#   docroot app_path
-#   multisite app['environment']['MULTISITE']
-# end
+web_app app['short_name'] do
+  template 'web_app.conf.erb'
+  allow_override 'All'
+  server_name app['domains'].first
+  server_port 8080
+  server_aliases app['domains'].drop(1)
+  docroot app_path
+  multisite app['environment']['MULTISITE']
+end
 
 # 5. We configure caching
 
 # first off, Varnish (with custom error page if present)
 error_page = ""
 
-# if app['environment']['VARNISH_ERROR_PAGE']
-#   error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
-# end
+if app['environment']['VARNISH_ERROR_PAGE']
+  error_page = "/srv/#{app['short_name']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+end
 
 # define a CORS header
 cors = ""
@@ -342,4 +314,7 @@ end
 #   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 # end
 
-
+log 'debug' do
+  message 'Simian-debug: End default.rb'
+  level :info
+end
