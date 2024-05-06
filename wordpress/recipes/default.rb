@@ -122,7 +122,7 @@ package 'Install PHP ssh' do
 end
 
 aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_HOST'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
   with_decryption false
   return_key 'db_host'
   action :get

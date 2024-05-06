@@ -36,6 +36,11 @@ aws_ssm_parameter_store 'getShortName' do
   action :get
 end
 
+log 'Current path' do
+  message "El path es #{node.run_state['short_name']}"
+  level :info
+end
+
 app['short_name'] = node.run_state['short_name'];
 app_path = "/srv/#{app['short_name']}"
 
