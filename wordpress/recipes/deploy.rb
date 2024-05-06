@@ -21,7 +21,8 @@ app = {
     'url' => node.run_state['app_source_url'],
     'revision' => node.run_state['app_source_revision'],
     'ssh_key' => node.run_state['app_source_ssh_key']
-  }
+  },
+  'environment' => {}
 }
 
 log 'Current recipe' do
