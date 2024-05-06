@@ -169,7 +169,7 @@ ruby_block "php_env_vars" do
   end
 end
 
-3. map the environment_variables node to ENV variables
+#3. map the environment_variables node to ENV variables
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/environment')
