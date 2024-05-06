@@ -121,8 +121,6 @@ package 'Install PHP ssh' do
   package_name 'php-ssh2'
 end
 
-app = []
-
 aws_ssm_parameter_store 'getDBHost' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
   return_key 'db_host'
@@ -134,6 +132,9 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   return_key 'varnish_error_page'
   action :get
 end
+
+app = {}
+app['enviroment'] = {}
 
 app['environment']['DB_HOST'] = node.run_state['db_host']
 app['environment']['VARNISH_ERROR_PAGE'] = node.run_state['varnish_error_page']
