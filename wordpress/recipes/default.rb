@@ -306,22 +306,24 @@ aws_ssm_parameter_store 'getParameters' do
   action :get
 end
 
+parameter_values = node.run_state['parameter_values']
+
 ruby_block 'log_parameter_values' do
   block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['parameter_values']}")
+    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{parameter_values}")
   end
   action :run
 end
 
 ruby_block 'log_parameter_type' do
   block do
-    Chef::Log.info("El tipo de dato es #{node.run_state['parameter_values'].class}")
+    Chef::Log.info("El tipo de dato es #{parameter_values.class}")
   end
 end
 
 require 'json'
 
-json_object = JSON.parse(node.run_state['parameter_values'])
+json_object = JSON.parse(parameter_values)
 
 ruby_block 'log_json_type' do
   block do
