@@ -122,15 +122,17 @@ package 'Install PHP ssh' do
 end
 
 aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy'
   with_decryption false
   return_key 'db_host'
   action :get
 end
 
-log 'DB Host' do
-  message "El db_host es #{node.run_state['db_host']}"
-  level :info
+ruby_block 'log_parameter_values' do
+  block do
+    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['db_host']}")
+  end
+  action :run
 end
 
 aws_ssm_parameter_store 'getVarnishErrorPage' do
