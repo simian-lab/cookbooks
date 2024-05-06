@@ -325,6 +325,6 @@ json_object = JSON.parse('{"key": "value"}')
 
 ruby_block 'log_json_type' do
   block do
-    Chef::Log.info("El tipo de dato es #{json_object.key}")
+    Chef::Log.info("El tipo de dato es #{json_object}")
   end
 end
