@@ -140,7 +140,7 @@ aws_ssm_parameter_store 'getDomains' do
 end
 
 app = {
-  'domains': [node.run_state['domains']],
+  'domains' => [node.run_state['domains']],
   'environment': {
       'DB_HOST': node.run_state['db_host']
   }
@@ -228,39 +228,39 @@ end
 # define a CORS header
 cors = ""
 
-# if app['environment']['CORS']
-#   cors = "#{app['environment']['CORS']}"
-# end
+if app['environment']['CORS']
+  cors = "#{app['environment']['CORS']}"
+end
 
 # Add a long max-age header if present
 browser_cache = ""
 
-# if app['environment']['LONG_BROWSER_CACHE']
-#   browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
-# end
+if app['environment']['LONG_BROWSER_CACHE']
+  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+end
 
 # Add a force SSL redirection if present
 force_ssl_dns = ""
 
-# if app['environment']['FORCE_SSL_DNS']
-#   force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-# end
+if app['environment']['FORCE_SSL_DNS']
+  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+end
 
 # Add url exclusions if exists
 url_exclusions = ""
 
-# if app['environment']['VARNISH_URL_EXCLUSIONS']
-#   string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-#   url_exclusions = string_url_exclusions.split(",")
-# end
+if app['environment']['VARNISH_URL_EXCLUSIONS']
+  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
+  url_exclusions = string_url_exclusions.split(",")
+end
 
 # Add host exclusions if exists
 host_exclusions = ""
 
-# if app['environment']['VARNISH_HOST_EXCLUSIONS']
-#   string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-#   host_exclusions = string_host_exclusions.split(",")
-# end
+if app['environment']['VARNISH_HOST_EXCLUSIONS']
+  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
+  host_exclusions = string_host_exclusions.split(",")
+end
 
 service 'varnish' do
   supports [:restart, :start, :stop]
@@ -315,10 +315,10 @@ execute 'systemctl-daemon-reload' do
 end
 
 # 6. Call the WordPress cron
-# cron 'wpcron' do
-#   minute '*'
-#   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
-# end
+cron 'wpcron' do
+  minute '*'
+  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+end
 
 log 'debug' do
   message 'Simian-debug: End default.rb'
