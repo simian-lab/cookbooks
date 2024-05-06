@@ -49,7 +49,7 @@ log 'Current path' do
 end
 
 app['short_name'] = node.run_state['short_name'];
-app_path = "/srv/#{app['short_name']}"
+app_path = "/srv/#{node.run_state['short_name']}"
 
 log 'Current path' do
   message "El path es #{app_path}"
@@ -57,7 +57,7 @@ log 'Current path' do
 end
 
 execute 'Add an exception for this directory' do
-  command "git config --global --add safe.directory #{app_path}"
+  command "git config --global --add safe.directory /srv/#{node.run_state['short_name']}"
   user "root"
 end
 
@@ -65,18 +65,18 @@ application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository app['app_source']['url']
-    revision app['app_source']['revision']
-    deploy_key app['app_source']['ssh_key']
+    repository node.run_state['app_source_url']
+    revision node.run_state['app_source_revision']
+    deploy_key node.run_state['app_source_ssh_key']
   end
 end
 
 #make sure permissions are correct
 execute "chown-data-www" do
-  command "chown -R www-data:www-data #{app_path}"
+  command "chown -R www-data:www-data /srv/#{node.run_state['short_name']}"
   user "root"
   action :run
-  not_if "stat -c %U #{app_path} | grep www-data"
+  not_if "stat -c %U /srv/#{node.run_state['short_name']} | grep www-data"
 end
 
 # Clean cache
