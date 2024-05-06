@@ -147,9 +147,9 @@ end
 
 app = {
   'domains' => [node.run_state['domains']],
-  'environment': {
-      'DB_HOST': node.run_state['db_host'],
-      'MULTISITE': node.run_state['multisite']
+  'environment' => {
+      'DB_HOST' => node.run_state['db_host'],
+      'MULTISITE' => node.run_state['multisite']
   }
 }
 
