@@ -153,7 +153,7 @@ aws_ssm_parameter_store 'getMultisite' do
   action :get
 end
 
-app = {
+app = lazy {
   'domains' => [node.run_state['domains']],
   'environment' => {
       'DB_HOST' => node.run_state['db_host'],
