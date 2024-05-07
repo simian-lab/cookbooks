@@ -53,15 +53,15 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
-application app_path do
-  environment.update(app['environment'])
+# application app_path do
+#   environment.update(app['environment'])
 
-  git app_path do
-    repository lazy {app['app_source']['url']}
-    revision lazy {app['app_source']['revision']}
-    deploy_key lazy {app['app_source']['ssh_key']}
-  end
-end
+#   git app_path do
+#     repository lazy {app['app_source']['url']}
+#     revision lazy {app['app_source']['revision']}
+#     deploy_key lazy {app['app_source']['ssh_key']}
+#   end
+# end
 
 # make sure permissions are correct
 execute "chown-data-www" do
