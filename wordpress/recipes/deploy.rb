@@ -50,11 +50,9 @@ ruby_block 'log_parameter_values' do
   action :run
 end
 
-app['short_name'] = node.run_state['short_name'];
-app_path = "/srv/#{node.run_state['short_name']}"
-
 ruby_block 'log_parameter_values' do
   block do
+    app_path = "/srv/#{node.run_state['short_name']}"
     Chef::Log.info("El valor de app path es: #{app_path}")
   end
   action :run
