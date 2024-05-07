@@ -123,16 +123,8 @@ end
 
 aws_ssm_parameter_store 'getDBHost' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
-  with_decryption false
   return_key 'db_host'
   action :get
-end
-
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de node.run_state['parameter_values'] es: #{node.run_state['db_host']}")
-  end
-  action :run
 end
 
 aws_ssm_parameter_store 'getVarnishErrorPage' do
@@ -153,10 +145,10 @@ aws_ssm_parameter_store 'getMultisite' do
   action :get
 end
 
-app = lazy {
-  {
-    'domains' => [node.run_state['domains']],
-    'environment' => {
+app = {
+  'domains' => lazy {[node.run_state['domains']]},
+  'environment' => lazy {
+    {
       'DB_HOST' => node.run_state['db_host'],
       'MULTISITE' => node.run_state['multisite']
     }
