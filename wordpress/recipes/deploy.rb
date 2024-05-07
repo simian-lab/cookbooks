@@ -40,7 +40,7 @@ end
 
 # make sure permissions are correct
 execute "chown-data-www" do
-  command lazy "chown -R www-data:www-data #{app_path}"
+  command "chown -R www-data:www-data #{app_path}"
   user "root"
   action :run
   not_if "stat -c %U #{app_path} | grep www-data"
