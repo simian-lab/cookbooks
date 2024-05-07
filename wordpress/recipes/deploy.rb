@@ -43,19 +43,6 @@ aws_ssm_parameter_store 'getShortName' do
   action :get
 end
 
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de short name es: #{node.run_state['short_name']}")
-  end
-  action :run
-end
-
-ruby_block 'log_parameter_values' do
-  block do
-    Chef::Log.info("El valor de app path es: #{app_path}")
-  end
-  action :run
-end
 
 execute 'Add an exception for this directory' do
   command lazy {"git config --global --add safe.directory /srv/#{node.run_state['short_name']}"}
@@ -68,9 +55,9 @@ application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository node.run_state['app_source_url']
-    revision node.run_state['app_source_revision']
-    deploy_key node.run_state['app_source_ssh_key']
+    repository lazy {node.run_state['app_source_url']}
+    revision lazy {node.run_state['app_source_revision']}
+    deploy_key lazy {node.run_state['app_source_ssh_key']}
   end
 end
 
