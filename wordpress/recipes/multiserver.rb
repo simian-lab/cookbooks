@@ -16,8 +16,29 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 # Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
+app = {
+  'environment' => {},
+  'shortname' => {}
+}
+
+app_path = ''
+
+aws_ssm_parameter_store 'getShortName' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
+  return_key 'SHORT_NAME'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'environment' => {},
+      'shortname' => node.run_state['SHORT_NAME']
+    }
+
+    app_path = "/srv/#{app['shortname']}"
+  end
+end
 
 # 1. We install the dependencies
 package 'Install NFS' do
