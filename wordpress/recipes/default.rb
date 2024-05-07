@@ -331,7 +331,7 @@ end
 # 6. Call the WordPress cron
 cron 'wpcron' do
   minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+  command "wget -q -O - #{app['domains']}/wp-cron.php?doing_wp_cron"
 end
 
 log 'debug' do
