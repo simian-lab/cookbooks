@@ -55,9 +55,9 @@ application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository node.run_state['app_source_url']
-    revision node.run_state['app_source_revision']
-    deploy_key node.run_state['app_source_ssh_key']
+    repository 'git@bitbucket.org:externado/website.git'
+    revision 'staging'
+    deploy_key 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDtpce4iRwSOTGkfG3UZUbwepLAwfaS9nQduVWsxiiqtZANS3ejpAS4KVxq0YMMBg20LKcfkdL+BuRs5RlVVsCCFCMekpgzQAdm6LM3q5Z7H320nyRBjkAiYic74dI4GvcAqWnUuk5QI6bG/CxnhlAxF2ELELaXXcIyxdFUWypfY6sT/XsUorg4o/76bUk3cAY2Vo5Wmd9xRkVP0A2Rs3FAvwVbrc7DYxhW4M5AmtnA7WWHZwF52dX7FIzyICkQCeiux2nokcRrjUlaGFA5qlBRQHK5S02Wb2izAr64l03dc/PPwTX7RMZ9qDb6mvwxdvi0FA9VagWRFbQrrjUTzX2N ivan@Ivans-MacBook-Pro.local'
   end
 end
 
