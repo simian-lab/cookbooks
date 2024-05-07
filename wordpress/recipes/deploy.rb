@@ -51,22 +51,13 @@ end
 
 app_path = "/srv/wordpress"
 
-ruby_block 'git' do
-  git app_path do
-    repository node.run_state['app_source_url']
-    revision node.run_state['app_source_revision']
-    deploy_key node.run_state['app_source_ssh_key']
-  end
-  action :run
-end
-
 application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository lazy {node.run_state['app_source_url']}
-    revision lazy {node.run_state['app_source_revision']}
-    deploy_key lazy {node.run_state['app_source_ssh_key']}
+    repository node.run_state['app_source_url']
+    revision node.run_state['app_source_revision']
+    deploy_key node.run_state['app_source_ssh_key']
   end
 end
 
