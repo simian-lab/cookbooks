@@ -207,17 +207,10 @@ bash "update_env_vars" do
   EOS
 end
 
-aws_ssm_parameter_store 'getShortName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
-  return_key 'short_name'
-  action :get
-end
-
-app['short_name'] = node.run_state['short_name'];
 app_path = "/srv/wordpress"
 
 # 4. We create the site
-web_app app['short_name'] do
+web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
   server_name app['domains'].first
@@ -233,7 +226,7 @@ end
 error_page = ""
 
 if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['short_name']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+  error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
 end
 
 # define a CORS header
