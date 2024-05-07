@@ -145,6 +145,8 @@ aws_ssm_parameter_store 'getMultisite' do
   action :get
 end
 
+app = {}
+
 ruby_block "define_app" do
   block do
     app = {
