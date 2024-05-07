@@ -3,7 +3,33 @@ log 'debug' do
   level :info
 end
 
-app_path = "/srv/#{app['shortname']}"
+app = {
+  'app_source' => {},
+  'environment' => {},
+  'shortname' => {}
+}
+
+aws_ssm_parameter_store 'getShortName' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
+  return_key 'SHORT_NAME'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'app_source' => {
+        'url' => node.run_state['APP_SOURCE_URL'],
+        'revision' => node.run_state['APP_SOURCE_REVISION'],
+        'ssh_key' => node.run_state['APP_SOURCE_SSH_KEY']
+      },
+      'environment' => {},
+      'shortname' => node.run_state['SHORT_NAME']
+    }
+
+    app_path = "/srv/#{app['shortname']}"
+  end
+end
 
 execute 'Add an exception for this directory' do
   command "git config --global --add safe.directory #{app_path}"

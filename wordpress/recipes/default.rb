@@ -77,6 +77,12 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
+aws_ssm_parameter_store 'getShortName' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
+  return_key 'SHORT_NAME'
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
