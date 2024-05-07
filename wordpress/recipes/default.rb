@@ -148,7 +148,7 @@ end
 ruby_block "define_app" do
   block do
     app = {
-      'domains' => [node.run_state['domains']],
+      'domains' => node.run_state['domains'],
       'environment' => {
         'DB_HOST' => node.run_state['db_host'],
         'MULTISITE' => node.run_state['multisite']
@@ -213,9 +213,9 @@ app_path = "/srv/wordpress"
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name app['domains'].first
+  server_name app['domains']
   server_port 8080
-  server_aliases app['domains'].drop(1)
+  #server_aliases app['domains'].drop(1)
   docroot app_path
   multisite app['environment']['MULTISITE']
 end
