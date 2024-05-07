@@ -3,7 +3,6 @@ log 'debug' do
   level :info
 end
 
-app = search("aws_opsworks_app","deploy:true").first
 app_path = "/srv/#{app['shortname']}"
 
 execute 'Add an exception for this directory' do
