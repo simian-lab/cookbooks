@@ -17,26 +17,17 @@
 
 # Initial setup: just a couple vars we need
 app = {
-  'environment' => {},
-  'shortname' => {}
+  'environment' => {}
 }
 
-app_path = ''
-
-aws_ssm_parameter_store 'getShortName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
-  return_key 'SHORT_NAME'
-  action :get
-end
+app_path = "/srv/wordpress"
 
 ruby_block "define-app" do
   block do
     app = {
-      'environment' => {},
-      'shortname' => node.run_state['SHORT_NAME']
+      'environment' => {}
     }
 
-    app_path = "/srv/#{app['shortname']}"
   end
 end
 

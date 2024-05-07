@@ -5,17 +5,10 @@ end
 
 app = {
   'app_source' => {},
-  'environment' => {},
-  'shortname' => {}
+  'environment' => {}
 }
 
-app_path = ''
-
-aws_ssm_parameter_store 'getShortName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
-  return_key 'SHORT_NAME'
-  action :get
-end
+app_path = "/srv/wordpress"
 
 ruby_block "define-app" do
   block do
@@ -25,16 +18,13 @@ ruby_block "define-app" do
         'revision' => node.run_state['APP_SOURCE_REVISION'],
         'ssh_key' => node.run_state['APP_SOURCE_SSH_KEY']
       },
-      'environment' => {},
-      'shortname' => node.run_state['SHORT_NAME']
+      'environment' => {}
     }
-
-    app_path = "/srv/#{app['shortname']}"
   end
 end
 
 execute 'Add an exception for this directory' do
-  command lazy {"git config --global --add safe.directory #{app_path}"}
+  command "git config --global --add safe.directory #{app_path}"
   user "root"
 end
 
@@ -50,10 +40,10 @@ end
 
 # make sure permissions are correct
 execute "chown-data-www" do
-  command lazy {"chown -R www-data:www-data #{app_path}"}
+  command lazy "chown -R www-data:www-data #{app_path}"
   user "root"
   action :run
-  not_if lazy {"stat -c %U #{app_path} | grep www-data"}
+  not_if "stat -c %U #{app_path} | grep www-data"
 end
 
 # Clean cache

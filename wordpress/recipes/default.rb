@@ -43,9 +43,10 @@ end
 # Initial setup: just a couple vars we need
 app = {
   'environment' => {},
-  'domains' => [],
-  'shortname' => {}
+  'domains' => []
 }
+
+app_path = "/srv/wordpress"
 
 aws_ssm_parameter_store 'getDomains' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
@@ -77,12 +78,6 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-aws_ssm_parameter_store 'getShortName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
-  return_key 'SHORT_NAME'
-  action :get
-end
-
 ruby_block "define-app" do
   block do
     app = {
@@ -98,11 +93,8 @@ ruby_block "define-app" do
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
-      },
-      'shortname' => node.run_state['SHORT_NAME']
+      }
     }
-
-    app_path = "/srv/#{app['shortname']}"
   end
 end
 
@@ -245,7 +237,7 @@ bash "update_env_vars" do
 end
 
 # 4. We create the site
-web_app app['shortname'] do
+web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
   server_name app['domains'].first
@@ -261,7 +253,7 @@ end
 error_page = ""
 
 if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+  error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
 end
 
 # define a CORS header
