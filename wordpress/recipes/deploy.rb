@@ -54,7 +54,7 @@ execute 'Add an exception for this directory' do
 end
 
 application app_path do
-  environment.update(lazy {app['environment']})
+  #environment.update(app['environment'])
 
   git app_path do
     repository lazy {app['app_source']['url']}
