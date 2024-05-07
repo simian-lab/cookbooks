@@ -35,11 +35,69 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
-# Initial setup: just a couple vars we need
-
 log 'debug' do
   message 'Simian-debug: Start default.rb'
   level :info
+end
+
+# Initial setup: just a couple vars we need
+app = {
+  'environment' => {},
+  'domains' => [],
+  'shortname' => {}
+}
+
+aws_ssm_parameter_store 'getDomains' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
+  return_key 'DOMAINS'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBHost' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_HOST'
+  return_key 'DB_HOST'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBName' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_NAME'
+  return_key 'DB_NAME'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBPassword' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_PASSWORD'
+  return_key 'DB_PASSWORD'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBUser' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_USER'
+  return_key 'DB_USER'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'domains' => [node.run_state['DOMAINS']],
+      'environment' => {
+        'DB_HOST' => node.run_state['DB_HOST'],
+        'DB_NAME' => node.run_state['DB_NAME'],
+        'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
+        'DB_USER' => node.run_state['DB_USER'],
+        'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
+        'FORCE_SSL_DNS' => node.run_state['FORCE_SSL_DNS'],
+        'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
+        'SITE_URL' => node.run_state['SITE_URL'],
+        'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
+        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
+      },
+      'shortname' => node.run_state['SHORT_NAME']
+    }
+
+    app_path = "/srv/#{app['shortname']}"
+  end
 end
 
 # Installing some required packages
@@ -55,6 +113,12 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
+
+# Install php
+log 'debug' do
+  message 'Simian-debug: Install PHP'
+  level :info
+end
 
 package 'Install PHP' do
   package_name 'php7.2'
@@ -117,57 +181,14 @@ package 'htop' do
   package_name 'htop'
 end
 
-package 'Install PHP ssh' do
-  package_name 'php-ssh2'
-end
-
-aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/Deploy/DB_HOST'
-  return_key 'db_host'
-  action :get
-end
-
-aws_ssm_parameter_store 'getVarnishErrorPage' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/VARNISH_ERROR_PAGE'
-  return_key 'varnish_error_page'
-  action :get
-end
-
-aws_ssm_parameter_store 'getDomains' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
-  return_key 'domains'
-  action :get
-end
-
-aws_ssm_parameter_store 'getMultisite' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/MULTISITE'
-  return_key 'multisite'
-  action :get
-end
-
-app = {
-  'environment' => {}
-}
-
-ruby_block "define_app" do
-  block do
-    app = {
-      'domains' => node.run_state['domains'],
-      'environment' => {
-        'DB_HOST' => node.run_state['db_host'],
-        'MULTISITE' => node.run_state['multisite']
-      }
-    }
+# Optionally Install php-ssh2 dependency
+if app['environment']['PHP_SSH_ENABLE']
+  package 'Install PHP ssh' do
+    package_name 'php-ssh2'
   end
 end
 
-ruby_block "log_app" do
-  block do
-    Chef::Log.info("app es #{app}")
-  end
-end
-
-#2. Set the environment variables for PHP
+# 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
@@ -179,12 +200,12 @@ ruby_block "insert_env_vars" do
   end
 end
 
-#Make sure PHP can read the vars
-if node['php']['version']=='7.0.4'
-  php_ver = '7.0'
-else
-  php_ver = node['php']['version']
-end
+# Make sure PHP can read the vars
+#if node['php']['version']=='7.0.4'
+#  php_ver = '7.0'
+#else
+#  php_ver = node['php']['version']
+#end
 
 php_ver = '7.2'
 
@@ -197,7 +218,7 @@ ruby_block "php_env_vars" do
   end
 end
 
-#3. map the environment_variables node to ENV variables
+# 3. map the environment_variables node to ENV variables
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/environment')
@@ -217,17 +238,15 @@ bash "update_env_vars" do
   EOS
 end
 
-app_path = "/srv/wordpress"
-
 # 4. We create the site
-web_app 'wordpress' do
+web_app app['shortname'] do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name lazy {node.run_state['domains']}
+  server_name app['domains'].first
   server_port 8080
-  #server_aliases app['domains'].drop(1)
+  server_aliases app['domains'].drop(1)
   docroot app_path
-  multisite lazy {node.run_state['multisite']}
+  multisite app['environment']['MULTISITE']
 end
 
 # 5. We configure caching
@@ -236,7 +255,7 @@ end
 error_page = ""
 
 if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
+  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
 end
 
 # define a CORS header
@@ -331,7 +350,7 @@ end
 # 6. Call the WordPress cron
 cron 'wpcron' do
   minute '*'
-  command "wget -q -O - #{app['domains']}/wp-cron.php?doing_wp_cron"
+  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 end
 
 log 'debug' do
