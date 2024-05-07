@@ -62,7 +62,7 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
-lazy {app_path = "/srv/#{node.run_state['short_name']}"}
+app_path = "/srv/wordpress"
 
 application app_path do
   #environment.update(app['environment'])
