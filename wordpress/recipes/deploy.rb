@@ -32,7 +32,7 @@ ruby_block "define-app" do
 end
 
 execute 'Add an exception for this directory' do
-  command "git config --global --add safe.directory #{app_path}"
+  command lazy {"git config --global --add safe.directory #{app_path}"}
   user "root"
 end
 
@@ -48,10 +48,10 @@ end
 
 # make sure permissions are correct
 execute "chown-data-www" do
-  command "chown -R www-data:www-data #{app_path}"
+  command lazy {"chown -R www-data:www-data #{app_path}"}
   user "root"
   action :run
-  not_if "stat -c %U #{app_path} | grep www-data"
+  not_if lazy {"stat -c %U #{app_path} | grep www-data"}
 end
 
 # Clean cache
