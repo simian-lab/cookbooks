@@ -98,6 +98,13 @@ ruby_block "define-app" do
   end
 end
 
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
+end
+
 # Installing some required packages
 include_recipe 'apt::default'
 

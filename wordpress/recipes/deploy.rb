@@ -41,6 +41,13 @@ ruby_block "define-app" do
   end
 end
 
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
+end
+
 execute 'Add an exception for this directory' do
   command "git config --global --add safe.directory #{app_path}"
   user "root"
