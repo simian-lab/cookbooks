@@ -9,6 +9,8 @@ app = {
   'shortname' => {}
 }
 
+app_path = ''
+
 aws_ssm_parameter_store 'getShortName' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SHORT_NAME'
   return_key 'SHORT_NAME'
