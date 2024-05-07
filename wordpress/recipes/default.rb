@@ -157,6 +157,12 @@ ruby_block "define_app" do
   end
 end
 
+ruby_block "log_app" do
+  block do
+    Cheff::Log.info("app es #{app}")
+  end
+end
+
 #2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
@@ -217,7 +223,7 @@ web_app 'wordpress' do
   server_port 8080
   #server_aliases app['domains'].drop(1)
   docroot app_path
-  multisite app['environment']['MULTISITE']
+  multisite lazy {node.run_state['multisite']}
 end
 
 # 5. We configure caching
