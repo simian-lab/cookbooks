@@ -218,7 +218,7 @@ aws_ssm_parameter_store 'getShortName' do
 end
 
 app['short_name'] = node.run_state['short_name'];
-app_path = "/srv/#{app['short_name']}"
+app_path = "/srv/wordpress"
 
 # 4. We create the site
 web_app app['short_name'] do
