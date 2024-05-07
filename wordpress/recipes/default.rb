@@ -145,15 +145,17 @@ aws_ssm_parameter_store 'getMultisite' do
   action :get
 end
 
-app = {
-  'domains' => lazy {[node.run_state['domains']]},
-  'environment' => lazy {
-    {
-      'DB_HOST' => node.run_state['db_host'],
-      'MULTISITE' => node.run_state['multisite']
+ruby_block "define_app" do
+  block do
+    app = {
+      'domains' => [node.run_state['domains']],
+      'environment' => {
+        'DB_HOST' => node.run_state['db_host'],
+        'MULTISITE' => node.run_state['multisite']
+      }
     }
-  }
-}
+  end
+end
 
 #2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
