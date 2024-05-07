@@ -10,6 +10,24 @@ app = {
 
 app_path = "/srv/wordpress"
 
+aws_ssm_parameter_store 'getAppSourceUrl' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_URL'
+  return_key 'APP_SOURCE_URL'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAppSourceRevision' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_REVISION'
+  return_key 'APP_SOURCE_REVISION'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAppSourceSshKey' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_SSH_KEY'
+  return_key 'APP_SOURCE_SSH_KEY'
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
