@@ -52,16 +52,17 @@ end
 
 ruby_block 'log_parameter_values' do
   block do
-    app_path = "/srv/#{node.run_state['short_name']}"
     Chef::Log.info("El valor de app path es: #{app_path}")
   end
   action :run
 end
 
 execute 'Add an exception for this directory' do
-  command "git config --global --add safe.directory /srv/#{node.run_state['short_name']}"
+  command lazy {"git config --global --add safe.directory /srv/#{node.run_state['short_name']}"}
   user "root"
 end
+
+app_path = lazy {"/srv/#{node.run_state['short_name']}"}
 
 application app_path do
   environment.update(app['environment'])
