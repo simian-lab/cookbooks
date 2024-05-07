@@ -163,7 +163,7 @@ end
 
 ruby_block "log_app" do
   block do
-    Cheff::Log.info("app es #{app}")
+    Chef::Log.info("app es #{app}")
   end
 end
 
