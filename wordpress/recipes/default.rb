@@ -247,7 +247,7 @@ end
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name lazy {app['domains'].first}
+  server_name "beta.uexternado.edu.co"
   server_port 8080
   #server_aliases lazy {app['domains'].drop(1)}
   docroot app_path
