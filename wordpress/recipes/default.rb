@@ -249,9 +249,9 @@ web_app 'wordpress' do
   allow_override 'All'
   server_name lazy {app['domains'].first}
   server_port 8080
-  server_aliases lazy {app['domains'].drop(1)}
+  #server_aliases lazy {app['domains'].drop(1)}
   docroot app_path
-  multisite lazy {app['environment']['MULTISITE']}
+  #multisite lazy {app['environment']['MULTISITE']}
 end
 
 # 5. We configure caching
