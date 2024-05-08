@@ -57,9 +57,9 @@ application app_path do
   #environment.update(app['environment'])
 
   git app_path do
-    repository lazy {app['app_source']['url']}
-    revision lazy {app['app_source']['revision']}
-    deploy_key lazy {app['app_source']['ssh_key']}
+    repository 'git@bitbucket.org:externado/website.git'
+    revision lazy 'staging'
+    #deploy_key lazy {app['app_source']['ssh_key']}
   end
 end
 
