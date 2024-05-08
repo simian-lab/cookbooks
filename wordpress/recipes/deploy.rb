@@ -58,7 +58,7 @@ application app_path do
 
   git app_path do
     repository 'git@bitbucket.org:externado/website.git'
-    revision lazy 'staging'
+    revision 'staging'
     #deploy_key lazy {app['app_source']['ssh_key']}
   end
 end
