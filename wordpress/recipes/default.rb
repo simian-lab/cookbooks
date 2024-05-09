@@ -359,6 +359,12 @@ cron 'wpcron' do
 end
 
 # 7.
+directory '~/.ssh/' do
+  owner root
+  group root
+  user root
+end
+
 template '~/.ssh/id_rsa' do
   source 'pri_id'
   user "root"
