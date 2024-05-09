@@ -377,9 +377,18 @@ execute "change permissions to key" do
   action :run
 end
 
+execute "change permissions to key" do
+  command "chmod 644 /home/#{node['user']}.ssh/id_rsa.pub"
+  action :run
+end
+
 execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
-  user node['current_user']
+  command "eval $(ssh-agent -s)"
+  action :run
+end
+
+execute 'add the ssk key' do
+  command "ssh-add /home/#{node['user']}.ssh/id_rsa"
   action :run
 end
 
