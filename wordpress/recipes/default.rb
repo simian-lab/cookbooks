@@ -382,18 +382,8 @@ execute "change permissions to key" do
   action :run
 end
 
-execute "create file" do
-  command "touch /home/#{node['user']}.ssh/authorized_keys && chmod 600 /home/#{node['user']}.ssh/authorized_keys"
-  action :run
-end
-
-execute "copy public key" do
-  command "cat /home/#{node['user']}.ssh/id_rsa.pub >> /home/#{node['user']}.ssh/authorized_keys"
-  action :run
-end
-
-execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
+execute 'clone repository' do
+  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b staging git@bitbucket.org:externado/website.git"
   action :run
 end
 
