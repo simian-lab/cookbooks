@@ -53,21 +53,21 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
-application app_path do
-  environment.update(app['environment'])
+# application app_path do
+#   environment.update(app['environment'])
 
-  execute 'eval de ssh agent' do
-    command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && ssh-add -l"
-    user "root"
-    action :run
-  end
+#   execute 'eval de ssh agent' do
+#     command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && ssh-add -l"
+#     user "root"
+#     action :run
+#   end
 
-  git app_path do
-    repository 'git@bitbucket.org:externado/website.git'
-    revision 'staging'
-    user "root"
-  end
-end
+#   git app_path do
+#     repository 'git@bitbucket.org:externado/website.git'
+#     revision 'staging'
+#     user "root"
+#   end
+# end
 
 # make sure permissions are correct
 execute "chown-data-www" do

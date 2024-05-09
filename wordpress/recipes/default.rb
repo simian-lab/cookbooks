@@ -383,7 +383,8 @@ execute "change permissions to key" do
 end
 
 execute 'clone repository' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b staging git@bitbucket.org:externado/website.git"
+  cwd "/srv"
+  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b staging git@bitbucket.org:externado/website.git wordpress"
   action :run
 end
 
