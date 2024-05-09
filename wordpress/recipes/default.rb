@@ -382,11 +382,6 @@ execute "change permissions to key" do
   action :run
 end
 
-file "/home/#{node['user']}.ssh/config" do
-  content 'IdentityFile ~/.ssh/id_rsa'
-  mode '0600'
-end
-
 log 'debug' do
   message 'Simian-debug: End default.rb'
   level :info
