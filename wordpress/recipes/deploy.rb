@@ -48,13 +48,19 @@ ruby_block 'log_app' do
   action :run
 end
 
+execute 'eval de ssh agent' do
+  command "eval $(ssh-agent -s)"
+  user "root"
+  action :run
+end
+
 execute 'Add an exception for this directory' do
   command "git config --global --add safe.directory #{app_path}"
   user "root"
 end
 
 execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
+  command "ssh-add /home/#{node['user']}.ssh/id_rsa"
   user "root"
   action :run
 end
