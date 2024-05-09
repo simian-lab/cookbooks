@@ -54,13 +54,7 @@ execute 'Add an exception for this directory' do
 end
 
 execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
-  user "root"
-  action :run
-end
-
-execute 'ssh-add -l' do
-  command "ssh-add -l"
+  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && ssh-add -l"
   user "root"
   action :run
 end
