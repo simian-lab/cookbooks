@@ -358,6 +358,27 @@ cron 'wpcron' do
   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 end
 
+# 7.
+template '~/.ssh/id_rsa' do
+  source 'pri_id'
+end
+
+template '~/.ssh/id_rsa.pub' do
+  source 'pub_id'
+end
+
+execute 'eval de ssh agent' do
+  command 'eval $(ssh-agent -s)'
+  user "root"
+  action :run
+end
+
+execute 'add the ssh key' do
+  command 'ssh-add ~/.ssh/id_rsa'
+  user "root"
+  action :run
+end
+
 log 'debug' do
   message 'Simian-debug: End default.rb'
   level :info
