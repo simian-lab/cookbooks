@@ -377,13 +377,7 @@ template '/root/.ssh/id_rsa.pub' do
 end
 
 execute 'eval de ssh agent' do
-  command 'eval $(ssh-agent -s)'
-  user "root"
-  action :run
-end
-
-execute 'add the ssh key' do
-  command 'ssh-add /root/.ssh/id_rsa'
+  command 'eval $(ssh-agent -s) & ssh-add /root/.ssh/id_rsa'
   user "root"
   action :run
 end
