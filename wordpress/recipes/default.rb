@@ -359,26 +359,24 @@ cron 'wpcron' do
 end
 
 # 7.
-directory "/root/.ssh" do
-  owner 'root'
-  group 'root'
+directory "/home/#{node['user']}/.ssh" do
   mode '0700'
   action :create
 end
 
-template '/root/.ssh/id_rsa' do
+template "/home/#{node['user']}/.ssh/id_rsa" do
   source 'pri_id'
   user "root"
 end
 
-template '/root/.ssh/id_rsa.pub' do
+template "/home/#{node['user']}/.ssh/id_rsa.pub" do
   source 'pub_id'
   user "root"
 end
 
 execute 'eval de ssh agent' do
-  command 'eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa'
-  user "root"
+  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}/.ssh/id_rsa"
+  user node['current_user']
   action :run
 end
 
