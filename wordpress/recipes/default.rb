@@ -374,6 +374,11 @@ template "/home/#{node['user']}.ssh/id_rsa.pub" do
   user "root"
 end
 
+execute "change permissions to key" do
+  command "chmod 600 /home/#{node['user']}.ssh/id_rsa"
+  action :run
+end
+
 execute 'eval de ssh agent' do
   command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
   user node['current_user']
