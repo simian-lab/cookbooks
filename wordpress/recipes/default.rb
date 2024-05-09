@@ -382,12 +382,6 @@ execute "change permissions to key" do
   action :run
 end
 
-execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
-  user "root"
-  action :run
-end
-
 log 'debug' do
   message 'Simian-debug: End default.rb'
   level :info

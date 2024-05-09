@@ -53,6 +53,12 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
+execute 'eval de ssh agent' do
+  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
+  user "root"
+  action :run
+end
+
 application app_path do
   environment.update(app['environment'])
 
