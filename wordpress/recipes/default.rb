@@ -360,9 +360,9 @@ end
 
 # 7.
 directory '~/.ssh/' do
-  owner root
-  group root
-  user root
+  owner 'root'
+  group 'root'
+  mode '0700'
 end
 
 template '~/.ssh/id_rsa' do
