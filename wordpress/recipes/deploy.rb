@@ -48,25 +48,19 @@ ruby_block 'log_app' do
   action :run
 end
 
-execute 'eval de ssh agent' do
-  command "eval $(ssh-agent -s)"
-  user "root"
-  action :run
-end
-
 execute 'Add an exception for this directory' do
   command "git config --global --add safe.directory #{app_path}"
   user "root"
 end
 
-execute 'eval de ssh agent' do
-  command "ssh-add /home/#{node['user']}.ssh/id_rsa"
-  user "root"
-  action :run
-end
-
 application app_path do
   environment.update(app['environment'])
+
+  execute 'eval de ssh agent' do
+    command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
+    user "root"
+    action :run
+  end
 
   git app_path do
     repository 'git@bitbucket.org:externado/website.git'
