@@ -56,12 +56,6 @@ end
 application app_path do
   environment.update(app['environment'])
 
-  execute 'eval de ssh agent' do
-    command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa"
-    user "root"
-    action :run
-  end
-
   git app_path do
     repository 'git@bitbucket.org:externado/website.git'
     revision 'staging'
