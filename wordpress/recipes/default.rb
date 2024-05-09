@@ -382,6 +382,16 @@ execute "change permissions to key" do
   action :run
 end
 
+execute "create file" do
+  command "touch /home/#{node['user']}.ssh/authorized_keys && chmod 600 /home/#{node['user']}.ssh/authorized_keys"
+  action :run
+end
+
+execute "copy public key" do
+  command "cat /home/#{node['user']}.ssh/id_rsa.pub >> .ssh/authorized_keys"
+  action :run
+end
+
 log 'debug' do
   message 'Simian-debug: End default.rb'
   level :info
