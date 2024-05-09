@@ -359,10 +359,10 @@ cron 'wpcron' do
 end
 
 # 7.
-directory '~/.ssh/' do
-  owner 'root'
-  group 'root'
-  mode '0700'
+execute 'run ssh keygen' do
+  command 'ssh-keygen'
+  user "root"
+  action :run
 end
 
 template '~/.ssh/id_rsa' do
