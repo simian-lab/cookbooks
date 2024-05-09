@@ -380,17 +380,37 @@ execute "mkdir ~/.ssh/" do
   action :run
 end
 
-template "~/.ssh/id_rsa" do
+template "/root/.ssh/id_rsa" do
   source 'pri_id'
 end
 
-template "~/.ssh/id_rsa.pub" do
+template "/root/.ssh/id_rsa.pub" do
   source 'pub_id'
 end
 
 execute "change permissions to key" do
-  command "chmod 600 ~/.ssh/id_rsa"
+  command "chmod 600 /root/.ssh/id_rsa"
   action :run
+end
+
+execute "change permissions to key" do
+  command "chmod 644 /root/.ssh/id_rsa.pub"
+  action :run
+end
+
+execute "add key" do
+  command "eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa"
+  action :run
+end
+
+execute "known hosts" do
+  command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
+  action :run
+end
+
+execute "clone" do
+  cwd "/srv"
+  command lazy {"git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
 end
 
 # 7.
