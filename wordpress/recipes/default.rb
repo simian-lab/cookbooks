@@ -388,7 +388,7 @@ execute "create file" do
 end
 
 execute "copy public key" do
-  command "cat /home/#{node['user']}.ssh/id_rsa.pub >> .ssh/authorized_keys"
+  command "cat /home/#{node['user']}.ssh/id_rsa.pub >> /home/#{node['user']}.ssh/authorized_keys"
   action :run
 end
 
