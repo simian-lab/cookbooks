@@ -366,12 +366,10 @@ end
 
 template "/home/#{node['user']}.ssh/id_rsa" do
   source 'pri_id'
-  user "root"
 end
 
 template "/home/#{node['user']}.ssh/id_rsa.pub" do
   source 'pub_id'
-  user "root"
 end
 
 execute "change permissions to key" do
