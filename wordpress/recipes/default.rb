@@ -405,7 +405,7 @@ end
 
 execute 'clone repository' do
   cwd "/srv"
-  command lazy {"eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app_source['app_source']['revision']} #{app_source['app_source']['url']} wordpress"}
+  command lazy {"eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
   action :run
 end
 
