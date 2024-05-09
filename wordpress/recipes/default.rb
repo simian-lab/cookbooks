@@ -48,6 +48,18 @@ app = {
 
 app_path = "/srv/wordpress"
 
+aws_ssm_parameter_store 'getAppSourceUrl' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_URL'
+  return_key 'APP_SOURCE_URL'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAppSourceRevision' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_REVISION'
+  return_key 'APP_SOURCE_REVISION'
+  action :get
+end
+
 aws_ssm_parameter_store 'getDomains' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
   return_key 'DOMAINS'
@@ -81,6 +93,10 @@ end
 ruby_block "define-app" do
   block do
     app = {
+      'app_source' => {
+        'url' => node.run_state['APP_SOURCE_URL'],
+        'revision' => node.run_state['APP_SOURCE_REVISION'],
+      },
       'domains' => [node.run_state['DOMAINS']],
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
@@ -93,7 +109,7 @@ ruby_block "define-app" do
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
-      }
+      },
     }
   end
 end
@@ -382,9 +398,14 @@ execute "change permissions to key" do
   action :run
 end
 
+execute "add to known_hosts" do
+  command "ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts"
+  action :run
+end
+
 execute 'clone repository' do
   cwd "/srv"
-  command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b staging git@bitbucket.org:externado/website.git wordpress"
+  command lazy {"eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app_source['app_source']['revision']} #{app_source['app_source']['url']} wordpress"}
   action :run
 end
 
