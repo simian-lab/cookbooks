@@ -361,10 +361,12 @@ end
 # 7.
 template '~/.ssh/id_rsa' do
   source 'pri_id'
+  user "root"
 end
 
 template '~/.ssh/id_rsa.pub' do
   source 'pub_id'
+  user "root"
 end
 
 execute 'eval de ssh agent' do
