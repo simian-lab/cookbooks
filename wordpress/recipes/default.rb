@@ -374,40 +374,60 @@ cron 'wpcron' do
   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 end
 
-# 7.
-directory "/home/#{node['user']}.ssh" do
-  mode '0700'
-  action :create
+#7
+execute "mkdir ~/.ssh/" do
+  command "mkdir ~/.ssh/"
+  action :run
 end
 
-template "/home/#{node['user']}.ssh/id_rsa" do
+template "~/.ssh/id_rsa" do
   source 'pri_id'
 end
 
-template "/home/#{node['user']}.ssh/id_rsa.pub" do
+template "~/.ssh/id_rsa.pub" do
   source 'pub_id'
 end
 
 execute "change permissions to key" do
-  command "chmod 600 /home/#{node['user']}.ssh/id_rsa"
+  command "chmod 600 ~/.ssh/id_rsa"
   action :run
 end
 
-execute "change permissions to key" do
-  command "chmod 644 /home/#{node['user']}.ssh/id_rsa.pub"
-  action :run
-end
+# 7.
+# directory "/home/#{node['user']}.ssh" do
+#   mode '0700'
+#   action :create
+# end
 
-execute "add to known_hosts" do
-  command "ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts"
-  action :run
-end
+# template "/home/#{node['user']}.ssh/id_rsa" do
+#   source 'pri_id'
+# end
 
-execute 'clone repository' do
-  cwd "/srv"
-  command lazy {"ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts && eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
-  action :run
-end
+# template "/home/#{node['user']}.ssh/id_rsa.pub" do
+#   source 'pub_id'
+# end
+
+# execute "change permissions to key" do
+#   command "chmod 600 /home/#{node['user']}.ssh/id_rsa"
+#   action :run
+# end
+
+# execute "change permissions to key" do
+#   command "chmod 644 /home/#{node['user']}.ssh/id_rsa.pub"
+#   action :run
+# end
+
+# execute "add to known_hosts" do
+#   command "ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts"
+#   action :run
+# end
+
+# execute 'clone repository' do
+#   cwd "/srv"
+#   command lazy {"ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts && eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
+#   action :run
+# end
+
 
 log 'debug' do
   message 'Simian-debug: End default.rb'
