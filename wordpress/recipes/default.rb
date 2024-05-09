@@ -360,7 +360,7 @@ end
 
 # 7.
 execute 'run ssh keygen' do
-  command 'ssh-keygen'
+  command 'ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""'
   user "root"
   action :run
 end
