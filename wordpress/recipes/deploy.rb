@@ -59,6 +59,12 @@ execute 'eval de ssh agent' do
   action :run
 end
 
+execute 'ssh-add -l' do
+  command "ssh-add -l"
+  user "root"
+  action :run
+end
+
 application app_path do
   environment.update(app['environment'])
 
