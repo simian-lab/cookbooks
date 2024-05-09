@@ -366,12 +366,12 @@ directory "/root/.ssh" do
   action :create
 end
 
-template '~/.ssh/id_rsa' do
+template '/root/.ssh/id_rsa' do
   source 'pri_id'
   user "root"
 end
 
-template '~/.ssh/id_rsa.pub' do
+template '/root/.ssh/id_rsa.pub' do
   source 'pub_id'
   user "root"
 end
@@ -383,7 +383,7 @@ execute 'eval de ssh agent' do
 end
 
 execute 'add the ssh key' do
-  command 'ssh-add ~/.ssh/id_rsa'
+  command 'ssh-add /root/.ssh/id_rsa'
   user "root"
   action :run
 end
