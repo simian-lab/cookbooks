@@ -58,17 +58,12 @@ execute "add key" do
   action :run
 end
 
-# execute "clone" do
-#   cwd "/srv"
-#   command lazy {"git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
-# end
-
 application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository 'git@bitbucket.org:externado/website.git'
-    revision 'staging'
+    repository lazy {app['app_source']['url']}
+    revision lazy {app['app_source']['revision']}
   end
 end
 
