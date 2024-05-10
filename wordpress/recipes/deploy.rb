@@ -51,13 +51,10 @@ execute "add key" do
   action :run
 end
 
-application app_path do
-  environment.update(app['environment'])
-
-  git app_path do
-    repository 'git@bitbucket.org:externado/website.git'
-    revision lazy {app['app_source']['revision']}
-  end
+git 'sync the repo' do
+  repository 'git@bitbucket.org:externado/website.git'
+  revision lazy {app['app_source']['revision']}
+  destination '/srv/wordpress'
 end
 
 # make sure permissions are correct
