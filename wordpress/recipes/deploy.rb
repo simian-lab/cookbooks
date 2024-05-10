@@ -55,7 +55,7 @@ application app_path do
   environment.update(app['environment'])
 
   git app_path do
-    repository lazy {app['app_source']['url']}
+    repository 'git@bitbucket.org:externado/website.git'
     revision lazy {app['app_source']['revision']}
   end
 end
