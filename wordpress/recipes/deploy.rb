@@ -22,19 +22,12 @@ aws_ssm_parameter_store 'getAppSourceRevision' do
   action :get
 end
 
-aws_ssm_parameter_store 'getAppSourceSshKey' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_SSH_KEY'
-  return_key 'APP_SOURCE_SSH_KEY'
-  action :get
-end
-
 ruby_block "define-app" do
   block do
     app = {
       'app_source' => {
         'url' => node.run_state['APP_SOURCE_URL'],
-        'revision' => node.run_state['APP_SOURCE_REVISION'],
-        'ssh_key' => node.run_state['APP_SOURCE_SSH_KEY']
+        'revision' => node.run_state['APP_SOURCE_REVISION']
       },
       'environment' => {}
     }

@@ -48,18 +48,6 @@ app = {
 
 app_path = "/srv/wordpress"
 
-aws_ssm_parameter_store 'getAppSourceUrl' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_URL'
-  return_key 'APP_SOURCE_URL'
-  action :get
-end
-
-aws_ssm_parameter_store 'getAppSourceRevision' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_REVISION'
-  return_key 'APP_SOURCE_REVISION'
-  action :get
-end
-
 aws_ssm_parameter_store 'getDomains' do
   path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
   return_key 'DOMAINS'
@@ -93,10 +81,6 @@ end
 ruby_block "define-app" do
   block do
     app = {
-      'app_source' => {
-        'url' => node.run_state['APP_SOURCE_URL'],
-        'revision' => node.run_state['APP_SOURCE_REVISION'],
-      },
       'domains' => [node.run_state['DOMAINS']],
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
