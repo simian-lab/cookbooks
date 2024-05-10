@@ -16,6 +16,11 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 # Initial setup: just a couple vars we need
+log 'debug' do
+  message 'Simian-debug: Start multiserver.rb'
+  level :info
+end
+
 app = {
   'environment' => {}
 }
@@ -37,6 +42,13 @@ ruby_block "define-app" do
     }
 
   end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
 end
 
 # 1. We install the dependencies
@@ -114,4 +126,9 @@ if app['environment']['WP_CRON_HOSTS']
       end
     end
   end
+end
+
+log 'debug' do
+  message 'Simian-debug: End multiserver.rb'
+  level :info
 end

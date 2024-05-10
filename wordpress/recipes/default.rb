@@ -78,6 +78,18 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
+aws_ssm_parameter_store 'getForceSSLDNS' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/FORCE_SSL_DNS'
+  return_key 'FORCE_SSL_DNS'
+  action :get
+end
+
+aws_ssm_parameter_store 'getSSLEnable' do
+  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SSL_ENABLE'
+  return_key 'SSL_ENABLE'
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
