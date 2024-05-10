@@ -53,21 +53,24 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
-# application app_path do
-#   environment.update(app['environment'])
+execute "add key" do
+  command "eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa"
+  action :run
+end
 
-#   execute 'eval de ssh agent' do
-#     command "eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && ssh-add -l"
-#     user "root"
-#     action :run
-#   end
-
-#   git app_path do
-#     repository 'git@bitbucket.org:externado/website.git'
-#     revision 'staging'
-#     user "root"
-#   end
+# execute "clone" do
+#   cwd "/srv"
+#   command lazy {"git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
 # end
+
+application app_path do
+  environment.update(app['environment'])
+
+  git app_path do
+    repository 'git@bitbucket.org:externado/website.git'
+    revision 'staging'
+  end
+end
 
 # make sure permissions are correct
 execute "chown-data-www" do

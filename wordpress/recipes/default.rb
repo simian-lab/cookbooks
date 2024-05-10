@@ -398,56 +398,10 @@ execute "change permissions to key" do
   action :run
 end
 
-execute "add key" do
-  command "eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa"
-  action :run
-end
-
 execute "known hosts" do
   command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
   action :run
 end
-
-execute "clone" do
-  cwd "/srv"
-  command lazy {"git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
-end
-
-# 7.
-# directory "/home/#{node['user']}.ssh" do
-#   mode '0700'
-#   action :create
-# end
-
-# template "/home/#{node['user']}.ssh/id_rsa" do
-#   source 'pri_id'
-# end
-
-# template "/home/#{node['user']}.ssh/id_rsa.pub" do
-#   source 'pub_id'
-# end
-
-# execute "change permissions to key" do
-#   command "chmod 600 /home/#{node['user']}.ssh/id_rsa"
-#   action :run
-# end
-
-# execute "change permissions to key" do
-#   command "chmod 644 /home/#{node['user']}.ssh/id_rsa.pub"
-#   action :run
-# end
-
-# execute "add to known_hosts" do
-#   command "ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts"
-#   action :run
-# end
-
-# execute 'clone repository' do
-#   cwd "/srv"
-#   command lazy {"ssh-keyscan bitbucket.org >> /home/#{node['user']}.ssh/known_hosts && eval $(ssh-agent -s) && ssh-add /home/#{node['user']}.ssh/id_rsa && git clone -b #{app['app_source']['revision']} #{app['app_source']['url']} wordpress"}
-#   action :run
-# end
-
 
 log 'debug' do
   message 'Simian-debug: End default.rb'
