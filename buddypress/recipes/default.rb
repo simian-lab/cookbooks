@@ -243,3 +243,37 @@ cron 'wpcron' do
   minute '*'
   command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
 end
+
+#7
+execute "mkdir ~/.ssh/" do
+  command "mkdir ~/.ssh/"
+  action :run
+end
+
+template "/root/.ssh/id_rsa" do
+  source 'pri_id'
+end
+
+template "/root/.ssh/id_rsa.pub" do
+  source 'pub_id'
+end
+
+execute "change permissions to key" do
+  command "chmod 600 /root/.ssh/id_rsa"
+  action :run
+end
+
+execute "change permissions to key" do
+  command "chmod 644 /root/.ssh/id_rsa.pub"
+  action :run
+end
+
+execute "known hosts" do
+  command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
+  action :run
+end
+
+log 'debug' do
+  message 'Simian-debug: End default.rb'
+  level :info
+end
