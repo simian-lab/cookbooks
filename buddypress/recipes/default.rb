@@ -18,13 +18,96 @@
 #    which can be found in the `apache2` cookbook in this repo.
 #
 
+log 'debug' do
+  message 'Simian-debug: Start default.rb'
+  level :info
+end
 
 # Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
+app = {
+  'environment' => {},
+  'domains' => []
+}
+
+app_path = "/srv/wordpress"
+
+aws_ssm_parameter_store 'getDomains' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DOMAINS'
+  return_key 'DOMAINS'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBHost' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_HOST'
+  return_key 'DB_HOST'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBName' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_NAME'
+  return_key 'DB_NAME'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBPassword' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_PASSWORD'
+  return_key 'DB_PASSWORD'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBUser' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_USER'
+  return_key 'DB_USER'
+  action :get
+end
+
+aws_ssm_parameter_store 'getForceSSLDNS' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/FORCE_SSL_DNS'
+  return_key 'FORCE_SSL_DNS'
+  action :get
+end
+
+aws_ssm_parameter_store 'getSSLEnable' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/SSL_ENABLE'
+  return_key 'SSL_ENABLE'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'domains' => [node.run_state['DOMAINS']],
+      'environment' => {
+        'DB_HOST' => node.run_state['DB_HOST'],
+        'DB_NAME' => node.run_state['DB_NAME'],
+        'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
+        'DB_USER' => node.run_state['DB_USER'],
+        'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
+        'FORCE_SSL_DNS' => node.run_state['FORCE_SSL_DNS'],
+        'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
+        'SITE_URL' => node.run_state['SITE_URL'],
+        'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
+        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
+      },
+    }
+  end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
+end
 
 # 1. Installing some required packages
 include_recipe 'apt::default'
+
+execute "latest-php" do
+  command "sudo add-apt-repository ppa:ondrej/php -y"
+  user "root"
+  action :run
+end
 
 include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
@@ -32,6 +115,10 @@ include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
 
 # Install php
+log 'debug' do
+  message 'Simian-debug: Install PHP'
+  level :info
+end
 
 package 'Install PHP' do
   package_name 'php7.2'
@@ -73,20 +160,28 @@ package 'Install PHP Mail' do
   package_name 'php7.2-mail'
 end
 
+package 'Install PHP zip' do
+  package_name 'php7.2-zip'
+end
+
+package 'Install PHP BCmath extension' do
+  package_name 'php7.2-bcmath'
+end
+
+package 'varnish' do
+  package_name 'varnish'
+end
+
 package 'htop' do
   package_name 'htop'
 end
 
 # Optionally Install php-ssh2 dependency
-package 'Install PHP ssh' do
-  package_name 'php7.2-ssh2'
+if app['environment']['PHP_SSH_ENABLE']
+  package 'Install PHP ssh' do
+    package_name 'php-ssh2'
+  end
 end
-
-# Optionally Install php-zip dependency
-package 'Install PHP zip' do
-  package_name 'php7.2-zip'
-end
-
 
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
@@ -132,7 +227,7 @@ bash "update_env_vars" do
 end
 
 # 4. We create the site
-web_app app['shortname'] do
+web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
   server_name app['domains'].first

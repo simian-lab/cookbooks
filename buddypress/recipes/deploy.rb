@@ -1,9 +1,44 @@
-app = search("aws_opsworks_app","deploy:true").first
-app_path = "/srv/#{app['shortname']}"
-
-log 'Current recipe' do
-  message 'Running the deploy recipe for Budypress.'
+log 'debug' do
+  message 'Simian-debug: Start deploy.rb'
   level :info
+end
+
+app = {
+  'app_source' => {},
+  'environment' => {}
+}
+
+app_path = "/srv/wordpress"
+
+aws_ssm_parameter_store 'getAppSourceUrl' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/APP_SOURCE_URL'
+  return_key 'APP_SOURCE_URL'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAppSourceRevision' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/APP_SOURCE_REVISION'
+  return_key 'APP_SOURCE_REVISION'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'app_source' => {
+        'url' => node.run_state['APP_SOURCE_URL'],
+        'revision' => node.run_state['APP_SOURCE_REVISION']
+      },
+      'environment' => {}
+    }
+  end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
 end
 
 execute 'Add an exception for this directory' do
@@ -11,14 +46,15 @@ execute 'Add an exception for this directory' do
   user "root"
 end
 
-application app_path do
-  environment.update(app['environment'])
+execute "add key" do
+  command "eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa"
+  action :run
+end
 
-  git app_path do
-    repository app['app_source']['url']
-    revision app['app_source']['revision']
-    deploy_key app['app_source']['ssh_key']
-  end
+git 'sync the repo' do
+  repository 'git@bitbucket.org:simian/club-pensionados-davivienda.git'
+  revision lazy {app['app_source']['revision']}
+  destination '/srv/wordpress'
 end
 
 # make sure permissions are correct
@@ -42,4 +78,9 @@ if app['environment']['CLOUDFRONT_DISTRIBUTION']
       w3config.write_file
     end
   end
+end
+
+log 'debug' do
+  message 'Simian-debug: End deploy.rb'
+  level :info
 end
