@@ -93,7 +93,7 @@ end
 ruby_block "define-app" do
   block do
     app = {
-      'domains' => [node.run_state['DOMAINS']],
+      'domains' => node.run_state['DOMAINS'].split(','),
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
         'DB_NAME' => node.run_state['DB_NAME'],
@@ -259,7 +259,7 @@ end
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name "beta.uexternado.edu.co"
+  server_name "davidaclub.com"
   server_port 8080
   #server_aliases lazy {app['domains'].drop(1)}
   docroot app_path

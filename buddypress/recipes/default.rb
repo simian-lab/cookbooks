@@ -61,12 +61,6 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-aws_ssm_parameter_store 'getForceSSLDNS' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/FORCE_SSL_DNS'
-  return_key 'FORCE_SSL_DNS'
-  action :get
-end
-
 aws_ssm_parameter_store 'getSSLEnable' do
   path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/SSL_ENABLE'
   return_key 'SSL_ENABLE'
@@ -83,7 +77,6 @@ ruby_block "define-app" do
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
         'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
-        'FORCE_SSL_DNS' => node.run_state['FORCE_SSL_DNS'],
         'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
