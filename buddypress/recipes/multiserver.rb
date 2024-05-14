@@ -16,8 +16,40 @@
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
 # Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
+log 'debug' do
+  message 'Simian-debug: Start multiserver.rb'
+  level :info
+end
+
+app = {
+  'environment' => {}
+}
+
+app_path = "/srv/wordpress"
+
+aws_ssm_parameter_store 'getEFSUploads' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/EFS_UPLOADS'
+  return_key 'EFS_UPLOADS'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'environment' => {
+        'EFS_UPLOADS' => node.run_state['EFS_UPLOADS']
+      }
+    }
+
+  end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
+end
 
 # 1. We install the dependencies
 package 'Install NFS' do
@@ -74,4 +106,9 @@ if app['environment']['EFS_AUTHORS']
   execute 'mount_authors' do
     command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
   end
+end
+
+log 'debug' do
+  message 'Simian-debug: End multiserver.rb'
+  level :info
 end
