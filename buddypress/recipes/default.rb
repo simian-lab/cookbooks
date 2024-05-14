@@ -223,11 +223,11 @@ end
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name app['domains'].first
+  server_name "davidaclub.com"
   server_port 80
-  server_aliases app['domains'].drop(1)
+  #server_aliases app['domains'].drop(1)
   docroot app_path
-  multisite app['environment']['MULTISITE']
+  #multisite app['environment']['MULTISITE']
 end
 
 # 5. Last steps
