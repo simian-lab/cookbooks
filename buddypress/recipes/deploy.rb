@@ -52,7 +52,7 @@ execute "add key" do
 end
 
 git 'sync the repo' do
-  repository 'git@bitbucket.org:simian/club-pensionados-davivienda.git'
+  repository lazy {app['app_source']['url']}
   revision lazy {app['app_source']['revision']}
   destination '/srv/wordpress'
 end
