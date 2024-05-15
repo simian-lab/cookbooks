@@ -88,7 +88,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("El valor de node es: #{node}")
   end
   action :run
 end
