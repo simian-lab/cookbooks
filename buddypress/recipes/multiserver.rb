@@ -62,13 +62,21 @@ package 'Install NFS' do
 end
 
 # 2. We make sure that the folders exist
-if app['environment']['EFS_UPLOADS']
-  directory "#{app_path}/wp-content/uploads" do
-    owner 'www-data'
-    group 'www-data'
-    mode '0755'
-    action :create
+ruby_block 'create_uploads_directory' do
+  block do
+    if app['environment']['EFS_UPLOADS']
+      Chef::Log.info('Creating uploads directory...')
+      directory "#{app_path}/wp-content/uploads" do
+        owner 'www-data'
+        group 'www-data'
+        mode '0755'
+        action :create
+      end
+    else
+      Chef::Log.info('EFS_UPLOADS environment variable not set, skipping directory creation.')
+    end
   end
+  action :run
 end
 
 if app['environment']['EFS_GALLERY']
