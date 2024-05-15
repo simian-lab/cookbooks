@@ -90,10 +90,18 @@ if app['environment']['EFS_AUTHORS']
 end
 
 # 3. We mount the folders as EFS folders
-if app['environment']['EFS_UPLOADS']
-  execute 'mount_uploads' do
-    command "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_UPLOADS']}:/ #{app_path}/wp-content/uploads"
+ruby_block 'mount_uploads' do
+  block do
+    if app['environment']['EFS_UPLOADS']
+      Chef::Log.info('Mounting uploads...')
+      command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_UPLOADS']}:/ #{app_path}/wp-content/uploads"
+      Chef::Log.info("Executing command: #{command}")
+      system(command)
+    else
+      Chef::Log.info('EFS_UPLOADS environment variable not set, skipping mount.')
+    end
   end
+  action :run
 end
 
 if app['environment']['EFS_GALLERY']
