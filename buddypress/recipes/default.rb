@@ -93,6 +93,10 @@ ruby_block 'log_app' do
   action :run
 end
 
+node.each do |key, value|
+  puts "#{key}: #{value}"
+end
+
 # 1. Installing some required packages
 include_recipe 'apt::default'
 
