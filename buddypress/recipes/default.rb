@@ -31,14 +31,11 @@ app = {
 
 app_path = "/srv/wordpress"
 
-require 'aws-sdk'
 current_instance_id = node['ec2']['instance_id']
-ec2_client = Aws::EC2::Client.new
-resp = ec2_client.describe_instances(instance_ids: [current_instance_id])
-tags = resp.reservations[0].instances[0].tags
-tags.each do |tag|
-  # Aquí puedes hacer lo que necesites con cada tag, por ejemplo, imprimir su nombre y valor
-  puts "#{tag.key}: #{tag.value}"
+ec2_instance = aws_ec2_instance(current_instance_id)
+ec2_tags = aws_resource_tag(ec2_instance.aws_object_id)
+ec2_tags.each do |key, value|
+  log "Tag key: #{key}, Tag value: #{value}"
 end
 
 aws_ssm_parameter_store 'getDomains' do
