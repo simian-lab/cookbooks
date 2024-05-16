@@ -34,7 +34,7 @@ app_path = "/srv/wordpress"
 current_instance_id = node['ec2']['instance_id']
 
 # Requerir la gema aws-sdk
-require 'aws-sdk'
+require 'aws-sdk-core'
 
 # Crear un cliente EC2
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2') # Reemplaza 'us-east-1' con tu región
