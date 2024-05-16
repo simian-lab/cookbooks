@@ -33,9 +33,6 @@ app_path = "/srv/wordpress"
 
 current_instance_id = node['ec2']['instance_id']
 
-# Instalar la gema aws-sdk
-chef_gem 'aws-sdk'
-
 # Requerir la gema aws-sdk
 require 'aws-sdk'
 
