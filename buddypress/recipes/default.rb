@@ -90,8 +90,6 @@ ruby_block "define-app" do
         'DB_USER' => node.run_state['DB_USER'],
         'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
         'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
-        'RSA_PRIVATE_KEY' => node.run_state['RSA_PRIVATE_KEY'],
-        'RSA_PUBLIC_KEY' => node.run_state['RSA_PUBLIC_KEY'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
@@ -269,7 +267,7 @@ execute "mkdir ~/.ssh/" do
 end
 
 file "/root/.ssh/id_rsa" do
-  content lazy {app['environment']['RSA_PRIVATE_KEY']}
+  content lazy {node.run_state['RSA_PRIVATE_KEY']}
 end
 
 execute "change permissions to key" do
@@ -278,7 +276,7 @@ execute "change permissions to key" do
 end
 
 file "/root/.ssh/id_rsa.pub" do
-  content lazy {app['environment']['RSA_PUBLIC_KEY']}
+  content lazy {node.run_state['RSA_PUBLIC_KEY']}
 end
 
 execute "change permissions to key" do
