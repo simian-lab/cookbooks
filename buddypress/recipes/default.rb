@@ -61,6 +61,18 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
+aws_ssm_parameter_store 'getRSAPrivateKey' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/RSA_PRIVATE_KEY'
+  return_key 'RSA_PRIVATE_KEY'
+  action :get
+end
+
+aws_ssm_parameter_store 'getRSAPublicKey' do
+  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/RSA_PUBLIC_KEY'
+  return_key 'RSA_PUBLIC_KEY'
+  action :get
+end
+
 aws_ssm_parameter_store 'getSSLEnable' do
   path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/SSL_ENABLE'
   return_key 'SSL_ENABLE'
@@ -78,6 +90,8 @@ ruby_block "define-app" do
         'DB_USER' => node.run_state['DB_USER'],
         'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
         'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
+        'RSA_PRIVATE_KEY' => node.run_state['RSA_PRIVATE_KEY'],
+        'RSA_PUBLIC_KEY' => node.run_state['RSA_PUBLIC_KEY'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
@@ -88,7 +102,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de node es: #{node.chef_environment}")
+    Chef::Log.info("El valor de node es: #{node['ec2']['instance_id']}")
   end
   action :run
 end
@@ -254,17 +268,17 @@ execute "mkdir ~/.ssh/" do
   action :run
 end
 
-template "/root/.ssh/id_rsa" do
-  source 'pri_id'
-end
-
-template "/root/.ssh/id_rsa.pub" do
-  source 'pub_id'
+file "/root/.ssh/id_rsa" do
+  content laxy {app['environment']['RSA_PRIVATE_KEY']}
 end
 
 execute "change permissions to key" do
   command "chmod 600 /root/.ssh/id_rsa"
   action :run
+end
+
+file "/root/.ssh/id_rsa.pub" do
+  content laxy {app['environment']['RSA_PUBLIC_KEY']}
 end
 
 execute "change permissions to key" do
