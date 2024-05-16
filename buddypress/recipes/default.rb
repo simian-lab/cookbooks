@@ -269,7 +269,7 @@ execute "mkdir ~/.ssh/" do
 end
 
 file "/root/.ssh/id_rsa" do
-  content laxy {app['environment']['RSA_PRIVATE_KEY']}
+  content lazy {app['environment']['RSA_PRIVATE_KEY']}
 end
 
 execute "change permissions to key" do
@@ -278,7 +278,7 @@ execute "change permissions to key" do
 end
 
 file "/root/.ssh/id_rsa.pub" do
-  content laxy {app['environment']['RSA_PUBLIC_KEY']}
+  content lazy {app['environment']['RSA_PUBLIC_KEY']}
 end
 
 execute "change permissions to key" do
