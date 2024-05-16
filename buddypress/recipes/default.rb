@@ -31,6 +31,15 @@ app = {
 
 app_path = "/srv/wordpress"
 
+current_instance_id = node['ec2']['instance_id']
+ec2_client = Aws::EC2::Client.new
+resp = ec2_client.describe_instances(instance_ids: [current_instance_id])
+tags = resp.reservations[0].instances[0].tags
+tags.each do |tag|
+  # Aquí puedes hacer lo que necesites con cada tag, por ejemplo, imprimir su nombre y valor
+  puts "#{tag.key}: #{tag.value}"
+end
+
 aws_ssm_parameter_store 'getDomains' do
   path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DOMAINS'
   return_key 'DOMAINS'
