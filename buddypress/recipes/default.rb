@@ -34,7 +34,7 @@ app_path = "/srv/wordpress"
 current_instance_id = node['ec2']['instance_id']
 
 # Requerir la gema aws-sdk
-require 'aws-sdk-core'
+require 'aws-sdk-ec2'
 
 # Crear un cliente EC2
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2') # Reemplaza 'us-east-1' con tu región
@@ -43,12 +43,14 @@ ec2_client = Aws::EC2::Client.new(region: 'us-west-2') # Reemplaza 'us-east-1' c
 instance_id = current_instance_id # Reemplaza con el ID de tu instancia EC2
 response = ec2_client.describe_instances(instance_ids: [instance_id])
 
-# Obtener los tags de la instancia EC2
-tags = response.reservations[0].instances[0].tags
+# Obtiene los tags de la instancia actual
+response = ec2_client.describe_tags(filters: [
+  { name: 'resource-id', values: [instance_id] }
+])
 
-# Iterar sobre los tags y hacer algo con ellos
-tags.each do |tag|
-  log "Tag key: #{tag.key}, Tag value: #{tag.value}"
+# Imprime los tags en la consola
+response.tags.each do |tag|
+  puts "Key: #{tag.key}, Value: #{tag.value}"
 end
 
 aws_ssm_parameter_store 'getDomains' do
