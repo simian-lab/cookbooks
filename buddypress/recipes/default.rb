@@ -260,9 +260,9 @@ end
 domains = []
 is_multisite = 'no'
 
-if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3') {
+if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
   domains = 'davidaclub.com'
-}
+end
 
 domains_array = domains.split(',')
 
