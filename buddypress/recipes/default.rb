@@ -257,18 +257,14 @@ ruby_block 'log_app' do
   action :run
 end
 
-if node.run_state['DOMAINS'].split(',').first
-  web_app 'wordpress' do
-    template 'web_app.conf.erb'
-    allow_override 'All'
-    server_name node.run_state['DOMAINS'].split(',').first
-    server_port 80
-    server_aliases lazy {app['domains'].drop(1)}
-    docroot app_path
-    multisite lazy {app['environment']['MULTISITE']}
-  end
-else
-  log 'No se pudo obtener el valor de server_name de Parameter Store'
+web_app 'wordpress' do
+  template 'web_app.conf.erb'
+  allow_override 'All'
+  server_name "davidaclub.com"
+  server_port 80
+  server_aliases lazy {app['domains'].drop(1)}
+  docroot app_path
+  multisite lazy {app['environment']['MULTISITE']}
 end
 
 # 4. We create the site
