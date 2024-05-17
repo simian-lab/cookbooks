@@ -51,6 +51,16 @@ response = ec2_client.describe_tags(filters: [
 # Imprime los tags en la consola
 response.tags.each do |tag|
   puts "Key: #{tag.key}, Value: #{tag.value}"
+  if tag.key === 'aws:cloudformation:stack-name'
+    component_name = tag.value
+  end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de aws:cloudformation:stack-name es #{component_name}")
+  end
+  action :run
 end
 
 aws_ssm_parameter_store 'getDomains' do
