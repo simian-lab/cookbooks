@@ -250,6 +250,13 @@ bash "update_env_vars" do
   EOS
 end
 
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app['domains'].drop(1) es: #{app['domains'].drop(1)}")
+  end
+  action :run
+end
+
 # 4. We create the site
 web_app 'wordpress' do
   template 'web_app.conf.erb'
