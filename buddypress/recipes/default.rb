@@ -18,6 +18,8 @@
 #    which can be found in the `apache2` cookbook in this repo.
 #
 
+require 'aws-sdk-ec2'
+
 log 'debug' do
   message 'Simian-debug: Start default.rb'
   level :info
@@ -33,40 +35,24 @@ app_path = "/srv/wordpress"
 
 current_instance_id = node['ec2']['instance_id']
 
-# Requerir la gema aws-sdk
-require 'aws-sdk-ec2'
+ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 
-# Crear un cliente EC2
-ec2_client = Aws::EC2::Client.new(region: 'us-west-2') # Reemplaza 'us-east-1' con tu región
+response = ec2_client.describe_instances(instance_ids: [current_instance_id])
 
-# Obtener la información de la instancia EC2
-instance_id = current_instance_id # Reemplaza con el ID de tu instancia EC2
-response = ec2_client.describe_instances(instance_ids: [instance_id])
-
-# Obtiene los tags de la instancia actual
 response = ec2_client.describe_tags(filters: [
-  { name: 'resource-id', values: [instance_id] }
+  { name: 'resource-id', values: [current_instance_id] }
 ])
 
 component_name = nil
 
-# Imprime los tags en la consola
 response.tags.each do |tag|
-  puts "Key: #{tag.key}, Value: #{tag.value}"
   if tag.key === 'aws:cloudformation:stack-name'
     component_name = tag.value
   end
 end
 
-ruby_block 'log_app' do
-  block do
-    Chef::Log.info("El valor de aws:cloudformation:stack-name es #{component_name}")
-  end
-  action :run
-end
-
 aws_ssm_parameter_store 'getDomains' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DOMAINS'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DOMAINS"
   return_key 'DOMAINS'
   action :get
 end
