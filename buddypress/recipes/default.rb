@@ -257,19 +257,25 @@ ruby_block 'log_app' do
   action :run
 end
 
+domains = []
+is_multisite = 'no'
+
+if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3') {
+  domains = 'davidaclub.com'
+}
+
+domains_array = domains.split(',')
+
 # 4. We create the site
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name lazy{app['domains'].first}
+  server_name domains_array.first
   server_port 80
-  server_aliases lazy {app['domains'].drop(1)}
+  server_aliases domains_array.drop(1)
   docroot app_path
-  multisite lazy {app['environment']['MULTISITE']}
-  action :nothing
+  multisite is_multisite
 end
-
-web_app('wordpress').run_action(:create)
 
 # 5. Last steps
 
