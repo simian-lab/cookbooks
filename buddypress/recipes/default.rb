@@ -257,17 +257,16 @@ ruby_block 'log_app' do
   action :run
 end
 
-site_server_name = lazy {app['domains'].first}
-
 # 4. We create the site
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name site_server_name
+  server_name app['domains'].first
   server_port 80
   server_aliases lazy {app['domains'].drop(1)}
   docroot app_path
   multisite lazy {app['environment']['MULTISITE']}
+  not_if { Chef::Config[:solo] }
 end
 
 # 5. Last steps
