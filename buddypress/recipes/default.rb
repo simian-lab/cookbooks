@@ -25,18 +25,8 @@ log 'debug' do
   level :info
 end
 
-# Initial setup: just a couple vars we need
-app = {
-  'environment' => {},
-  'domains' => []
-}
-
-app_path = "/srv/wordpress"
-
 current_instance_id = node['ec2']['instance_id']
-
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
-
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
 
 response = ec2_client.describe_tags(filters: [
@@ -50,6 +40,13 @@ response.tags.each do |tag|
     component_name = tag.value
   end
 end
+
+app = {
+  'environment' => {},
+  'domains' => []
+}
+
+app_path = "/srv/wordpress"
 
 aws_ssm_parameter_store 'getDomains' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DOMAINS"
@@ -102,7 +99,6 @@ end
 ruby_block "define-app" do
   block do
     app = {
-      'domains' => node.run_state['DOMAINS'].split(','),
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
         'DB_NAME' => node.run_state['DB_NAME'],
@@ -250,13 +246,6 @@ bash "update_env_vars" do
   EOS
 end
 
-ruby_block 'log_app' do
-  block do
-    Chef::Log.info("El valor de app['domains'].first es: #{app['domains'].first}")
-  end
-  action :run
-end
-
 domains = []
 is_multisite = 'no'
 
@@ -288,7 +277,7 @@ end
 # 6. Call the WordPress cron
 cron 'wpcron' do
   minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+  command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
 end
 
 #7

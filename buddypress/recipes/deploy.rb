@@ -5,17 +5,8 @@ log 'debug' do
   level :info
 end
 
-app = {
-  'app_source' => {},
-  'environment' => {}
-}
-
-app_path = "/srv/wordpress"
-
 current_instance_id = node['ec2']['instance_id']
-
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
-
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
 
 response = ec2_client.describe_tags(filters: [
@@ -30,6 +21,14 @@ response.tags.each do |tag|
   end
 end
 
+app = {
+  'app_source' => {},
+  'environment' => {}
+}
+
+app_path = "/srv/wordpress"
+
+
 aws_ssm_parameter_store 'getAppSourceUrl' do
   path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
@@ -37,7 +36,7 @@ aws_ssm_parameter_store 'getAppSourceUrl' do
 end
 
 aws_ssm_parameter_store 'getAppSourceRevision' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/APP_SOURCE_REVISION'
+  path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_REVISION"
   return_key 'APP_SOURCE_REVISION'
   action :get
 end
