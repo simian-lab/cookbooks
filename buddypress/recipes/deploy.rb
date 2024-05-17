@@ -1,3 +1,5 @@
+require 'aws-sdk-ec2'
+
 log 'debug' do
   message 'Simian-debug: Start deploy.rb'
   level :info
@@ -10,8 +12,26 @@ app = {
 
 app_path = "/srv/wordpress"
 
+current_instance_id = node['ec2']['instance_id']
+
+ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
+
+response = ec2_client.describe_instances(instance_ids: [current_instance_id])
+
+response = ec2_client.describe_tags(filters: [
+  { name: 'resource-id', values: [current_instance_id] }
+])
+
+component_name = nil
+
+response.tags.each do |tag|
+  if tag.key === 'aws:cloudformation:stack-name'
+    component_name = tag.value
+  end
+end
+
 aws_ssm_parameter_store 'getAppSourceUrl' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/APP_SOURCE_URL'
+  path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
   action :get
 end

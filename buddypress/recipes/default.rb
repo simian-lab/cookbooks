@@ -58,43 +58,43 @@ aws_ssm_parameter_store 'getDomains' do
 end
 
 aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_HOST'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_HOST"
   return_key 'DB_HOST'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBName' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_NAME'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_NAME"
   return_key 'DB_NAME'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBPassword' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_PASSWORD'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
   return_key 'DB_PASSWORD'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBUser' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/DB_USER'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
   return_key 'DB_USER'
   action :get
 end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/RSA_PRIVATE_KEY'
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
   return_key 'RSA_PRIVATE_KEY'
   action :get
 end
 
 aws_ssm_parameter_store 'getRSAPublicKey' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/RSA_PUBLIC_KEY'
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PUBLIC_KEY"
   return_key 'RSA_PUBLIC_KEY'
   action :get
 end
 
 aws_ssm_parameter_store 'getSSLEnable' do
-  path '/ApplyChefRecipes-Preset/Davidaclub-Prod-Davidaclub-Prod-a386d3/SSL_ENABLE'
+  path "/ApplyChefRecipes-Preset/#{component_name}/SSL_ENABLE"
   return_key 'SSL_ENABLE'
   action :get
 end
@@ -108,7 +108,6 @@ ruby_block "define-app" do
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
-        'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
         'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
@@ -120,13 +119,9 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de node es: #{node['ec2']['instance_id']}")
+    Chef::Log.info("El valor de app es: #{app}")
   end
   action :run
-end
-
-node.each do |key, value|
-  puts "#{key}: #{value}"
 end
 
 # 1. Installing some required packages
@@ -259,11 +254,11 @@ end
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name "davidaclub.com"
+  server_name app['domains'].first
   server_port 80
-  #server_aliases app['domains'].drop(1)
+  server_aliases app['domains'].drop(1)
   docroot app_path
-  #multisite app['environment']['MULTISITE']
+  multisite app['environment']['MULTISITE']
 end
 
 # 5. Last steps

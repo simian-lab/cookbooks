@@ -15,7 +15,7 @@ depends 'php', '~> 2.2.0'
 depends 'varnish', '~> 3.0.0'
 depends 'mysql', '~> 8.0'
 depends 'aws', '~> 8.0'
-dependes 'aws-sdk-core', '~> 2'
+depends 'aws-sdk-core', '~> 2'
 
 # The `issues_url` points to the location where issues for this cookbook are
 # tracked.  A `View Issues` link will be displayed on this cookbook's page when
