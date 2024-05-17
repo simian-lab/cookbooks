@@ -257,18 +257,19 @@ ruby_block 'log_app' do
   action :run
 end
 
+# 4. We create the site
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name "davidaclub.com"
+  server_name lazy{app['domains'].first}
   server_port 80
   server_aliases lazy {app['domains'].drop(1)}
   docroot app_path
   multisite lazy {app['environment']['MULTISITE']}
+  action :nothing
 end
 
-# 4. We create the site
-
+web_app('wordpress').run_action(:create)
 
 # 5. Last steps
 
