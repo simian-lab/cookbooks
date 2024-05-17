@@ -102,7 +102,7 @@ end
 ruby_block "define-app" do
   block do
     app = {
-      'domains' => [node.run_state['DOMAINS']],
+      'domains' => node.run_state['DOMAINS'].split(','),
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
         'DB_NAME' => node.run_state['DB_NAME'],
