@@ -48,6 +48,8 @@ response = ec2_client.describe_tags(filters: [
   { name: 'resource-id', values: [instance_id] }
 ])
 
+component_name = nil
+
 # Imprime los tags en la consola
 response.tags.each do |tag|
   puts "Key: #{tag.key}, Value: #{tag.value}"
