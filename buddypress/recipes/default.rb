@@ -252,7 +252,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app['domains'].drop(1) es: #{app['domains'].drop(1)}")
+    Chef::Log.info("El valor de app['domains'].first es: #{app['domains'].first}")
   end
   action :run
 end
