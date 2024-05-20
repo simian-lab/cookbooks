@@ -44,16 +44,20 @@ app = {
 
 app_path = "/srv/wordpress"
 
-aws_ssm_parameter_store 'getEFSAuthors' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/EFS_AUTHORS"
-  return_key 'EFS_AUTHORS'
-  action :get
+if false
+  aws_ssm_parameter_store 'getEFSAuthors' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/EFS_AUTHORS"
+    return_key 'EFS_AUTHORS'
+    action :get
+  end
 end
 
-aws_ssm_parameter_store 'getEFSGallery' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/EFS_GALLERY"
-  return_key 'EFS_GALLERY'
-  action :get
+if false
+  aws_ssm_parameter_store 'getEFSGallery' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/EFS_GALLERY"
+    return_key 'EFS_GALLERY'
+    action :get
+  end
 end
 
 aws_ssm_parameter_store 'getEFSUploads' do
