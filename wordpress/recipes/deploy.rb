@@ -1,6 +1,24 @@
+require 'aws-sdk-ec2'
+
 log 'debug' do
   message 'Simian-debug: Start deploy.rb'
   level :info
+end
+
+current_instance_id = node['ec2']['instance_id']
+ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
+response = ec2_client.describe_instances(instance_ids: [current_instance_id])
+
+response = ec2_client.describe_tags(filters: [
+  { name: 'resource-id', values: [current_instance_id] }
+])
+
+component_name = nil
+
+response.tags.each do |tag|
+  if tag.key === 'aws:cloudformation:stack-name'
+    component_name = tag.value
+  end
 end
 
 app = {
@@ -10,15 +28,22 @@ app = {
 
 app_path = "/srv/wordpress"
 
+
 aws_ssm_parameter_store 'getAppSourceUrl' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_URL'
+  path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
   action :get
 end
 
 aws_ssm_parameter_store 'getAppSourceRevision' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/APP_SOURCE_REVISION'
+  path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_REVISION"
   return_key 'APP_SOURCE_REVISION'
+  action :get
+end
+
+aws_ssm_parameter_store 'getCloudfrontDistribution' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/CLOUDFRONT_DISTRIBUTION"
+  return_key 'CLOUDFRONT_DISTRIBUTION'
   action :get
 end
 
@@ -29,7 +54,9 @@ ruby_block "define-app" do
         'url' => node.run_state['APP_SOURCE_URL'],
         'revision' => node.run_state['APP_SOURCE_REVISION']
       },
-      'environment' => {}
+      'environment' => {
+        'CLOUDFRONT_DISTRIBUTION' => node.run_state['CLOUDFRONT_DISTRIBUTION']
+      }
     }
   end
 end
@@ -52,7 +79,7 @@ execute "add key" do
 end
 
 git 'sync the repo' do
-  repository 'git@bitbucket.org:externado/website.git'
+  repository lazy {app['app_source']['url']}
   revision lazy {app['app_source']['revision']}
   destination '/srv/wordpress'
 end
@@ -63,11 +90,6 @@ execute "chown-data-www" do
   user "root"
   action :run
   not_if "stat -c %U #{app_path} | grep www-data"
-end
-
-# Clean cache
-service 'varnish' do
-  action [:restart]
 end
 
 # and now, W3TC's cloudfront config
@@ -83,6 +105,11 @@ if app['environment']['CLOUDFRONT_DISTRIBUTION']
       w3config.write_file
     end
   end
+end
+
+# Clean cache
+service 'varnish' do
+  action [:restart]
 end
 
 log 'debug' do

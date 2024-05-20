@@ -42,17 +42,10 @@ response.tags.each do |tag|
 end
 
 app = {
-  'environment' => {},
-  'domains' => []
+  'environment' => {}
 }
 
 app_path = "/srv/wordpress"
-
-aws_ssm_parameter_store 'getDomains' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/DOMAINS"
-  return_key 'DOMAINS'
-  action :get
-end
 
 aws_ssm_parameter_store 'getDBHost' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_HOST"
@@ -108,7 +101,7 @@ ruby_block "define-app" do
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
-      },
+      }
     }
   end
 end
@@ -215,6 +208,13 @@ ruby_block "insert_env_vars" do
   end
 end
 
+# Make sure PHP can read the vars
+#if node['php']['version']=='7.0.4'
+#  php_ver = '7.0'
+#else
+#  php_ver = node['php']['version']
+#end
+
 php_ver = '7.2'
 
 ruby_block "php_env_vars" do
@@ -246,7 +246,7 @@ bash "update_env_vars" do
   EOS
 end
 
-domains = []
+domains = ''
 is_multisite = 'no'
 
 if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')

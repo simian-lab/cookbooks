@@ -35,57 +35,73 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
+require 'aws-sdk-ec2'
+
 log 'debug' do
   message 'Simian-debug: Start default.rb'
   level :info
 end
 
-# Initial setup: just a couple vars we need
+current_instance_id = node['ec2']['instance_id']
+ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
+response = ec2_client.describe_instances(instance_ids: [current_instance_id])
+
+response = ec2_client.describe_tags(filters: [
+  { name: 'resource-id', values: [current_instance_id] }
+])
+
+component_name = nil
+
+response.tags.each do |tag|
+  if tag.key === 'aws:cloudformation:stack-name'
+    component_name = tag.value
+  end
+end
+
 app = {
-  'environment' => {},
-  'domains' => []
+  'environment' => {}
 }
 
 app_path = "/srv/wordpress"
 
-aws_ssm_parameter_store 'getDomains' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DOMAINS'
-  return_key 'DOMAINS'
-  action :get
-end
-
 aws_ssm_parameter_store 'getDBHost' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_HOST'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_HOST"
   return_key 'DB_HOST'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBName' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_NAME'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_NAME"
   return_key 'DB_NAME'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBPassword' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_PASSWORD'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
   return_key 'DB_PASSWORD'
   action :get
 end
 
 aws_ssm_parameter_store 'getDBUser' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/DB_USER'
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
   return_key 'DB_USER'
   action :get
 end
 
-aws_ssm_parameter_store 'getForceSSLDNS' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/FORCE_SSL_DNS'
-  return_key 'FORCE_SSL_DNS'
+aws_ssm_parameter_store 'getRSAPrivateKey' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
+  return_key 'RSA_PRIVATE_KEY'
+  action :get
+end
+
+aws_ssm_parameter_store 'getRSAPublicKey' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PUBLIC_KEY"
+  return_key 'RSA_PUBLIC_KEY'
   action :get
 end
 
 aws_ssm_parameter_store 'getSSLEnable' do
-  path '/ApplyChefRecipes-Preset/Externado-Dev-WordPress-4eddee/SSL_ENABLE'
+  path "/ApplyChefRecipes-Preset/#{component_name}/SSL_ENABLE"
   return_key 'SSL_ENABLE'
   action :get
 end
@@ -93,19 +109,16 @@ end
 ruby_block "define-app" do
   block do
     app = {
-      'domains' => node.run_state['DOMAINS'].split(','),
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
-        'EFS_UPLOADS' => node.run_state['EFS_UPLOADS'],
-        'FORCE_SSL_DNS' => node.run_state['FORCE_SSL_DNS'],
         'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
-      },
+      }
     }
   end
 end
@@ -255,15 +268,24 @@ bash "update_env_vars" do
   EOS
 end
 
+domains = ''
+is_multisite = 'no'
+
+if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
+  domains = 'davidaclub.com'
+end
+
+domains_array = domains.split(',')
+
 # 4. We create the site
 web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name "davidaclub.com"
+  server_name domains_array.first
   server_port 8080
-  #server_aliases lazy {app['domains'].drop(1)}
+  server_aliases domains_array.drop(1)
   docroot app_path
-  #multisite lazy {app['environment']['MULTISITE']}
+  multisite is_multisite
 end
 
 # 5. We configure caching
@@ -271,22 +293,43 @@ end
 # first off, Varnish (with custom error page if present)
 error_page = ""
 
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
+ruby_block "set_varnish_error_page" do
+  block do
+    if app['environment']['VARNISH_ERROR_PAGE']
+      error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
+    else
+      Chef::Log.info('VARNISH_ERROR_PAGE variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # define a CORS header
 cors = ""
 
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
+ruby_block "set_cors_header" do
+  block do
+    if app['environment']['CORS']
+      cors = "#{app['environment']['CORS']}"
+    else
+      Chef::Log.info('CORS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add a long max-age header if present
 browser_cache = ""
 
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+ruby_block "set_long_browser_cache" do
+  block do
+    if app['environment']['LONG_BROWSER_CACHE']
+      browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+    else
+      Chef::Log.info('LONG_BROWSER_CACHE variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add a force SSL redirection if present
@@ -367,7 +410,7 @@ end
 # 6. Call the WordPress cron
 cron 'wpcron' do
   minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+  command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
 end
 
 #7
@@ -376,17 +419,17 @@ execute "mkdir ~/.ssh/" do
   action :run
 end
 
-template "/root/.ssh/id_rsa" do
-  source 'pri_id'
-end
-
-template "/root/.ssh/id_rsa.pub" do
-  source 'pub_id'
+file "/root/.ssh/id_rsa" do
+  content lazy {node.run_state['RSA_PRIVATE_KEY']}
 end
 
 execute "change permissions to key" do
   command "chmod 600 /root/.ssh/id_rsa"
   action :run
+end
+
+file "/root/.ssh/id_rsa.pub" do
+  content lazy {node.run_state['RSA_PUBLIC_KEY']}
 end
 
 execute "change permissions to key" do

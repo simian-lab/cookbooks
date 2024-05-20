@@ -41,6 +41,12 @@ aws_ssm_parameter_store 'getAppSourceRevision' do
   action :get
 end
 
+aws_ssm_parameter_store 'getCloudfrontDistribution' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/CLOUDFRONT_DISTRIBUTION"
+  return_key 'CLOUDFRONT_DISTRIBUTION'
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
@@ -48,7 +54,9 @@ ruby_block "define-app" do
         'url' => node.run_state['APP_SOURCE_URL'],
         'revision' => node.run_state['APP_SOURCE_REVISION']
       },
-      'environment' => {}
+      'environment' => {
+        'CLOUDFRONT_DISTRIBUTION' => node.run_state['CLOUDFRONT_DISTRIBUTION']
+      }
     }
   end
 end
