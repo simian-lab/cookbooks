@@ -41,11 +41,11 @@ aws_ssm_parameter_store 'getAppSourceRevision' do
   action :get
 end
 
-aws_ssm_parameter_store 'getCloudfrontDistribution' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/CLOUDFRONT_DISTRIBUTION"
-  return_key 'CLOUDFRONT_DISTRIBUTION'
-  action :get
-end
+# aws_ssm_parameter_store 'getCloudfrontDistribution' do
+#   path "/ApplyChefRecipes-Preset/#{component_name}/CLOUDFRONT_DISTRIBUTION"
+#   return_key 'CLOUDFRONT_DISTRIBUTION'
+#   action :get
+# end
 
 ruby_block "define-app" do
   block do
@@ -97,7 +97,7 @@ cloudfront_config = ""
 
 ruby_block 'cloudfront_edit' do
   block do
-    if app['environment']['CLOUDFRONT_DISTRIBUTION'] !== 'no'
+    if app['environment']['CLOUDFRONT_DISTRIBUTION']
       cloudfront_config = app['environment']['CLOUDFRONT_DISTRIBUTION']
       w3config = Chef::Util::FileEdit.new("#{app_path}/wp-content/w3tc-config/master.php")
       w3config.search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{cloudfront_config}\",")
