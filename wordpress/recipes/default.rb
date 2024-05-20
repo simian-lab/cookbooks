@@ -271,8 +271,8 @@ end
 domains = ''
 is_multisite = 'no'
 
-if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
-  domains = 'davidaclub.com'
+if(component_name === 'Externado-Dev-WordPress-4eddee')
+  domains = 'beta.uexternado.edu.co'
 end
 
 domains_array = domains.split(',')

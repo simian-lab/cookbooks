@@ -95,11 +95,10 @@ end
 # and now, W3TC's cloudfront config
 cloudfront_config = ""
 
-if app['environment']['CLOUDFRONT_DISTRIBUTION']
-  cloudfront_config = app['environment']['CLOUDFRONT_DISTRIBUTION']
-
-  ruby_block 'cloudfront_edit' do
-    block do
+ruby_block 'cloudfront_edit' do
+  block do
+    if app['environment']['CLOUDFRONT_DISTRIBUTION'] !== 'no'
+      cloudfront_config = app['environment']['CLOUDFRONT_DISTRIBUTION']
       w3config = Chef::Util::FileEdit.new("#{app_path}/wp-content/w3tc-config/master.php")
       w3config.search_file_replace_line("cdn.cf2.id", "\"cdn.cf2.id\": \"#{cloudfront_config}\",")
       w3config.write_file
