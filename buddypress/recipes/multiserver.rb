@@ -49,16 +49,20 @@ aws_ssm_parameter_store 'getEFSAuthors' do
   action :get
 end
 
-aws_ssm_parameter_store 'getEFSGallery' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/EFS_GALLERY"
-  return_key 'EFS_GALLERY'
-  action :get
+if false
+  aws_ssm_parameter_store 'getEFSGallery' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/EFS_GALLERY"
+    return_key 'EFS_GALLERY'
+    action :get
+  end
 end
 
-aws_ssm_parameter_store 'getEFSUploads' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/EFS_UPLOADS"
-  return_key 'EFS_UPLOADS'
-  action :get
+if false
+  aws_ssm_parameter_store 'getEFSUploads' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/EFS_UPLOADS"
+    return_key 'EFS_UPLOADS'
+    action :get
+  end
 end
 
 ruby_block "define-app" do
