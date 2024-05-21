@@ -53,6 +53,14 @@ aws_ssm_parameter_store 'getDBHost' do
   action :get
 end
 
+if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+  aws_ssm_parameter_store 'getDBReplicas' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/DB_REPLICAS"
+    return_key 'DB_REPLICAS'
+    action :get
+  end
+end
+
 aws_ssm_parameter_store 'getDBName' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_NAME"
   return_key 'DB_NAME'
@@ -94,6 +102,7 @@ ruby_block "define-app" do
     app = {
       'environment' => {
         'DB_HOST' => node.run_state['DB_HOST'],
+        'DB_REPLICAS' => node.run_state['DB_REPLICAS'],
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
