@@ -279,6 +279,11 @@ if(component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
   domains = 'beta-zonadigital.uexternado.edu.co'
 end
 
+if (component_name === 'beta-subsitios-WordPress-28579b')
+  domains = 'multisite.simianlab.co'
+  is_multisite = 'yes'
+end
+
 domains_array = domains.split(',')
 
 # 4. We create the site
