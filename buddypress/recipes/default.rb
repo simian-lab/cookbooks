@@ -253,6 +253,10 @@ if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
   domains = 'davidaclub.com'
 end
 
+if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+  domains = 'beta-comunidadvirtual.uexternado.edu.co'
+end
+
 domains_array = domains.split(',')
 
 # 4. We create the site
