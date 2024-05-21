@@ -275,6 +275,10 @@ if(component_name === 'Externado-Dev-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
+if(component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
+  domains = 'beta-zonadigital.uexternado.edu.co'
+end
+
 domains_array = domains.split(',')
 
 # 4. We create the site
