@@ -134,8 +134,7 @@ ruby_block "define-app" do
         'PHP_MBSTRING_ENABLE' => node.run_state['PHP_MBSTRING_ENABLE'],
         'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
-        'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
-        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
+        'SSL_ENABLE' => node.run_state['SSL_ENABLE']
       }
     }
   end
