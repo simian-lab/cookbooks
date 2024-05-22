@@ -64,6 +64,18 @@ app = {
 
 app_path = "/srv/wordpress"
 
+aws_ssm_parameter_store 'getAwsSmtpUsr' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
+  return_key 'AWS_SMTP_USR'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAwsSmtpPsw' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
+  return_key 'AWS_SMTP_PSW'
+  action :get
+end
+
 aws_ssm_parameter_store 'getDBHost' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_HOST"
   return_key 'DB_HOST'
@@ -138,6 +150,8 @@ ruby_block "define-app" do
   block do
     app = {
       'environment' => {
+        'AWS_SMTP_USR' => node.run_state['AWS_SMTP_USR'],
+        'AWS_SMTP_PSW' => node.run_state['AWS_SMTP_PSW'],
         'DB_HOST' => node.run_state['DB_HOST'],
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
@@ -323,7 +337,7 @@ if (component_name === 'beta-subsitios-WordPress-28579b')
 end
 
 if (component_name === 'prod-subsitios-subsitios-prod-28c523')
-  domains = 'multisite.uexternado.edu.co,*.uexternado.edu.co,observatics.edu.co'
+  domains = 'multisite.uexternado.edu.co'
   is_multisite = 'yes'
 end
 
