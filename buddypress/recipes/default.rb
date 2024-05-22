@@ -91,12 +91,6 @@ aws_ssm_parameter_store 'getPhpMbstringEnable' do
   action :get
 end
 
-aws_ssm_parameter_store 'getPhpSshEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_SSH_ENABLE"
-  return_key 'PHP_SSH_ENABLE'
-  action :get
-end
-
 aws_ssm_parameter_store 'getPhpZipEnable' do
   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
   return_key 'PHP_ZIP_ENABLE'
@@ -138,7 +132,6 @@ ruby_block "define-app" do
         'DB_USER' => node.run_state['DB_USER'],
         'PHP_IMAGICK_ENABLE' => node.run_state['PHP_IMAGICK_ENABLE'],
         'PHP_MBSTRING_ENABLE' => node.run_state['PHP_MBSTRING_ENABLE'],
-        'PHP_SSH_ENABLE' => node.run_state['PHP_SSH_ENABLE'],
         'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
