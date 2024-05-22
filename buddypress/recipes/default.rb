@@ -91,6 +91,12 @@ aws_ssm_parameter_store 'getPhpMbstringEnable' do
   action :get
 end
 
+aws_ssm_parameter_store 'getPhpSshEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_SSH_ENABLE"
+  return_key 'PHP_SSH_ENABLE'
+  action :get
+end
+
 aws_ssm_parameter_store 'getPhpZipEnable' do
   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
   return_key 'PHP_ZIP_ENABLE'
@@ -106,6 +112,12 @@ end
 aws_ssm_parameter_store 'getRSAPublicKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PUBLIC_KEY"
   return_key 'RSA_PUBLIC_KEY'
+  action :get
+end
+
+aws_ssm_parameter_store 'getSiteUrl' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/SITE_URL"
+  return_key 'SITE_URL'
   action :get
 end
 
