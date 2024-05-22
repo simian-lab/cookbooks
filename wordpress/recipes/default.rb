@@ -88,10 +88,12 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-aws_ssm_parameter_store 'getPhpImagickEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
-  return_key 'PHP_IMAGICK_ENABLE'
-  action :get
+if false
+  aws_ssm_parameter_store 'getPhpImagickEnable' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
+    return_key 'PHP_IMAGICK_ENABLE'
+    action :get
+  end
 end
 
 aws_ssm_parameter_store 'getPhpMbstringEnable' do
@@ -374,24 +376,45 @@ end
 # Add a force SSL redirection if present
 force_ssl_dns = ""
 
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+ruby_block "set_force_ssl_dns" do
+  block do
+    if app['environment']['FORCE_SSL_DNS']
+      force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+    else
+      Chef::Log.info('FORCE_SSL_DNS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add url exclusions if exists
 url_exclusions = ""
 
-if app['environment']['VARNISH_URL_EXCLUSIONS']
-  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-  url_exclusions = string_url_exclusions.split(",")
+ruby_block "set_varnish_url_exclusions" do
+  block do
+    if app['environment']['VARNISH_URL_EXCLUSIONS']
+      string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
+      url_exclusions = string_url_exclusions.split(",")
+    else
+      Chef::Log.info('VARNISH_URL_EXCLUSIONS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add host exclusions if exists
 host_exclusions = ""
 
-if app['environment']['VARNISH_HOST_EXCLUSIONS']
-  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-  host_exclusions = string_host_exclusions.split(",")
+ruby_block "set_varnish_host_exclusions" do
+  block do
+    if app['environment']['VARNISH_HOST_EXCLUSIONS']
+      string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
+      host_exclusions = string_host_exclusions.split(",")
+    else
+      Chef::Log.info('VARNISH_HOST_EXCLUSIONS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 service 'varnish' do
@@ -399,16 +422,25 @@ service 'varnish' do
   action [:nothing]
 end
 
+varnish_variables = {
+  errorpage: error_page,
+  cors: cors,
+  browser_cache: browser_cache,
+  url_exclusions: url_exclusions,
+  host_exclusions: host_exclusions,
+  force_ssl_dns: force_ssl_dns
+}
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de varnish_variables es: #{varnish_variables}")
+  end
+  action :run
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
-  variables({
-    errorpage: error_page,
-    cors: cors,
-    browser_cache: browser_cache,
-    url_exclusions: url_exclusions,
-    host_exclusions: host_exclusions,
-    force_ssl_dns: force_ssl_dns
-  })
+  variables(varnish_variables)
 end
 
 template '/etc/systemd/system/varnish.service' do
