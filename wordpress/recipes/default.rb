@@ -305,6 +305,10 @@ if (component_name === 'Externado-Dev-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
+if (component_name === 'prod-uexternado-WordPress-154665')
+  domains = 'www.uexternado.edu.co'
+end
+
 if (component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
   domains = 'beta-zonadigital.uexternado.edu.co'
 end
@@ -315,6 +319,11 @@ end
 
 if (component_name === 'beta-subsitios-WordPress-28579b')
   domains = 'multisite.simianlab.co'
+  is_multisite = 'yes'
+end
+
+if (component_name === 'prod-subsitios-subsitios-prod-28c523')
+  domains = 'multisite.uexternado.edu.co,*.uexternado.edu.co,observatics.edu.co'
   is_multisite = 'yes'
 end
 
