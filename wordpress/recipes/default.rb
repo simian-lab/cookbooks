@@ -271,12 +271,16 @@ end
 domains = ''
 is_multisite = 'no'
 
-if(component_name === 'Externado-Dev-WordPress-4eddee')
+if (component_name === 'Externado-Dev-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
-if(component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
+if (component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
   domains = 'beta-zonadigital.uexternado.edu.co'
+end
+
+if (component_name === 'ZonaDigitalProd-WordPress-Prod-bc9a84')
+  domains = 'zonadigital.uexternado.edu.co'
 end
 
 if (component_name === 'beta-subsitios-WordPress-28579b')
