@@ -102,10 +102,12 @@ aws_ssm_parameter_store 'getPhpMbstringEnable' do
   action :get
 end
 
-aws_ssm_parameter_store 'getPhpZipEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
-  return_key 'PHP_ZIP_ENABLE'
-  action :get
+if false
+  aws_ssm_parameter_store 'getPhpZipEnable' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
+    return_key 'PHP_ZIP_ENABLE'
+    action :get
+  end
 end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
