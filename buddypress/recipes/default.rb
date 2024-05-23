@@ -305,6 +305,10 @@ if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
   domains = 'beta-comunidadvirtual.uexternado.edu.co'
 end
 
+if (component_name === 'prod-comunidad-virtual-Wordpress-App-fc620f')
+  domains = 'comunidadvirtual.uexternado.edu.co'
+end
+
 domains_array = domains.split(',')
 
 # 4. We create the site
