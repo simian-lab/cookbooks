@@ -315,7 +315,7 @@ end
 domains = ''
 is_multisite = 'no'
 
-if (component_name === 'Externado-Dev-WordPress-4eddee')
+if (component_name === 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
