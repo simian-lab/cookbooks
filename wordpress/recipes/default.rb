@@ -104,28 +104,23 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-if false
-  aws_ssm_parameter_store 'getPhpImagickEnable' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
-    return_key 'PHP_IMAGICK_ENABLE'
-    action :get
-  end
+aws_ssm_parameter_store 'getPhpImagickEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
+  return_key 'PHP_IMAGICK_ENABLE'
+  action :get
 end
 
-if false
-  aws_ssm_parameter_store 'getPhpMbstringEnable' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
-    return_key 'PHP_MBSTRING_ENABLE'
-    action :get
-  end
+
+aws_ssm_parameter_store 'getPhpMbstringEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
+  return_key 'PHP_MBSTRING_ENABLE'
+  action :get
 end
 
-if false
-  aws_ssm_parameter_store 'getPhpZipEnable' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
-    return_key 'PHP_ZIP_ENABLE'
-    action :get
-  end
+aws_ssm_parameter_store 'getPhpZipEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
+  return_key 'PHP_ZIP_ENABLE'
+  action :get
 end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
@@ -152,12 +147,10 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
-if false
-  aws_ssm_parameter_store 'getVarnishErrorPage' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
-    return_key 'VARNISH_ERROR_PAGE'
-    action :get
-  end
+aws_ssm_parameter_store 'getVarnishErrorPage' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
+  return_key 'VARNISH_ERROR_PAGE'
+  action :get
 end
 
 ruby_block "define-app" do
