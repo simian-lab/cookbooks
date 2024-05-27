@@ -64,16 +64,20 @@ app = {
 
 app_path = "/srv/wordpress"
 
-aws_ssm_parameter_store 'getAwsSmtpUsr' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
-  return_key 'AWS_SMTP_USR'
-  action :get
+if false
+  aws_ssm_parameter_store 'getAwsSmtpUsr' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
+    return_key 'AWS_SMTP_USR'
+    action :get
+  end
 end
 
-aws_ssm_parameter_store 'getAwsSmtpPsw' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
-  return_key 'AWS_SMTP_PSW'
-  action :get
+if false
+  aws_ssm_parameter_store 'getAwsSmtpPsw' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
+    return_key 'AWS_SMTP_PSW'
+    action :get
+  end
 end
 
 aws_ssm_parameter_store 'getDBHost' do
@@ -108,10 +112,12 @@ if false
   end
 end
 
-aws_ssm_parameter_store 'getPhpMbstringEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
-  return_key 'PHP_MBSTRING_ENABLE'
-  action :get
+if false
+  aws_ssm_parameter_store 'getPhpMbstringEnable' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
+    return_key 'PHP_MBSTRING_ENABLE'
+    action :get
+  end
 end
 
 if false
@@ -146,10 +152,12 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
-aws_ssm_parameter_store 'getVarnishErrorPage' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
-  return_key 'VARNISH_ERROR_PAGE'
-  action :get
+if false
+  aws_ssm_parameter_store 'getVarnishErrorPage' do
+    path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
+    return_key 'VARNISH_ERROR_PAGE'
+    action :get
+  end
 end
 
 ruby_block "define-app" do
