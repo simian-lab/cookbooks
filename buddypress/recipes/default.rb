@@ -91,23 +91,23 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-aws_ssm_parameter_store 'getPhpImagickEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
-  return_key 'PHP_IMAGICK_ENABLE'
-  action :get
-end
+# aws_ssm_parameter_store 'getPhpImagickEnable' do
+#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
+#   return_key 'PHP_IMAGICK_ENABLE'
+#   action :get
+# end
 
-aws_ssm_parameter_store 'getPhpMbstringEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
-  return_key 'PHP_MBSTRING_ENABLE'
-  action :get
-end
+# aws_ssm_parameter_store 'getPhpMbstringEnable' do
+#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
+#   return_key 'PHP_MBSTRING_ENABLE'
+#   action :get
+# end
 
-aws_ssm_parameter_store 'getPhpZipEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
-  return_key 'PHP_ZIP_ENABLE'
-  action :get
-end
+# aws_ssm_parameter_store 'getPhpZipEnable' do
+#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
+#   return_key 'PHP_ZIP_ENABLE'
+#   action :get
+# end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
