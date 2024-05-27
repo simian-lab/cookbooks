@@ -146,6 +146,12 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
+aws_ssm_parameter_store 'getVarnishErrorPage' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
+  return_key 'VARNISH_ERROR_PAGE'
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
