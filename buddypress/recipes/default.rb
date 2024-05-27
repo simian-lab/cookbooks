@@ -297,6 +297,10 @@ end
 domains = ''
 is_multisite = 'no'
 
+if (component_name === 'beta-externado-WordPress-4eddee')
+  domains = 'beta.uexternado.edu.co'
+end
+
 if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
   domains = 'davidaclub.com'
 end
