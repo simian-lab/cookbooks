@@ -64,20 +64,16 @@ app = {
 
 app_path = "/srv/wordpress"
 
-if false
-  aws_ssm_parameter_store 'getAwsSmtpUsr' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
-    return_key 'AWS_SMTP_USR'
-    action :get
-  end
+aws_ssm_parameter_store 'getAwsSmtpUsr' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
+  return_key 'AWS_SMTP_USR'
+  action :get
 end
 
-if false
-  aws_ssm_parameter_store 'getAwsSmtpPsw' do
-    path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
-    return_key 'AWS_SMTP_PSW'
-    action :get
-  end
+aws_ssm_parameter_store 'getAwsSmtpPsw' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
+  return_key 'AWS_SMTP_PSW'
+  action :get
 end
 
 aws_ssm_parameter_store 'getDBHost' do
