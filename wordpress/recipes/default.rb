@@ -35,58 +35,153 @@
 #
 # — Ivan Vásquez (ivan@simian.co) / Jan 29, 2017
 
-Chef::Log.warn("Current 'platform_family' is '#{node['platform_family']}'.")
-Chef::Log.warn("Current 'platform' is '#{node['platform_family']}'.")
+require 'aws-sdk-ec2'
 
-# Initial setup: just a couple vars we need
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
+log 'debug' do
+  message 'Simian-debug: Start default.rb'
+  level :info
+end
+
+current_instance_id = node['ec2']['instance_id']
+ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
+response = ec2_client.describe_instances(instance_ids: [current_instance_id])
+
+response = ec2_client.describe_tags(filters: [
+  { name: 'resource-id', values: [current_instance_id] }
+])
+
+component_name = nil
+
+response.tags.each do |tag|
+  if tag.key === 'aws:cloudformation:stack-name'
+    component_name = tag.value
+  end
+end
+
+app = {
+  'environment' => {}
+}
+
+app_path = "/srv/wordpress"
+
+aws_ssm_parameter_store 'getAwsSmtpUsr' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
+  return_key 'AWS_SMTP_USR'
+  action :get
+end
+
+aws_ssm_parameter_store 'getAwsSmtpPsw' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
+  return_key 'AWS_SMTP_PSW'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBHost' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_HOST"
+  return_key 'DB_HOST'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBName' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_NAME"
+  return_key 'DB_NAME'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBPassword' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
+  return_key 'DB_PASSWORD'
+  action :get
+end
+
+aws_ssm_parameter_store 'getDBUser' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
+  return_key 'DB_USER'
+  action :get
+end
+
+aws_ssm_parameter_store 'getPhpImagickEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
+  return_key 'PHP_IMAGICK_ENABLE'
+  action :get
+end
+
+
+aws_ssm_parameter_store 'getPhpMbstringEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
+  return_key 'PHP_MBSTRING_ENABLE'
+  action :get
+end
+
+aws_ssm_parameter_store 'getPhpZipEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
+  return_key 'PHP_ZIP_ENABLE'
+  action :get
+end
+
+aws_ssm_parameter_store 'getRSAPrivateKey' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
+  return_key 'RSA_PRIVATE_KEY'
+  action :get
+end
+
+aws_ssm_parameter_store 'getRSAPublicKey' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PUBLIC_KEY"
+  return_key 'RSA_PUBLIC_KEY'
+  action :get
+end
+
+aws_ssm_parameter_store 'getSiteUrl' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/SITE_URL"
+  return_key 'SITE_URL'
+  action :get
+end
+
+aws_ssm_parameter_store 'getSSLEnable' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/SSL_ENABLE"
+  return_key 'SSL_ENABLE'
+  action :get
+end
+
+aws_ssm_parameter_store 'getVarnishErrorPage' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/VARNISH_ERROR_PAGE"
+  return_key 'VARNISH_ERROR_PAGE'
+  action :get
+end
+
+ruby_block "define-app" do
+  block do
+    app = {
+      'environment' => {
+        'AWS_SMTP_USR' => node.run_state['AWS_SMTP_USR'],
+        'AWS_SMTP_PSW' => node.run_state['AWS_SMTP_PSW'],
+        'DB_HOST' => node.run_state['DB_HOST'],
+        'DB_NAME' => node.run_state['DB_NAME'],
+        'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
+        'DB_USER' => node.run_state['DB_USER'],
+        'PHP_IMAGICK_ENABLE' => node.run_state['PHP_IMAGICK_ENABLE'],
+        'PHP_MBSTRING_ENABLE' => node.run_state['PHP_MBSTRING_ENABLE'],
+        'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
+        'SITE_URL' => node.run_state['SITE_URL'],
+        'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
+        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
+      }
+    }
+  end
+end
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de app es: #{app}")
+  end
+  action :run
+end
 
 # Installing some required packages
 include_recipe 'yum::default'
 
-#execute "latest-php" do
-#  command "sudo add-apt-repository ppa:ondrej/php -y"
-#  user "root"
-#  action :run
-#end
-
-package 'apache2' do
-  case node[:platform]
-  when 'centos','redhat','fedora','amazon'
-    package_name 'httpd'
-  when 'debian','ubuntu'
-    package_name 'apache2'
-  end
-  action :install
-end
-
-execute "Add Remi Repository" do
-  command "sudo yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
-  user "root"
-  action :run
-end
-
-execute "Enable Remi" do
-  command "sudo yum-config-manager --enable remi-php74"
-  user "root"
-  action :run
-end
-
-execute "Install PHP" do
-  command "sudo yum install php php-cli -y"
-  user "root"
-  action :run
-end
-
-execute "Install additional packages" do
-  command "sudo yum install php php-cli php-fpm php-mysqlnd php-zip php-devel php-gd php-mcrypt php-mbstring php-curl php-xml php-pear php-bcmath php-json -y"
-  user "root"
-  action :run
-end
-
-execute "Check the PHP version" do
-  command "php -v"
+execute "latest-php" do
+  command "sudo add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
 end
@@ -95,6 +190,65 @@ include_recipe 'apache2::mod_php'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_expires'
 include_recipe 'apache2::mod_ext_filter'
+
+# Install php
+log 'debug' do
+  message 'Simian-debug: Install PHP'
+  level :info
+end
+
+package 'Install PHP' do
+  package_name 'php7.2'
+end
+
+log 'debug' do
+  message 'Simian-debug: Install PHP libapache'
+  level :info
+end
+
+package 'Install PHP libapache' do
+  package_name 'libapache2-mod-php7.2'
+end
+
+package 'Install PHP cURL' do
+  package_name 'php7.2-curl'
+end
+
+package 'Install PHP mbstring' do
+  package_name 'php7.2-mbstring'
+end
+
+package 'Install PHP mysql' do
+  package_name 'php7.2-mysql'
+end
+
+package 'Install PHP xml' do
+  package_name 'php7.2-xml'
+end
+
+package 'Install PHP gd' do
+  package_name 'php7.2-gd'
+end
+
+package 'Memcached' do
+  package_name 'php7.2-memcached'
+end
+
+package 'Install PHP imagick' do
+  package_name 'php7.2-imagick'
+end
+
+package 'Install PHP Mail' do
+  package_name 'php7.2-mail'
+end
+
+package 'Install PHP zip' do
+  package_name 'php7.2-zip'
+end
+
+package 'Install PHP BCmath extension' do
+  package_name 'php7.2-bcmath'
+end
 
 package 'varnish' do
   package_name 'varnish'
@@ -161,15 +315,50 @@ bash "update_env_vars" do
   EOS
 end
 
+domains = ''
+is_multisite = 'no'
+
+if (component_name === 'beta-salud-total-Wordpress-App-1776c2')
+  domains = 'beta.saludtotal.com.co'
+end
+
+if (component_name === 'beta-externado-WordPress-4eddee')
+  domains = 'beta.uexternado.edu.co'
+end
+
+if (component_name === 'prod-uexternado-WordPress-154665')
+  domains = 'www.uexternado.edu.co'
+end
+
+if (component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
+  domains = 'beta-zonadigital.uexternado.edu.co'
+end
+
+if (component_name === 'ZonaDigitalProd-WordPress-Prod-bc9a84')
+  domains = 'zonadigital.uexternado.edu.co'
+end
+
+if (component_name === 'beta-subsitios-WordPress-28579b')
+  domains = 'multisite.simianlab.co'
+  is_multisite = 'yes'
+end
+
+if (component_name === 'prod-subsitios-subsitios-prod-28c523')
+  domains = 'multisite.uexternado.edu.co'
+  is_multisite = 'yes'
+end
+
+domains_array = domains.split(',')
+
 # 4. We create the site
-web_app app['shortname'] do
+web_app 'wordpress' do
   template 'web_app.conf.erb'
   allow_override 'All'
-  server_name app['domains'].first
+  server_name domains_array.first
   server_port 8080
-  server_aliases app['domains'].drop(1)
+  server_aliases domains_array.drop(1)
   docroot app_path
-  multisite app['environment']['MULTISITE']
+  multisite is_multisite
 end
 
 # 5. We configure caching
@@ -177,45 +366,87 @@ end
 # first off, Varnish (with custom error page if present)
 error_page = ""
 
-if app['environment']['VARNISH_ERROR_PAGE']
-  error_page = "/srv/#{app['shortname']}/#{app['environment']['VARNISH_ERROR_PAGE']}"
+ruby_block "set_varnish_error_page" do
+  block do
+    if app['environment']['VARNISH_ERROR_PAGE']
+      error_page = "/srv/wordpress/#{app['environment']['VARNISH_ERROR_PAGE']}"
+    else
+      Chef::Log.info('VARNISH_ERROR_PAGE variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # define a CORS header
 cors = ""
 
-if app['environment']['CORS']
-  cors = "#{app['environment']['CORS']}"
+ruby_block "set_cors_header" do
+  block do
+    if app['environment']['CORS']
+      cors = "#{app['environment']['CORS']}"
+    else
+      Chef::Log.info('CORS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add a long max-age header if present
 browser_cache = ""
 
-if app['environment']['LONG_BROWSER_CACHE']
-  browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+ruby_block "set_long_browser_cache" do
+  block do
+    if app['environment']['LONG_BROWSER_CACHE']
+      browser_cache = "#{app['environment']['LONG_BROWSER_CACHE']}"
+    else
+      Chef::Log.info('LONG_BROWSER_CACHE variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add a force SSL redirection if present
 force_ssl_dns = ""
 
-if app['environment']['FORCE_SSL_DNS']
-  force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+ruby_block "set_force_ssl_dns" do
+  block do
+    if app['environment']['FORCE_SSL_DNS']
+      force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
+    else
+      Chef::Log.info('FORCE_SSL_DNS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add url exclusions if exists
 url_exclusions = ""
 
-if app['environment']['VARNISH_URL_EXCLUSIONS']
-  string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
-  url_exclusions = string_url_exclusions.split(",")
+ruby_block "set_varnish_url_exclusions" do
+  block do
+    if app['environment']['VARNISH_URL_EXCLUSIONS']
+      string_url_exclusions = "#{app['environment']['VARNISH_URL_EXCLUSIONS']}"
+      url_exclusions = string_url_exclusions.split(",")
+    else
+      Chef::Log.info('VARNISH_URL_EXCLUSIONS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 # Add host exclusions if exists
 host_exclusions = ""
 
-if app['environment']['VARNISH_HOST_EXCLUSIONS']
-  string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
-  host_exclusions = string_host_exclusions.split(",")
+ruby_block "set_varnish_host_exclusions" do
+  block do
+    if app['environment']['VARNISH_HOST_EXCLUSIONS']
+      string_host_exclusions = "#{app['environment']['VARNISH_HOST_EXCLUSIONS']}"
+      host_exclusions = string_host_exclusions.split(",")
+    else
+      Chef::Log.info('VARNISH_HOST_EXCLUSIONS variable not set, skipping step.')
+    end
+  end
+  action :run
 end
 
 service 'varnish' do
@@ -223,16 +454,25 @@ service 'varnish' do
   action [:nothing]
 end
 
+varnish_variables = {
+  errorpage: error_page,
+  cors: cors,
+  browser_cache: browser_cache,
+  url_exclusions: url_exclusions,
+  host_exclusions: host_exclusions,
+  force_ssl_dns: force_ssl_dns
+}
+
+ruby_block 'log_app' do
+  block do
+    Chef::Log.info("El valor de varnish_variables es: #{varnish_variables}")
+  end
+  action :run
+end
+
 template '/etc/varnish/default.vcl' do
   source 'default.vcl.erb'
-  variables({
-    errorpage: error_page,
-    cors: cors,
-    browser_cache: browser_cache,
-    url_exclusions: url_exclusions,
-    host_exclusions: host_exclusions,
-    force_ssl_dns: force_ssl_dns
-  })
+  variables(varnish_variables)
 end
 
 template '/etc/systemd/system/varnish.service' do
@@ -273,5 +513,39 @@ end
 # 6. Call the WordPress cron
 cron 'wpcron' do
   minute '*'
-  command "wget -q -O - #{app['domains'].first}/wp-cron.php?doing_wp_cron"
+  command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
+end
+
+#7
+execute "mkdir ~/.ssh/" do
+  command "mkdir ~/.ssh/"
+  action :run
+end
+
+file "/root/.ssh/id_rsa" do
+  content lazy {node.run_state['RSA_PRIVATE_KEY']}
+end
+
+execute "change permissions to key" do
+  command "chmod 600 /root/.ssh/id_rsa"
+  action :run
+end
+
+file "/root/.ssh/id_rsa.pub" do
+  content lazy {node.run_state['RSA_PUBLIC_KEY']}
+end
+
+execute "change permissions to key" do
+  command "chmod 644 /root/.ssh/id_rsa.pub"
+  action :run
+end
+
+execute "known hosts" do
+  command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
+  action :run
+end
+
+log 'debug' do
+  message 'Simian-debug: End default.rb'
+  level :info
 end

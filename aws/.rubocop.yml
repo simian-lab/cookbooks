@@ -1,0 +1,23 @@
+require:
+  - cookstyle
+
+Lint/AmbiguousRegexpLiteral:
+  Exclude:
+    - 'test/**/*'
+
+Lint/ParenthesesAsGroupedExpression:
+  Exclude:
+    - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table.rb'
+
+Metrics/BlockNesting:
+  Max: 7
+
+Metrics/ParameterLists:
+  Max: 8
+
+Style/GuardClause:
+  Exclude:
+    - 'resources/cloudformation_stack.rb'
+    - 'resources/cloudwatch.rb'
+    - 'resources/ebs_volume.rb'
+    - 'resources/elastic_ip.rb'
