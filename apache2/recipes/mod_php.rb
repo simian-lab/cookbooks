@@ -32,7 +32,7 @@ when 'debian'
   elsif node['platform'] == 'debian' && node['platform_version'].to_f < 9
     package 'libapache2-mod-php5'
   else
-    package 'libapache2-mod-php7.4'
+    package 'libapache2-mod-php7.2'
   end
 when 'arch'
   package 'php-apache' do
@@ -46,8 +46,6 @@ when 'rhel'
     else
       package_name 'php'
     end
-    notifies :run, 'execute[generate-module-list]', :immediately
-    not_if 'which php'
   end
 when 'fedora'
   package 'which'

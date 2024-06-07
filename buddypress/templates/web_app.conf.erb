@@ -3,7 +3,7 @@ NameVirtualHost *:<%= @params[:server_port] %>
 <% end -%>
 <VirtualHost *:<%= @params[:server_port] %>>
   ServerName <%= @params[:server_name] %>
-  <% if @params[:server_aliases] -%>
+  <% if @params[:server_aliases] && @params[:server_aliases].is_a?(Array) -%>
   ServerAlias <%= @params[:server_aliases].join " " %>
   <% end -%>
   DocumentRoot <%= @params[:docroot] %>

@@ -23,10 +23,10 @@ end
 include_recipe 'apache2::default'
 
 if platform_family?('rhel', 'fedora', 'suse')
-  package node['apache']['mod_ssl']['pkg_name'] do
-    notifies :run, 'execute[generate-module-list]', :immediately
-    not_if { platform_family?('suse') }
-  end
+  #package node['apache']['mod_ssl']['pkg_name'] do
+    #notifies :run, 'execute[generate-module-list]', :immediately
+    #not_if { platform_family?('suse') }
+  #end
 
   file "#{node['apache']['dir']}/conf.d/ssl.conf" do
     content '# SSL Conf is under mods-available/ssl.conf - apache2 cookbook\n'
