@@ -197,8 +197,10 @@ log 'debug' do
   level :info
 end
 
+php_version = '7.2'
+
 package 'Install PHP' do
-  package_name 'php7.2'
+  package_name "php#{php_version}"
 end
 
 log 'debug' do
@@ -207,47 +209,47 @@ log 'debug' do
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.2'
+  package_name "libapache2-mod-php#{php_version}"
 end
 
 package 'Install PHP cURL' do
-  package_name 'php7.2-curl'
+  package_name "php#{php_version}-curl"
 end
 
 package 'Install PHP mbstring' do
-  package_name 'php7.2-mbstring'
+  package_name "php#{php_version}-mbstring"
 end
 
 package 'Install PHP mysql' do
-  package_name 'php7.2-mysql'
+  package_name "php#{php_version}-mysql"
 end
 
 package 'Install PHP xml' do
-  package_name 'php7.2-xml'
+  package_name "php#{php_version}-xml"
 end
 
 package 'Install PHP gd' do
-  package_name 'php7.2-gd'
+  package_name "php#{php_version}-gd"
 end
 
 package 'Memcached' do
-  package_name 'php7.2-memcached'
+  package_name "php#{php_version}-memcached"
 end
 
 package 'Install PHP imagick' do
-  package_name 'php7.2-imagick'
+  package_name "php#{php_version}-imagick"
 end
 
 package 'Install PHP Mail' do
-  package_name 'php7.2-mail'
+  package_name "php#{php_version}-mail"
 end
 
 package 'Install PHP zip' do
-  package_name 'php7.2-zip'
+  package_name "php#{php_version}-zip"
 end
 
 package 'Install PHP BCmath extension' do
-  package_name 'php7.2-bcmath'
+  package_name "php#{php_version}-bcmath"
 end
 
 package 'varnish' do
@@ -284,11 +286,9 @@ end
 #  php_ver = node['php']['version']
 #end
 
-php_ver = '7.4'
-
 ruby_block "php_env_vars" do
   block do
-    file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
+    file = Chef::Util::FileEdit.new("/etc/php/#{php_version}/apache2/php.ini")
     Chef::Log.info("Setting the variable order for PHP")
     file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
     file.write_file
