@@ -284,7 +284,7 @@ end
 #  php_ver = node['php']['version']
 #end
 
-php_ver = '7.4'
+php_ver = '7.2'
 
 ruby_block "php_env_vars" do
   block do
