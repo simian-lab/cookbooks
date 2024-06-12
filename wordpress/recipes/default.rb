@@ -197,7 +197,7 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.2'
+php_version = '7.4'
 
 package 'Install PHP' do
   package_name "php#{php_version}"
@@ -278,13 +278,6 @@ ruby_block "insert_env_vars" do
     end
   end
 end
-
-# Make sure PHP can read the vars
-#if node['php']['version']=='7.0.4'
-#  php_ver = '7.0'
-#else
-#  php_ver = node['php']['version']
-#end
 
 ruby_block "php_env_vars" do
   block do
