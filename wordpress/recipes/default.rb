@@ -197,10 +197,8 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.2'
-
 package 'Install PHP' do
-  package_name "php#{php_version}"
+  package_name "php"
 end
 
 log 'debug' do
@@ -209,47 +207,47 @@ log 'debug' do
 end
 
 package 'Install PHP libapache' do
-  package_name "libapache2-mod-php#{php_version}"
+  package_name "libapache2-mod-php"
 end
 
 package 'Install PHP cURL' do
-  package_name "php#{php_version}-curl"
+  package_name "php-curl"
 end
 
 package 'Install PHP mbstring' do
-  package_name "php#{php_version}-mbstring"
+  package_name "php-mbstring"
 end
 
 package 'Install PHP mysql' do
-  package_name "php#{php_version}-mysql"
+  package_name "php-mysql"
 end
 
 package 'Install PHP xml' do
-  package_name "php#{php_version}-xml"
+  package_name "php-xml"
 end
 
 package 'Install PHP gd' do
-  package_name "php#{php_version}-gd"
+  package_name "php-gd"
 end
 
 package 'Memcached' do
-  package_name "php#{php_version}-memcached"
+  package_name "php-memcached"
 end
 
 package 'Install PHP imagick' do
-  package_name "php#{php_version}-imagick"
+  package_name "php-imagick"
 end
 
 package 'Install PHP Mail' do
-  package_name "php#{php_version}-mail"
+  package_name "php-mail"
 end
 
 package 'Install PHP zip' do
-  package_name "php#{php_version}-zip"
+  package_name "php-zip"
 end
 
 package 'Install PHP BCmath extension' do
-  package_name "php#{php_version}-bcmath"
+  package_name "php-bcmath"
 end
 
 package 'varnish' do
@@ -278,6 +276,8 @@ ruby_block "insert_env_vars" do
     end
   end
 end
+
+php_version = node['php']['version']
 
 ruby_block "php_env_vars" do
   block do
