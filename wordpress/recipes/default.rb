@@ -315,6 +315,10 @@ if (component_name === 'beta-salud-total-Wordpress-App-1776c2')
   domains = 'beta.saludtotal.com.co'
 end
 
+if (component_name === 'prod-salud-total-Wordpress-App-8926e3')
+  domains = 'saludtotal.com.co'
+end
+
 if (component_name === 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
