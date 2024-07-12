@@ -197,7 +197,7 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.4'
+php_version = '8.0'
 
 log 'debug' do
   message "Simian-debug: Using PHP #{php_version}"
