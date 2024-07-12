@@ -199,13 +199,13 @@ end
 
 php_version = '7.4'
 
-package 'Install PHP' do
-  package_name "php#{php_version}"
+log 'debug' do
+  message "Simian-debug: Using PHP #{php_version}"
+  level :info
 end
 
-log 'debug' do
-  message 'Simian-debug: Install PHP libapache'
-  level :info
+package 'Install PHP' do
+  package_name "php#{php_version}"
 end
 
 package 'Install PHP libapache' do
