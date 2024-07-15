@@ -254,12 +254,6 @@ sub vcl_deliver {
   else {
     set resp.http.X-Cache = "MISS";
   }
-
-  <% if @cors != '' -%>
-    set resp.http.Access-Control-Allow-Origin = "<%= @cors%>";
-  <% else %>
-    set resp.http.Access-Control-Allow-Origin = "*";
-  <% end -%>
 }
 
 sub vcl_hit {
