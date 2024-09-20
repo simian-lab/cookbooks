@@ -197,7 +197,7 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.4'
+php_version = '7.2'
 
 package 'Install PHP' do
   package_name "php#{php_version}"
