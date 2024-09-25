@@ -181,52 +181,54 @@ log 'debug' do
   level :info
 end
 
+php_version = '7.4'
+
 package 'Install PHP' do
-  package_name 'php7.2'
+  package_name "php#{php_version}"
 end
 
 package 'Install PHP libapache' do
-  package_name 'libapache2-mod-php7.2'
+  package_name "libapache2-mod-php#{php_version}"
 end
 
 package 'Install PHP cURL' do
-  package_name 'php7.2-curl'
+  package_name "php#{php_version}-curl"
 end
 
 package 'Install PHP mbstring' do
-  package_name 'php7.2-mbstring'
+  package_name "php#{php_version}-mbstring"
 end
 
 package 'Install PHP mysql' do
-  package_name 'php7.2-mysql'
+  package_name "php#{php_version}-mysql"
 end
 
 package 'Install PHP xml' do
-  package_name 'php7.2-xml'
+  package_name "php#{php_version}-xml"
 end
 
 package 'Install PHP gd' do
-  package_name 'php7.2-gd'
+  package_name "php#{php_version}-gd"
 end
 
 package 'Memcached' do
-  package_name 'php7.2-memcached'
+  package_name "php#{php_version}-memcached"
 end
 
 package 'Install PHP imagick' do
-  package_name 'php7.2-imagick'
+  package_name "php#{php_version}-imagick"
 end
 
 package 'Install PHP Mail' do
-  package_name 'php7.2-mail'
+  package_name "php#{php_version}-mail"
 end
 
 package 'Install PHP zip' do
-  package_name 'php7.2-zip'
+  package_name "php#{php_version}-zip"
 end
 
 package 'Install PHP BCmath extension' do
-  package_name 'php7.2-bcmath'
+  package_name "php#{php_version}-bcmath"
 end
 
 package 'varnish' do
