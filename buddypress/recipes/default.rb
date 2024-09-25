@@ -265,11 +265,9 @@ end
 #  php_ver = node['php']['version']
 #end
 
-php_ver = '7.2'
-
 ruby_block "php_env_vars" do
   block do
-    file = Chef::Util::FileEdit.new("/etc/php/#{php_ver}/apache2/php.ini")
+    file = Chef::Util::FileEdit.new("/etc/php/#{php_version}/apache2/php.ini")
     Chef::Log.info("Setting the variable order for PHP")
     file.search_file_replace_line /^variables_order =/, "variables_order = \"EGPCS\""
     file.write_file
