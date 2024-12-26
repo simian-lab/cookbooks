@@ -106,7 +106,6 @@ aws_ssm_parameter_store 'getPhpImagickEnable' do
   action :get
 end
 
-
 aws_ssm_parameter_store 'getPhpMbstringEnable' do
   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
   return_key 'PHP_MBSTRING_ENABLE'
