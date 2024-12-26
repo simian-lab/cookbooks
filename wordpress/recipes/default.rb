@@ -179,10 +179,27 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
+execute "latest-apache2" do
+  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
+  user "root"
+  action :run
+end
+
 execute "latest-php" do
   command "sudo add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
+end
+
+execute "update-repositories" do
+  command "sudo apt-get update -y"
+  user "root"
+  action :run
+end
+
+package 'apache2' do
+  version '2.4.62'
+  action :install
 end
 
 include_recipe 'apache2::mod_php'
