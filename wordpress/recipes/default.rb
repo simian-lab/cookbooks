@@ -106,7 +106,6 @@ aws_ssm_parameter_store 'getPhpImagickEnable' do
   action :get
 end
 
-
 aws_ssm_parameter_store 'getPhpMbstringEnable' do
   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
   return_key 'PHP_MBSTRING_ENABLE'
@@ -180,10 +179,26 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
+execute "latest-apache2" do
+  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
+  user "root"
+  action :run
+end
+
 execute "latest-php" do
   command "sudo add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
+end
+
+execute "update-repositories" do
+  command "sudo apt-get update -y"
+  user "root"
+  action :run
+end
+
+package 'apache2' do
+  action :install
 end
 
 include_recipe 'apache2::mod_php'
@@ -197,7 +212,7 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.2'
+php_version = '7.4'
 
 package 'Install PHP' do
   package_name "php#{php_version}"
