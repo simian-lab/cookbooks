@@ -118,6 +118,12 @@ sub vcl_backend_response {
     return(abandon);
   }
 
+  if (beresp.status == 403) {
+    set beresp.ttl = 0s;
+    set beresp.uncacheable = true;
+    set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+  }
+
   # unset cookies from backendresponse
   if (!(bereq.url ~ "(wp-login|wp-admin)")) {
     set beresp.http.X-UnsetCookies = "TRUE";
