@@ -29,6 +29,10 @@ sub vcl_recv {
   # Only a single backend
   set req.backend_hint = default;
 
+  if (req.url ~ "^/icons/") {
+    return (synth(404, "Not Found"));
+}
+
   <% if @force_ssl_dns != '' -%>
     # Redirect to SSL
     if ( (req.http.host ~ "^(?i)<%= @force_ssl_dns%>") && req.http.X-Forwarded-Proto !~ "(?i)https") {
