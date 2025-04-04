@@ -117,6 +117,12 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
+  if (beresp.http.Content-Length && beresp.http.Content-Length == "0") {
+    set beresp.uncacheable = true;
+    set beresp.http.X-Cache-Debug = "Not cached, zero Content-Length";
+    return (deliver);
+}
+
   # avoid cache error responses
   if ( beresp.status == 500 || beresp.status == 502 || beresp.status == 503 || beresp.status == 504 ) {
     return(abandon);
