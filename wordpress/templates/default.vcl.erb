@@ -33,6 +33,10 @@ sub vcl_recv {
     return (synth(404, "Not Found"));
 }
 
+if (req.url ~ "^/biblioteca/recursos-digitales/") {
+  return (synth(403, "Acceso Prohibido"));
+}
+
   <% if @force_ssl_dns != '' -%>
     # Redirect to SSL
     if ( (req.http.host ~ "^(?i)<%= @force_ssl_dns%>") && req.http.X-Forwarded-Proto !~ "(?i)https") {
