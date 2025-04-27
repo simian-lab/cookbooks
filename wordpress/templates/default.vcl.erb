@@ -29,7 +29,7 @@ sub vcl_recv {
   # Only a single backend
   set req.backend_hint = default;
 
-  if (req.http.User-Agent ~ "(AhrefsBot|AhrefsSiteAudit|anthropic-ai|Applebot-Extended|Barkrowler|BLEXBot|Bytespider|CazoodleBot|CCBot|cohere-ai|Diffbot|dotbot|duggmirror|FacebookBot|Gigabot|Go-http-client|Google-Extended|HTTrack|ia_archiver|libwww|magpie-crawler|meta-externalagent|Microsoft.URL.Control|MSIECrawler|msnbot|Node/simplecrawler|noxtrumbot|Nuclei|omgili|PetalBot|Riddler|SemrushBot|SemrushBot-BA|SemrushBot-FT|SemrushBot-OCOB|SemrushBot-SI|SemrushBot-SWA|SentiBot|SiteAuditBot|Slurp|SplitSignalBot|Trident|YandexBot|WebCopier|WikiDo|Zoominfobot)") {
+  if (req.http.User-Agent ~ "(AhrefsBot|AhrefsSiteAudit|anthropic-ai|Applebot-Extended|Barkrowler|BLEXBot|Bytespider|CazoodleBot|CCBot|cohere-ai|Diffbot|dotbot|duggmirror|FacebookBot|Gigabot|Go-http-client|Google-Extended|HTTrack|ia_archiver|libwww|magpie-crawler|meta-externalagent|Microsoft.URL.Control|MJ12bot|MSIECrawler|msnbot|nessus|Node/simplecrawler|noxtrumbot|Nuclei|omgili|PetalBot|Riddler|SemrushBot|SemrushBot-BA|SemrushBot-FT|SemrushBot-OCOB|SemrushBot-SI|SemrushBot-SWA|SentiBot|SiteAuditBot|Slurp|SplitSignalBot|TikTokSpider|trendictionbot|Trident|YandexBot|WebCopier|WikiDo|Zoominfobot)") {
     return (synth(403, "Acceso Denegado"));
   }
 
