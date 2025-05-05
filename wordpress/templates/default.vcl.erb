@@ -37,7 +37,7 @@ sub vcl_recv {
     return (synth(404, "Not Found"));
   }
 
-  if (req.url ~ "Serv\.php$") {
+  if (req.url ~ "Serv.php") {
     return (synth(403, "Acceso Prohibido"));
   }
 
