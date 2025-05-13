@@ -81,8 +81,11 @@ execute "add key" do
 end
 
 git 'sync the repo' do
+  depth 1
   repository lazy {app['app_source']['url']}
   revision lazy {app['app_source']['revision']}
+  retries 3
+  retry_delay 5
   destination '/srv/wordpress'
 end
 
