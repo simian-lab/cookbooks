@@ -84,8 +84,7 @@ git 'sync the repo' do
   depth 1
   repository lazy {app['app_source']['url']}
   revision lazy {app['app_source']['revision']}
-  retries 3
-  retry_delay 5
+  retries 1
   destination '/srv/wordpress'
 end
 
