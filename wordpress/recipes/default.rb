@@ -148,6 +148,11 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   action :get
 end
 
+aws_ssm_parameter_store 'getBetterStackSourceToken' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
+  return_key "BETTER_STACK_SOURCE_TOKEN"
+end
+
 ruby_block "define-app" do
   block do
     app = {
@@ -163,7 +168,8 @@ ruby_block "define-app" do
         'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
-        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
+        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE'],
+        'BETTER_STACK_SOURCE_TOKEN' => node.run.state['BETTER_STACK_SOURCE_TOKEN']
       }
     }
   end
@@ -560,4 +566,18 @@ end
 log 'debug' do
   message 'Simian-debug: End default.rb'
   level :info
+end
+
+log 'debug' do
+  message 'Simian-debug: Install Vector for Better Stack'
+  level :info
+end
+
+execute "install-and-configure-vector" do
+  command "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{app['environment']['BETTER_STACK_SOURCE_TOKEN']} \
+  -o /tmp/setup-vector.sh && \
+  bash /tmp/setup-vector.sh"
+  user "root"
+  action :run
+  only_if { app['environment']['BETTER_STACK_SOURCE_TOKEN'] }
 end
