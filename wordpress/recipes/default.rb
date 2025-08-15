@@ -168,8 +168,7 @@ ruby_block "define-app" do
         'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
-        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE'],
-        'BETTER_STACK_SOURCE_TOKEN' => node.run_state['BETTER_STACK_SOURCE_TOKEN']
+        'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
       }
     }
   end
@@ -574,10 +573,10 @@ log 'debug' do
 end
 
 execute "install-and-configure-vector" do
-  command "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{app['environment']['BETTER_STACK_SOURCE_TOKEN']} \
+  command "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
   -o /tmp/setup-vector.sh && \
   bash /tmp/setup-vector.sh"
   user "root"
   action :run
-  only_if { app['environment']['BETTER_STACK_SOURCE_TOKEN'] }
+  only_if {node.run_state['BETTER_STACK_SOURCE_TOKEN']}
 end
