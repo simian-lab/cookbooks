@@ -564,11 +564,6 @@ execute "known hosts" do
 end
 
 log 'debug' do
-  message 'Simian-debug: End default.rb'
-  level :info
-end
-
-log 'debug' do
   message 'Simian-debug: Install Vector for Better Stack'
   level :info
 end
@@ -583,4 +578,9 @@ execute "install-and-configure-vector" do
   user "root"
   action :run
   only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
+end
+
+log 'debug' do
+  message 'Simian-debug: End default.rb'
+  level :info
 end

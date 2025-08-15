@@ -133,6 +133,12 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
+aws_ssm_parameter_store 'getBetterStackSourceToken' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
+  return_key "BETTER_STACK_SOURCE_TOKEN"
+  ignore_failure true
+end
+
 ruby_block "define-app" do
   block do
     app = {
@@ -367,6 +373,23 @@ end
 execute "known hosts" do
   command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
   action :run
+end
+
+log 'debug' do
+  message 'Simian-debug: Install Vector for Better Stack'
+  level :info
+end
+
+execute "install-and-configure-vector" do
+  # Usa 'lazy' para retrasar la evaluación del comando
+  command lazy {
+    "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
+    -o /tmp/setup-vector.sh && \
+    bash /tmp/setup-vector.sh"
+  }
+  user "root"
+  action :run
+  only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
 end
 
 log 'debug' do
