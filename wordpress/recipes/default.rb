@@ -151,6 +151,7 @@ end
 aws_ssm_parameter_store 'getBetterStackSourceToken' do
   path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
   return_key "BETTER_STACK_SOURCE_TOKEN"
+  ignore_failure true
 end
 
 ruby_block "define-app" do
