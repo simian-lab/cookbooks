@@ -573,10 +573,13 @@ log 'debug' do
 end
 
 execute "install-and-configure-vector" do
-  command "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
-  -o /tmp/setup-vector.sh && \
-  bash /tmp/setup-vector.sh"
+  # Usa 'lazy' para retrasar la evaluación del comando
+  command lazy {
+    "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
+    -o /tmp/setup-vector.sh && \
+    bash /tmp/setup-vector.sh"
+  }
   user "root"
   action :run
-  only_if {node.run_state['BETTER_STACK_SOURCE_TOKEN']}
+  only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
 end
