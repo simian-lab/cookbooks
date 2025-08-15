@@ -169,7 +169,7 @@ ruby_block "define-app" do
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE'],
-        'BETTER_STACK_SOURCE_TOKEN' => node.run.state['BETTER_STACK_SOURCE_TOKEN']
+        'BETTER_STACK_SOURCE_TOKEN' => node.run_state['BETTER_STACK_SOURCE_TOKEN']
       }
     }
   end
