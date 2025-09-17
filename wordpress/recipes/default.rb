@@ -530,7 +530,8 @@ end
 
 # 6. Call the WordPress cron
 cron 'wpcron' do
-  minute '*'
+  minute '0'
+  hour '0,12'
   command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
 end
 
