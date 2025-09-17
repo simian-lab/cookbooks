@@ -380,8 +380,37 @@ log 'debug' do
   level :info
 end
 
+directory '/etc/systemd/system/apache2.service.d' do
+  owner 'root'
+  group 'root'
+  mode  '0755'
+  action :create
+end
+
+file '/etc/systemd/system/apache2.service.d/99-restart.conf' do
+  owner   'root'
+  group   'root'
+  mode    '0644'
+  content <<~EOH
+    # Gestionado por Chef: Reiniciar Apache2 si falla.
+    [Service]
+    Restart=on-failure
+    RestartSec=5s
+  EOH
+  notifies :run, 'execute[systemd-daemon-reload]', :immediately
+end
+
+execute 'systemd-daemon-reload' do
+  command '/bin/systemctl daemon-reload'
+  action :nothing
+end
+
+service 'apache2' do
+  supports status: true, restart: true, reload: true
+  action [:enable, :start]
+end
+
 execute "install-and-configure-vector" do
-  # Usa 'lazy' para retrasar la evaluación del comando
   command lazy {
     "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
     -o /tmp/setup-vector.sh && \
