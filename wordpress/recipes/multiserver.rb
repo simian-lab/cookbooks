@@ -147,7 +147,7 @@ ruby_block 'mount_authors' do
   block do
     if app['environment']['EFS_AUTHORS']
       Chef::Log.info('Mounting authors...')
-      command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
+      command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport #{app['environment']['EFS_AUTHORS']}:/ #{app_path}/wp-content/authors"
       Chef::Log.info("Executing command: #{command}")
       system(command)
     else
@@ -161,7 +161,7 @@ ruby_block 'mount_gallery' do
   block do
     if app['environment']['EFS_GALLERY']
       Chef::Log.info('Mounting gallery...')
-      command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
+      command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport #{app['environment']['EFS_GALLERY']}:/ #{app_path}/wp-content/gallery"
       Chef::Log.info("Executing command: #{command}")
       system(command)
     else
