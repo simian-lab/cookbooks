@@ -328,6 +328,14 @@ calculated_workers = (apache_ram_mb / avg_process_mb).floor
 min_workers = 10
 final_max_workers = [calculated_workers, min_workers].max
 
+start_val = [(final_max_workers * 0.25).floor, 5].max
+max_spare_val = [(final_max_workers * 0.50).floor, 10].max
+
+# Asegurarnos de que min sea menor que max
+if start_val > max_spare_val
+  start_val = max_spare_val
+end
+
 # Imprimir en el log de Chef para depuración
 Chef::Log.info("--- Cálculo MPM Prefork ---")
 Chef::Log.info("RAM Total: #{total_ram_mb}MB")
@@ -339,9 +347,9 @@ Chef::Log.info("--------------------------")
 # End Simian
 
 # Prefork Attributes
-default['apache']['prefork']['startservers']        = 16
-default['apache']['prefork']['minspareservers']     = 16
-default['apache']['prefork']['maxspareservers']     = 32
+default['apache']['prefork']['startservers']        = start_val
+default['apache']['prefork']['minspareservers']     = start_val
+default['apache']['prefork']['maxspareservers']     = max_spare_val
 default['apache']['prefork']['serverlimit']         = final_max_workers
 default['apache']['prefork']['maxrequestworkers']   = final_max_workers
 default['apache']['prefork']['maxconnectionsperchild'] = 10_000
