@@ -311,12 +311,47 @@ default['apache']['info_allow_list'] = '127.0.0.1 ::1'
 # Supported mpm list
 default['apache']['mpm_support'] = %w(prefork worker event)
 
+# Simian
+total_ram_kb = node['memory']['total'].gsub('kB', '').to_i
+total_ram_mb = total_ram_kb / 1024
+
+# Porcentaje de RAM a reservar para el OS, DB, etc. (0.30 = 30%) 30% es un valor seguro.
+reserve_percent = 0.30
+
+# Calcular RAM disponible para Apache
+reserved_ram_mb = (total_ram_mb * reserve_percent).to_i
+apache_ram_mb = total_ram_mb - reserved_ram_mb
+
+avg_process_mb = 150
+calculated_workers = (apache_ram_mb / avg_process_mb).floor
+
+min_workers = 10
+final_max_workers = [calculated_workers, min_workers].max
+
+start_val = [(final_max_workers * 0.25).floor, 5].max
+max_spare_val = [(final_max_workers * 0.50).floor, 10].max
+
+# Asegurarnos de que min sea menor que max
+if start_val > max_spare_val
+  start_val = max_spare_val
+end
+
+# Imprimir en el log de Chef para depuración
+Chef::Log.info("--- Cálculo MPM Prefork ---")
+Chef::Log.info("RAM Total: #{total_ram_mb}MB")
+Chef::Log.info("RAM Reservada (#{reserve_percent * 100}%): #{reserved_ram_mb}MB")
+Chef::Log.info("RAM para Apache: #{apache_ram_mb}MB")
+Chef::Log.info("Promedio por Proceso: #{avg_process_mb}MB")
+Chef::Log.info("=> MaxRequestWorkers calculado: #{final_max_workers}")
+Chef::Log.info("--------------------------")
+# End Simian
+
 # Prefork Attributes
-default['apache']['prefork']['startservers']        = 16
-default['apache']['prefork']['minspareservers']     = 16
-default['apache']['prefork']['maxspareservers']     = 32
-default['apache']['prefork']['serverlimit']         = 256
-default['apache']['prefork']['maxrequestworkers']   = 256
+default['apache']['prefork']['startservers']        = start_val
+default['apache']['prefork']['minspareservers']     = start_val
+default['apache']['prefork']['maxspareservers']     = max_spare_val
+default['apache']['prefork']['serverlimit']         = final_max_workers
+default['apache']['prefork']['maxrequestworkers']   = final_max_workers
 default['apache']['prefork']['maxconnectionsperchild'] = 10_000
 
 # Worker Attributes
