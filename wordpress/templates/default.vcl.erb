@@ -95,6 +95,10 @@ sub vcl_recv {
     return (pass);
   }
 
+  if (req.url ~ "^/wp-json/uexternado/api/notificationinapp") {
+    return (pass);
+  }
+
   # pass custom excluded urls
   <% if @url_exclusions != '' -%>
     <% @url_exclusions.each do |value| -%>
