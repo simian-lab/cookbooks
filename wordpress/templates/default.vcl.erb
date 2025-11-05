@@ -152,6 +152,11 @@ sub vcl_backend_response {
     set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
   }
 
+  if (req.url ~ "^/wp-json/uexternado/api/notificationinapp") {
+    set beresp.ttl = 0s;
+    set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+  }
+
   # unset cookies from backendresponse
   if (!(bereq.url ~ "(wp-login|wp-admin)")) {
     set beresp.http.X-UnsetCookies = "TRUE";
