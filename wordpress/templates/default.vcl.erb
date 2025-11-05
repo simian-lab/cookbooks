@@ -153,8 +153,13 @@ sub vcl_backend_response {
   }
 
   if (req.url ~ "^/wp-json/uexternado/api/notificationinapp") {
+    unset resp.http.cache-control;
+    unset resp.http.expires;
+
     set beresp.ttl = 0s;
     set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+    set resp.http.pragma = "no-cache";
+    set resp.http.expires = "Mon, 01 Jan 1970 00:00:00 GMT";
   }
 
   # unset cookies from backendresponse
