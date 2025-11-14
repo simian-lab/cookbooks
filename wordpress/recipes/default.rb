@@ -242,7 +242,7 @@ package 'Install PHP mbstring' do
 end
 
 package 'Install PHP mysql' do
-  package_name "php#{php_version}-mysql"
+  package_name "php#{php_version}-mysqli"
 end
 
 package 'Install PHP xml' do
