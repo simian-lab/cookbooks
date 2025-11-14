@@ -26,8 +26,8 @@ if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 18.04
   default['apache']['mod_php']['so_filename'] = 'libphp7.4.so'
 end
 if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 16.04
-  default['apache']['mod_php']['module_name'] = 'php7'
-  default['apache']['mod_php']['so_filename'] = 'libphp7.0.so'
+  default['apache']['mod_php']['module_name'] = 'php8.3'
+  default['apache']['mod_php']['so_filename'] = 'libphp8.3.so'
 end
 if node['platform'] == 'debian' && node['platform_version'].to_f >= 9
   default['apache']['mod_php']['module_name'] = 'php7'
