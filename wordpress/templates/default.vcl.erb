@@ -95,6 +95,10 @@ sub vcl_recv {
     return (pass);
   }
 
+  if (req.url ~ "^/wp-json/uexternado/api/notificationinapp") {
+    return (pass);
+  }
+
   # pass custom excluded urls
   <% if @url_exclusions != '' -%>
     <% @url_exclusions.each do |value| -%>
@@ -146,6 +150,16 @@ sub vcl_backend_response {
     set beresp.ttl = 0s;
     set beresp.uncacheable = true;
     set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+  }
+
+  if (bereq.url ~ "^/wp-json/uexternado/api/notificationinapp") {
+    unset beresp.http.cache-control;
+    unset beresp.http.expires;
+
+    set beresp.ttl = 0s;
+    set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+    set beresp.http.pragma = "no-cache";
+    set beresp.http.expires = "Mon, 01 Jan 1970 00:00:00 GMT";
   }
 
   # unset cookies from backendresponse

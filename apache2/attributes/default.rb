@@ -315,8 +315,8 @@ default['apache']['mpm_support'] = %w(prefork worker event)
 total_ram_kb = node['memory']['total'].gsub('kB', '').to_i
 total_ram_mb = total_ram_kb / 1024
 
-# Porcentaje de RAM a reservar para el OS, DB, etc. (0.30 = 30%) 30% es un valor seguro.
-reserve_percent = 0.30
+# Porcentaje de RAM a reservar para el OS, DB, etc.
+reserve_percent = 0.25
 
 # Calcular RAM disponible para Apache
 reserved_ram_mb = (total_ram_mb * reserve_percent).to_i
