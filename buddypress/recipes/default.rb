@@ -372,7 +372,7 @@ execute "change permissions to key" do
 end
 
 execute "known hosts" do
-  command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
+  command "ssh-keyscan github.com >> /root/.ssh/known_hosts"
   action :run
 end
 
