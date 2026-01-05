@@ -32,7 +32,7 @@ when 'debian'
   elsif node['platform'] == 'debian' && node['platform_version'].to_f < 9
     package 'libapache2-mod-php5'
   else
-    package 'libapache2-mod-php7.4'
+    package 'libapache2-mod-php8.3'
   end
 when 'arch'
   package 'php-apache' do
@@ -73,11 +73,11 @@ end unless node['apache']['mod_php']['install_method'] == 'source'
 case node['platform_family']
 when 'debian'
   # on debian plaform_family php creates newly named incompatible config
-  file "#{node['apache']['dir']}/mods-available/php7.0.conf" do
+  file "#{node['apache']['dir']}/mods-available/php8.3.conf" do
     content '# conf is under mods-available/php.conf - apache2 cookbook\n'
   end
 
-  file "#{node['apache']['dir']}/mods-available/php7.0.load" do
+  file "#{node['apache']['dir']}/mods-available/php8.3.load" do
     content '# conf is under mods-available/php.load - apache2 cookbook\n'
   end
 when 'rhel', 'fedora', 'suse'
@@ -86,7 +86,7 @@ when 'rhel', 'fedora', 'suse'
   end
 end
 
-template "#{node['apache']['dir']}/mods-available/php7.conf" do
+template "#{node['apache']['dir']}/mods-available/php8.3.conf" do
   source 'mods/php.conf.erb'
   mode '0644'
   notifies :reload, 'service[apache2]', :delayed
