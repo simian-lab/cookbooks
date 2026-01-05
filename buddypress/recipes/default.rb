@@ -187,7 +187,7 @@ log 'debug' do
   level :info
 end
 
-php_version = '7.4'
+php_version = '8.3'
 
 package 'Install PHP' do
   package_name "php#{php_version}"
@@ -206,7 +206,7 @@ package 'Install PHP mbstring' do
 end
 
 package 'Install PHP mysql' do
-  package_name "php#{php_version}-mysql"
+  package_name "php#{php_version}-mysqli"
 end
 
 package 'Install PHP xml' do
@@ -372,7 +372,7 @@ execute "change permissions to key" do
 end
 
 execute "known hosts" do
-  command "ssh-keyscan github.com >> /root/.ssh/known_hosts"
+  command "ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts"
   action :run
 end
 
