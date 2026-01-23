@@ -608,12 +608,14 @@ end
 
 # 3. Configurar archivos
 file '/etc/newrelic-infra.yml' do
-  content <<~EOF
-    license_key: #{node.run_state['NEW_RELIC_API_KEY']}
-    log_forwarding: false
-    custom_attributes:
-      domain: #{domains}
-  EOF
+  content lazy {
+    <<~EOF
+      license_key: #{node.run_state['NEW_RELIC_API_KEY']}
+      log_forwarding: false
+      custom_attributes:
+        domain: #{domains}
+    EOF
+  }
   notifies :restart, 'service[newrelic-infra]', :delayed
 end
 
