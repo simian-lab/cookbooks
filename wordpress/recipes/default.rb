@@ -42,6 +42,27 @@ log 'debug' do
   level :info
 end
 
+# Start: Fix the timezone.
+file '/etc/timezone' do
+  content "America/Bogota\n"
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
+link '/etc/localtime' do
+  to '/usr/share/zoneinfo/America/Bogota'
+  owner 'root'
+  group 'root'
+end
+
+execute 'update_timezone' do
+  command 'dpkg-reconfigure -f noninteractive tzdata'
+  action :run
+  subscribes :run, 'file[/etc/timezone]', :immediately
+end
+# End: Fix the timezone.
+
 current_instance_id = node['ec2']['instance_id']
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
