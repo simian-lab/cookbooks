@@ -589,8 +589,8 @@ log 'debug' do
   level :info
 end
 
+# 1. Ejecutar la instalación
 execute "install-and-configure-new-relic" do
-  # Usa 'lazy' para retrasar la evaluación del comando
   command lazy {
     "curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash && sudo NEW_RELIC_API_KEY=#{node.run_state['NEW_RELIC_API_KEY']} NEW_RELIC_ACCOUNT_ID=7627545 /usr/local/bin/newrelic install -n php-agent-installer"
   }
@@ -599,8 +599,17 @@ execute "install-and-configure-new-relic" do
   only_if { node.run_state['NEW_RELIC_API_KEY'] }
 end
 
+# 2. DEFINIR EL SERVICIO (Esto es lo que te falta)
+# Ponemos 'nothing' porque no queremos que Chef lo gestione hasta que los archivos lo llamen
+service 'newrelic-infra' do
+  action :nothing 
+  supports status: true, restart: true, reload: true
+end
+
+# 3. Configurar archivos
 file '/etc/newrelic-infra.yml' do
   content <<~EOF
+    license_key: #{node.run_state['NEW_RELIC_API_KEY']}
     log_forwarding: false
     custom_attributes:
       domain: #{domains}
@@ -609,6 +618,10 @@ file '/etc/newrelic-infra.yml' do
 end
 
 file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
+  # Aseguramos que el directorio exista para que no falle el 'file'
+  owner 'root'
+  group 'root'
+  mode '0644'
   content <<~EOF
     logs:
       - name: apache-access
