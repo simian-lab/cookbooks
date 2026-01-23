@@ -170,8 +170,8 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
 end
 
 aws_ssm_parameter_store 'getBetterStackSourceToken' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
-  return_key "BETTER_STACK_SOURCE_TOKEN"
+  path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_API_KEY"
+  return_key "NEW_RELIC_API_KEY"
   ignore_failure true
 end
 
@@ -585,20 +585,44 @@ execute "known hosts" do
 end
 
 log 'debug' do
-  message 'Simian-debug: Install Vector for Better Stack'
+  message 'Simian-debug: Install agent for New Relic'
   level :info
 end
 
-execute "install-and-configure-vector" do
+execute "install-and-configure-new-relic" do
   # Usa 'lazy' para retrasar la evaluación del comando
   command lazy {
-    "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
-    -o /tmp/setup-vector.sh && \
-    bash /tmp/setup-vector.sh"
+    "curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash && sudo NEW_RELIC_API_KEY=#{node.run_state['NEW_RELIC_API_KEY']} NEW_RELIC_ACCOUNT_ID=7627545 /usr/local/bin/newrelic install -n php-agent-installer"
   }
   user "root"
   action :run
-  only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
+  only_if { node.run_state['NEW_RELIC_API_KEY'] }
+end
+
+file '/etc/newrelic-infra.yml' do
+  content <<~EOF
+    log_forwarding: false
+    custom_attributes:
+      domain: #{domains}
+  EOF
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
+  content <<~EOF
+    logs:
+      - name: apache-access
+        file: /var/log/apache2/wordpress-access.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-access
+      - name: apache-error
+        file: /var/log/apache2/wordpress-error.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-error
+  EOF
+  notifies :restart, 'service[newrelic-infra]', :delayed
 end
 
 log 'debug' do
