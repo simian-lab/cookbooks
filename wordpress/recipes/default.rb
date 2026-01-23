@@ -170,8 +170,8 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
 end
 
 aws_ssm_parameter_store 'getBetterStackSourceToken' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_API_KEY"
-  return_key "NEW_RELIC_API_KEY"
+  path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
+  return_key "NEW_RELIC_LICENSE_KEY"
   ignore_failure true
 end
 
@@ -589,38 +589,15 @@ log 'debug' do
   level :info
 end
 
-# 1. Ejecutar la instalación
-execute "install-and-configure-new-relic" do
-  command lazy {
-    "curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash && sudo NEW_RELIC_API_KEY=#{node.run_state['NEW_RELIC_API_KEY']} NEW_RELIC_ACCOUNT_ID=7627545 /usr/local/bin/newrelic install -n php-agent-installer"
-  }
-  user "root"
-  action :run
-  only_if { node.run_state['NEW_RELIC_API_KEY'] }
+apt_repository 'newrelic-infra' do
+  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
+  components ['main']
+  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
 end
 
-# 2. DEFINIR EL SERVICIO (Esto es lo que te falta)
-# Ponemos 'nothing' porque no queremos que Chef lo gestione hasta que los archivos lo llamen
-service 'newrelic-infra' do
-  action :nothing 
-  supports status: true, restart: true, reload: true
-end
-
-# 3. Configurar archivos
-file '/etc/newrelic-infra.yml' do
-  content lazy {
-    <<~EOF
-      license_key: #{node.run_state['NEW_RELIC_API_KEY']}
-      log_forwarding: false
-      custom_attributes:
-        domain: #{domains}
-    EOF
-  }
-  notifies :restart, 'service[newrelic-infra]', :delayed
-end
+package 'newrelic-infra'
 
 file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
-  # Aseguramos que el directorio exista para que no falle el 'file'
   owner 'root'
   group 'root'
   mode '0644'
@@ -637,7 +614,26 @@ file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
           domain: #{domains}
           log_type: apache-error
   EOF
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
   notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+file '/etc/newrelic-infra.yml' do
+  content lazy {
+    <<~EOF
+      license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
+      log_forwarding: false
+      custom_attributes:
+        domain: #{domains}
+    EOF
+  }
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+service 'newrelic-infra' do
+  action [:enable, :start]
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
 end
 
 log 'debug' do
