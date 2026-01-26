@@ -42,6 +42,27 @@ log 'debug' do
   level :info
 end
 
+# Start: Fix the timezone.
+file '/etc/timezone' do
+  content "America/Bogota\n"
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
+link '/etc/localtime' do
+  to '/usr/share/zoneinfo/America/Bogota'
+  owner 'root'
+  group 'root'
+end
+
+execute 'update_timezone' do
+  command 'dpkg-reconfigure -f noninteractive tzdata'
+  action :run
+  subscribes :run, 'file[/etc/timezone]', :immediately
+end
+# End: Fix the timezone.
+
 current_instance_id = node['ec2']['instance_id']
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
@@ -149,8 +170,8 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
 end
 
 aws_ssm_parameter_store 'getBetterStackSourceToken' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
-  return_key "BETTER_STACK_SOURCE_TOKEN"
+  path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
+  return_key "NEW_RELIC_LICENSE_KEY"
   ignore_failure true
 end
 
@@ -564,20 +585,56 @@ execute "known hosts" do
 end
 
 log 'debug' do
-  message 'Simian-debug: Install Vector for Better Stack'
+  message 'Simian-debug: Install agent for New Relic'
   level :info
 end
 
-execute "install-and-configure-vector" do
-  # Usa 'lazy' para retrasar la evaluación del comando
-  command lazy {
-    "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
-    -o /tmp/setup-vector.sh && \
-    bash /tmp/setup-vector.sh"
+apt_repository 'newrelic-infra' do
+  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
+  components ['main']
+  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+end
+
+package 'newrelic-infra'
+
+file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content <<~EOF
+    logs:
+      - name: apache-access
+        file: /var/log/apache2/wordpress-access.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-access
+      - name: apache-error
+        file: /var/log/apache2/wordpress-error.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-error
+  EOF
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+file '/etc/newrelic-infra.yml' do
+  content lazy {
+    <<~EOF
+      license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
+      log_forwarding: false
+      docker_enabled: false
+      custom_attributes:
+        domain: #{domains}
+    EOF
   }
-  user "root"
-  action :run
-  only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+service 'newrelic-infra' do
+  action [:enable, :start]
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
 end
 
 log 'debug' do

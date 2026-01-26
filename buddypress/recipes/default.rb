@@ -134,8 +134,8 @@ aws_ssm_parameter_store 'getSSLEnable' do
 end
 
 aws_ssm_parameter_store 'getBetterStackSourceToken' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/BETTER_STACK_SOURCE_TOKEN"
-  return_key "BETTER_STACK_SOURCE_TOKEN"
+  path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
+  return_key "NEW_RELIC_LICENSE_KEY"
   ignore_failure true
 end
 
@@ -376,11 +376,6 @@ execute "known hosts" do
   action :run
 end
 
-log 'debug' do
-  message 'Simian-debug: Install Vector for Better Stack'
-  level :info
-end
-
 directory '/etc/systemd/system/apache2.service.d' do
   owner 'root'
   group 'root'
@@ -411,15 +406,57 @@ service 'apache2' do
   action [:enable, :start]
 end
 
-execute "install-and-configure-vector" do
-  command lazy {
-    "curl -sSL https://telemetry.betterstack.com/setup-vector/apache/#{node.run_state['BETTER_STACK_SOURCE_TOKEN']} \
-    -o /tmp/setup-vector.sh && \
-    bash /tmp/setup-vector.sh"
+log 'debug' do
+  message 'Simian-debug: Install agent for New Relic'
+  level :info
+end
+
+apt_repository 'newrelic-infra' do
+  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
+  components ['main']
+  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+end
+
+package 'newrelic-infra'
+
+file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content <<~EOF
+    logs:
+      - name: apache-access
+        file: /var/log/apache2/wordpress-access.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-access
+      - name: apache-error
+        file: /var/log/apache2/wordpress-error.log
+        attributes:
+          domain: #{domains}
+          log_type: apache-error
+  EOF
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+file '/etc/newrelic-infra.yml' do
+  content lazy {
+    <<~EOF
+      license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
+      log_forwarding: false
+      docker_enabled: false
+      custom_attributes:
+        domain: #{domains}
+    EOF
   }
-  user "root"
-  action :run
-  only_if { node.run_state['BETTER_STACK_SOURCE_TOKEN'] }
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  notifies :restart, 'service[newrelic-infra]', :delayed
+end
+
+service 'newrelic-infra' do
+  action [:enable, :start]
+  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
 end
 
 log 'debug' do
