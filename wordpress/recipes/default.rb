@@ -302,6 +302,13 @@ package 'htop' do
   package_name 'htop'
 end
 
+remote_file '/usr/local/bin/wp' do
+  source 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
+  mode '0755'
+  owner 'root'
+  group 'root'
+end
+
 # Optionally Install php-ssh2 dependency
 if app['environment']['PHP_SSH_ENABLE']
   package 'Install PHP ssh' do
