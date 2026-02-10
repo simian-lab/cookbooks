@@ -273,11 +273,6 @@ package 'Install PHP BCmath extension' do
   package_name "php#{php_version}-bcmath"
 end
 
-execute "fpm_clear_env" do
-  command "sed -i 's/;clear_env = no/clear_env = no/g' /etc/php/#{php_version}/fpm/pool.d/www.conf"
-  notifies :restart, "service[php-fpm]", :delayed
-end
-
 package 'varnish' do
   package_name 'varnish'
 end
