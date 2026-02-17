@@ -110,7 +110,7 @@ ruby_block 'cloudfront_edit' do
 end
 
 remote_file "#{app_path}/wp-config.php" do
-  source "file://#{app_path}/stack/aws-wp-config.php"
+  content ::File.read("#{app_path}/stack/aws-wp-config.php")
   owner 'www-data'
   group 'www-data'
   mode '0644'
