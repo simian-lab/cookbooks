@@ -28,7 +28,6 @@ app = {
 
 app_path = "/srv/wordpress"
 
-
 aws_ssm_parameter_store 'getAppSourceUrl' do
   path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
@@ -108,6 +107,12 @@ ruby_block 'cloudfront_edit' do
       w3config.write_file
     end
   end
+end
+
+execute "copy wp-config" do
+  command "cp #{app_path}/stack/aws-wp-config.php #{app_path}/wp-config.php"
+  user "root"
+  action :run
 end
 
 # Clean cache
