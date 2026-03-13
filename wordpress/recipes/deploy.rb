@@ -109,12 +109,10 @@ ruby_block 'cloudfront_edit' do
   end
 end
 
-remote_file "#{app_path}/wp-config.php" do
-  source "file://#{app_path}/stack/aws-wp-config.php"
-  owner 'www-data'
-  group 'www-data'
-  mode '0644'
-  action :create
+execute "copy wp-config" do
+  command "cp #{app_path}/stack/aws-wp-config.php #{app_path}/wp-config.php"
+  user "root"
+  action :run
 end
 
 # Clean cache
