@@ -109,8 +109,8 @@ ruby_block 'cloudfront_edit' do
   end
 end
 
-execute "copy wp-config" do
-  command "cp #{app_path}/stack/aws-wp-config.php #{app_path}/wp-config.php"
+execute "copy and secure wp-config" do
+  command "cp #{app_path}/stack/aws-wp-config.php #{app_path}/wp-config.php && chown www-data:www-data #{app_path}/wp-config.php && chmod 400 #{app_path}/wp-config.php"
   user "root"
   action :run
 end
