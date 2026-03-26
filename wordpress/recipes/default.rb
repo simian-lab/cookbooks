@@ -537,8 +537,12 @@ end
 
 # 6. Call the WordPress cron
 cron 'wpcron' do
-  minute '*'
-  command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
+  minute '*/5'
+  if is_multisite == 'yes'
+    command "/usr/local/bin/wp site list --field=url --path=#{app_path} --allow-root | xargs -I{} /usr/local/bin/wp cron event run --due-now --url={} --path=#{app_path} --allow-root --quiet"
+  else
+    command "/usr/local/bin/wp cron event run --due-now --path=#{app_path} --allow-root --quiet"
+  end
 end
 
 #7
