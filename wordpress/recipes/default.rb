@@ -121,24 +121,6 @@ aws_ssm_parameter_store 'getDBUser' do
   action :get
 end
 
-aws_ssm_parameter_store 'getPhpImagickEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
-  return_key 'PHP_IMAGICK_ENABLE'
-  action :get
-end
-
-aws_ssm_parameter_store 'getPhpMbstringEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
-  return_key 'PHP_MBSTRING_ENABLE'
-  action :get
-end
-
-aws_ssm_parameter_store 'getPhpZipEnable' do
-  path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
-  return_key 'PHP_ZIP_ENABLE'
-  action :get
-end
-
 aws_ssm_parameter_store 'getRSAPrivateKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
   return_key 'RSA_PRIVATE_KEY'
@@ -185,9 +167,6 @@ ruby_block "define-app" do
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
-        'PHP_IMAGICK_ENABLE' => node.run_state['PHP_IMAGICK_ENABLE'],
-        'PHP_MBSTRING_ENABLE' => node.run_state['PHP_MBSTRING_ENABLE'],
-        'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
@@ -300,6 +279,13 @@ end
 
 package 'htop' do
   package_name 'htop'
+end
+
+remote_file '/usr/local/bin/wp' do
+  source 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
+  mode '0755'
+  owner 'root'
+  group 'root'
 end
 
 # Optionally Install php-ssh2 dependency
@@ -551,8 +537,12 @@ end
 
 # 6. Call the WordPress cron
 cron 'wpcron' do
-  minute '*'
-  command "wget -q -O - #{domains_array.first}/wp-cron.php?doing_wp_cron"
+  minute '*/5'
+  if is_multisite == 'yes'
+    command "/usr/local/bin/wp site list --field=url --path=#{app_path} --allow-root | xargs -I{} /usr/local/bin/wp cron event run --due-now --url={} --path=#{app_path} --allow-root --quiet"
+  else
+    command "/usr/local/bin/wp cron event run --due-now --path=#{app_path} --allow-root --quiet"
+  end
 end
 
 #7

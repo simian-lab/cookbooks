@@ -185,25 +185,6 @@ ruby_block 'mount_uploads' do
   action :run
 end
 
-# 4. Call the custom cron
-if app['environment']['WP_CRON_HOSTS']
-  string_wp_cron_hosts = "#{app['environment']['WP_CRON_HOSTS']}"
-  wp_cron_hosts = string_wp_cron_hosts.split(',')
-  wp_cron_hosts.each do |host|
-    # If the site is protected by username and password, we must pass those credentials for the cron to work.
-    if app['environment']['ACCESS_CREDENTIALS']
-      cron "Cron for #{host}" do
-        minute '*'
-        command "curl --user #{app["environment"]["ACCESS_CREDENTIALS"]} https://#{host}/wp-cron.php?doing_wp_cron"
-      end
-    else
-      cron "Cron for #{host}" do
-        minute '*'
-        command "wget -q -O -  https://#{host}/wp-cron.php?doing_wp_cron"
-      end
-    end
-  end
-end
 
 log 'debug' do
   message 'Simian-debug: End multiserver.rb'
