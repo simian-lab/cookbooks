@@ -109,6 +109,12 @@ if app['environment']['CLOUDFRONT_DISTRIBUTION']
   end
 end
 
+execute "copy and secure wp-config" do
+  command "cp #{app_path}/stack/aws-wp-config.php #{app_path}/wp-config.php && chown www-data:www-data #{app_path}/wp-config.php && chmod 400 #{app_path}/wp-config.php"
+  user "root"
+  action :run
+end
+
 log 'debug' do
   message 'Simian-debug: End deploy.rb'
   level :info
