@@ -536,10 +536,11 @@ execute 'systemctl-daemon-reload' do
 end
 
 # 6. Call the WordPress cron
-cron 'wpcron' do
-  minute '*/15'
-  if is_multisite != 'yes'
-    command "/usr/local/bin/wp cron event run --due-now --path=#{app_path} --allow-root --quiet"
+if is_multisite != 'yes'
+  cron 'wpcron' do
+    minute '*/15'
+    user 'www-data'
+    command "/usr/local/bin/wp cron event run --due-now --path=#{app_path} --quiet"
   end
 end
 
