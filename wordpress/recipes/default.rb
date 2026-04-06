@@ -535,6 +535,15 @@ execute 'systemctl-daemon-reload' do
   action :run
 end
 
+# 6. Call the WordPress cron
+if is_multisite != 'yes'
+  cron 'wpcron' do
+    minute '*/15'
+    user 'www-data'
+    command "/usr/local/bin/wp cron event run --due-now --path=#{app_path} --quiet"
+  end
+end
+
 #7
 execute "mkdir ~/.ssh/" do
   command "mkdir ~/.ssh/"
