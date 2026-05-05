@@ -188,14 +188,14 @@ include_recipe 'yum::default'
 # Apache — repo oficial de Ubuntu, no necesita PPA
 # (Ubuntu 22.04 trae Apache 2.4.52 que es suficiente)
 
-execute "add-sury-php-key" do
-  command "curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-php.gpg"
+execute "add-ondrej-php-key" do
+  command "curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB8DC7E53946656EFBCE4C1DD71DAEAAB4AD4CAB6' | gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg"
   user "root"
-  not_if { File.exist?("/usr/share/keyrings/sury-php.gpg") }
+  not_if { File.exist?("/usr/share/keyrings/ondrej-php.gpg") }
 end
 
-file "/etc/apt/sources.list.d/sury-php.list" do
-  content "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ jammy main\n"
+file "/etc/apt/sources.list.d/ondrej-php.list" do
+  content "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu jammy main\n"
   owner "root"
   mode "0644"
 end
