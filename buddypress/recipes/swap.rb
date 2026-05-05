@@ -1,6 +1,6 @@
-total_ram_mb      = node['memory']['total'].gsub('kB', '').to_i / 1024
-available_disk_mb = node['filesystem']['/']['kb_available'].to_i / 1024
-disk_budget_mb    = [available_disk_mb - 2048, 0].max
+total_ram_mb = node['memory']['total'].gsub('kB', '').to_i / 1024
+root_fs      = node['filesystem'].values.find { |fs| fs['mount'] == '/' }
+disk_budget_mb = root_fs ? [root_fs['kb_available'].to_i / 1024 - 2048, 0].max : 0
 
 swap_size_mb = [total_ram_mb * 2, 4096, disk_budget_mb].min
 
