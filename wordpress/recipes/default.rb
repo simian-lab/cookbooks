@@ -185,23 +185,24 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
-# Apache — repo oficial de Ubuntu, no necesita PPA
-# (Ubuntu 22.04 trae Apache 2.4.52 que es suficiente)
-
-execute "add-ondrej-php-key" do
-  command "curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB8DC7E53946656EFBCE4C1DD71DAEAAB4AD4CAB6' | gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg"
+execute "latest-apache2" do
+  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
   user "root"
-  not_if { File.exist?("/usr/share/keyrings/ondrej-php.gpg") }
+  action :run
+  retries 3
+  retry_delay 10
 end
 
-file "/etc/apt/sources.list.d/ondrej-php.list" do
-  content "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu jammy main\n"
-  owner "root"
-  mode "0644"
+execute "latest-php" do
+  command "sudo add-apt-repository ppa:ondrej/php -y"
+  user "root"
+  action :run
+  retries 3
+  retry_delay 10
 end
 
 execute "update-repositories" do
-  command "apt-get update -y"
+  command "sudo apt-get update -y"
   user "root"
   action :run
 end
@@ -256,9 +257,8 @@ package 'Install PHP gd' do
   package_name "php#{php_version}-gd"
 end
 
-package 'Install PHP memcached' do
+package 'Memcached' do
   package_name "php#{php_version}-memcached"
-  ignore_failure true
 end
 
 package 'Install PHP imagick' do
