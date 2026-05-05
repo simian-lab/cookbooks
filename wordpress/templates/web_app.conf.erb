@@ -40,6 +40,9 @@ NameVirtualHost *:<%= @params[:server_port] %>
 
   RewriteEngine On
 
+  # Block .cgi requests with a 404
+  RewriteRule \.cgi$ - [R=404,L]
+
   # Set the log level to warning for all modules
   LogLevel warn
 
