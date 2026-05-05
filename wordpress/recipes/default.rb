@@ -189,12 +189,16 @@ execute "latest-apache2" do
   command "sudo add-apt-repository ppa:ondrej/apache2 -y"
   user "root"
   action :run
+  retries 3
+  retry_delay 10
 end
 
 execute "latest-php" do
   command "sudo add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
+  retries 3
+  retry_delay 10
 end
 
 execute "update-repositories" do
