@@ -1,5 +1,8 @@
-total_ram_mb  = node['memory']['total'].gsub('kB', '').to_i / 1024
-swap_size_mb  = [total_ram_mb * 2, 4096].min
+total_ram_mb      = node['memory']['total'].gsub('kB', '').to_i / 1024
+available_disk_mb = node['filesystem']['/']['kb_available'].to_i / 1024
+disk_budget_mb    = [available_disk_mb - 2048, 0].max
+
+swap_size_mb = [total_ram_mb * 2, 4096, disk_budget_mb].min
 
 execute 'create swap file' do
   command "fallocate -l #{swap_size_mb}m /swapfile"
