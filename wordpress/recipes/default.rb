@@ -185,17 +185,8 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
-execute "add-sury-apache2-key" do
-  command "curl -fsSL https://packages.sury.org/apache2/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-apache2.gpg"
-  user "root"
-  not_if { File.exist?("/usr/share/keyrings/sury-apache2.gpg") }
-end
-
-file "/etc/apt/sources.list.d/sury-apache2.list" do
-  content "deb [signed-by=/usr/share/keyrings/sury-apache2.gpg] https://packages.sury.org/apache2/ jammy main\n"
-  owner "root"
-  mode "0644"
-end
+# Apache — repo oficial de Ubuntu, no necesita PPA
+# (Ubuntu 22.04 trae Apache 2.4.52 que es suficiente)
 
 execute "add-sury-php-key" do
   command "curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-php.gpg"
