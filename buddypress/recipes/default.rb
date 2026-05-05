@@ -38,7 +38,7 @@ response = ec2_client.describe_tags(filters: [
 component_name = nil
 
 response.tags.each do |tag|
-  if tag.key === 'aws:cloudformation:stack-name'
+  if tag.key == 'aws:cloudformation:stack-name'
     component_name = tag.value
   end
 end
@@ -67,7 +67,7 @@ aws_ssm_parameter_store 'getDBHost' do
   action :get
 end
 
-if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+if (component_name == 'beta-comunidad-virtual-Wordpress-App-47f171')
   aws_ssm_parameter_store 'getDBReplicas' do
     path "/ApplyChefRecipes-Preset/#{component_name}/DB_REPLICAS"
     return_key 'DB_REPLICAS'
@@ -312,19 +312,19 @@ end
 domains = ''
 is_multisite = 'no'
 
-if (component_name === 'beta-externado-WordPress-4eddee')
+if (component_name == 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
-if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
+if(component_name == 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
   domains = 'davidaclub.com'
 end
 
-if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+if (component_name == 'beta-comunidad-virtual-Wordpress-App-47f171')
   domains = 'beta-comunidadvirtual.uexternado.edu.co'
 end
 
-if (component_name === 'prod-comunidad-virtual-Wordpress-App-fc620f')
+if (component_name == 'prod-comunidad-virtual-Wordpress-App-fc620f')
   domains = 'comunidadvirtual.uexternado.edu.co'
 end
 

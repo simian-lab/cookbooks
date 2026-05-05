@@ -76,7 +76,7 @@ response = ec2_client.describe_tags(filters: [
 component_name = nil
 
 response.tags.each do |tag|
-  if tag.key === 'aws:cloudformation:stack-name'
+  if tag.key == 'aws:cloudformation:stack-name'
     component_name = tag.value
   end
 end
@@ -345,36 +345,36 @@ end
 domains = ''
 is_multisite = 'no'
 
-if (component_name === 'beta-salud-total-Wordpress-App-1776c2')
+if (component_name == 'beta-salud-total-Wordpress-App-1776c2')
   domains = 'beta.saludtotal.com.co'
 end
 
-if (component_name === 'prod-salud-total-Wordpress-App-8926e3')
+if (component_name == 'prod-salud-total-Wordpress-App-8926e3')
   domains = 'saludtotal.com.co'
 end
 
-if (component_name === 'beta-externado-WordPress-4eddee')
+if (component_name == 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
-if (component_name === 'prod-uexternado-WordPress-154665')
+if (component_name == 'prod-uexternado-WordPress-154665')
   domains = 'www.uexternado.edu.co'
 end
 
-if (component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
+if (component_name == 'ZonaDigitalBeta-WordPress-BETA-abc38d')
   domains = 'beta-zonadigital.uexternado.edu.co'
 end
 
-if (component_name === 'ZonaDigitalProd-WordPress-Prod-bc9a84')
+if (component_name == 'ZonaDigitalProd-WordPress-Prod-bc9a84')
   domains = 'zonadigital.uexternado.edu.co'
 end
 
-if (component_name === 'beta-subsitios-WordPress-28579b')
+if (component_name == 'beta-subsitios-WordPress-28579b')
   domains = 'multisite.simianlab.co'
   is_multisite = 'yes'
 end
 
-if (component_name === 'prod-subsitios-subsitios-prod-28c523')
+if (component_name == 'prod-subsitios-subsitios-prod-28c523')
   domains = 'multisite.uexternado.edu.co'
   is_multisite = 'yes'
 end
