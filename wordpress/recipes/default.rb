@@ -188,7 +188,7 @@ end
 include_recipe 'yum::default'
 
 execute "latest-apache2" do
-  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
+  command "add-apt-repository ppa:ondrej/apache2 -y"
   user "root"
   action :run
   retries 3
@@ -196,7 +196,7 @@ execute "latest-apache2" do
 end
 
 execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
+  command "add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
   retries 3
@@ -204,7 +204,7 @@ execute "latest-php" do
 end
 
 execute "update-repositories" do
-  command "sudo apt-get update -y"
+  command "apt-get update -y"
   user "root"
   action :run
 end

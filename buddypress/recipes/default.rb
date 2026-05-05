@@ -173,7 +173,7 @@ end
 include_recipe 'apt::default'
 
 execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
+  command "add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
 end
