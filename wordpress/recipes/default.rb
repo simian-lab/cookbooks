@@ -256,10 +256,9 @@ package 'Install PHP gd' do
   package_name "php#{php_version}-gd"
 end
 
-execute 'install-php-memcached' do
-  command "apt-get install -y --no-install-recommends php#{php_version}-memcached"
-  user 'root'
-  action :run
+package 'Install PHP memcached' do
+  package_name "php#{php_version}-memcached"
+  ignore_failure true
 end
 
 package 'Install PHP imagick' do
