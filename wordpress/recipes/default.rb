@@ -200,18 +200,6 @@ file "/etc/apt/sources.list.d/sury-php.list" do
   mode "0644"
 end
 
-execute "add-sury-misc-key" do
-  command "curl -fsSL https://packages.sury.org/misc/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-misc.gpg"
-  user "root"
-  not_if { File.exist?("/usr/share/keyrings/sury-misc.gpg") }
-end
-
-file "/etc/apt/sources.list.d/sury-misc.list" do
-  content "deb [signed-by=/usr/share/keyrings/sury-misc.gpg] https://packages.sury.org/misc/ jammy main\n"
-  owner "root"
-  mode "0644"
-end
-
 execute "update-repositories" do
   command "apt-get update -y"
   user "root"
@@ -268,8 +256,10 @@ package 'Install PHP gd' do
   package_name "php#{php_version}-gd"
 end
 
-package 'Memcached' do
-  package_name "php#{php_version}-memcached"
+execute 'install-php-memcached' do
+  command "apt-get install -y --no-install-recommends php#{php_version}-memcached"
+  user 'root'
+  action :run
 end
 
 package 'Install PHP imagick' do
