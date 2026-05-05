@@ -185,20 +185,32 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
-execute "latest-apache2" do
-  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
+execute "add-sury-apache2-key" do
+  command "curl -fsSL https://packages.sury.org/apache2/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-apache2.gpg"
   user "root"
-  action :run
+  not_if { File.exist?("/usr/share/keyrings/sury-apache2.gpg") }
 end
 
-execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
+file "/etc/apt/sources.list.d/sury-apache2.list" do
+  content "deb [signed-by=/usr/share/keyrings/sury-apache2.gpg] https://packages.sury.org/apache2/ jammy main\n"
+  owner "root"
+  mode "0644"
+end
+
+execute "add-sury-php-key" do
+  command "curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-php.gpg"
   user "root"
-  action :run
+  not_if { File.exist?("/usr/share/keyrings/sury-php.gpg") }
+end
+
+file "/etc/apt/sources.list.d/sury-php.list" do
+  content "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ jammy main\n"
+  owner "root"
+  mode "0644"
 end
 
 execute "update-repositories" do
-  command "sudo apt-get update -y"
+  command "apt-get update -y"
   user "root"
   action :run
 end
