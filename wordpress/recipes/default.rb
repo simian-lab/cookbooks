@@ -63,6 +63,8 @@ execute 'update_timezone' do
 end
 # End: Fix the timezone.
 
+include_recipe 'wordpress::swap'
+
 current_instance_id = node['ec2']['instance_id']
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
