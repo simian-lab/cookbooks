@@ -257,7 +257,7 @@ package 'Install PHP gd' do
 end
 
 package 'Memcached' do
-  package_name "php#{php_version}-memcached"
+  package_name 'php-memcached'
 end
 
 package 'Install PHP imagick' do
