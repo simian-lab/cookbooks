@@ -316,7 +316,7 @@ total_ram_kb = node['memory']['total'].gsub('kB', '').to_i
 total_ram_mb = total_ram_kb / 1024
 
 # Porcentaje de RAM a reservar para el OS, DB, etc.
-reserve_percent = 0.25
+reserve_percent = 0.30
 
 # Calcular RAM disponible para Apache
 reserved_ram_mb = (total_ram_mb * reserve_percent).to_i
