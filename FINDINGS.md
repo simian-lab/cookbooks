@@ -40,12 +40,12 @@ A chain of `if` statements maps CloudFormation stack names to domains. Every new
 client requires modifying the cookbook. Should be driven by an SSM parameter or
 a node attribute instead.
 
-### 5. `===` instead of `==` for string comparison (lines 77, 346-375)
-Works by coincidence in Ruby but is semantically incorrect. Use `==`.
+### ~~5. `===` instead of `==` for string comparison (lines 77, 346-375)~~ ✓ Fixed in 5811cd2
+~~Works by coincidence in Ruby but is semantically incorrect. Use `==`.~~
 
-### 6. `sudo` inside `execute` resources (lines 189, 195)
-Chef already runs as root. The `sudo` prefix is redundant and could cause issues
-if `sudo` is not configured for the Chef user.
+### ~~6. `sudo` inside `execute` resources (lines 189, 195)~~ ✓ Fixed in 5f4fe0e
+~~Chef already runs as root. The `sudo` prefix is redundant and could cause issues
+if `sudo` is not configured for the Chef user.~~
 
 ### 7. Wasted EC2 API call (lines 68-69)
 `describe_instances` is called and its result is immediately overwritten by
