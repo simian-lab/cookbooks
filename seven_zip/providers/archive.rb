@@ -28,7 +28,7 @@ def whyrun_supported?
   true
 end
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 action :extract do
   converge_by("Extract #{@new_resource.source} => #{@new_resource.path} (overwrite=#{@new_resource.overwrite})") do

@@ -18,14 +18,14 @@
 # limitations under the License.
 #
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 require 'chef/mixin/shell_out'
 require 'rexml/document'
 
 include Chef::Mixin::ShellOut
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 action :create do
   if @current_resource.exists && !(task_need_update? || @new_resource.force)

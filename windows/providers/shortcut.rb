@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 def load_current_resource
   require 'win32ole'

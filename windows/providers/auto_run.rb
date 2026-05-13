@@ -22,7 +22,7 @@ def whyrun_supported?
   true
 end
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 action :create do
   registry_key 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run' do

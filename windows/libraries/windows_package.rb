@@ -2,10 +2,14 @@
 # in Chef 12.6 and later. In the near future this provider will be
 # removed from this cookbook.
 
+# Guard: this file only loads on Windows platforms. On Linux/macOS,
+# Chef 13+ provides equivalent functionality natively.
+if RUBY_PLATFORM =~ /mswin|mingw32|windows/
+
 require 'chef/resource/lwrp_base'
 require 'chef/provider/lwrp_base'
 
-require 'win32/registry' if RUBY_PLATFORM =~ /mswin|mingw32|windows/
+require 'win32/registry'
 
 require 'chef/mixin/shell_out'
 require 'chef/mixin/language'
@@ -72,7 +76,7 @@ class Chef
 
       # these methods are the required overrides of
       # a provider that extends from Chef::Provider::Package
-      # so refactoring into core Chef should be easy
+      # so refactoring into core chef easy
 
       def load_current_resource
         @current_resource = Chef::Resource::WindowsPackage.new(@new_resource.name)
@@ -234,9 +238,7 @@ EOF
 end
 
 if Gem::Version.new(Chef::VERSION) < Gem::Version.new('12.6') && Chef.respond_to?(:set_resource_priority_array)
-  # this wires up the dynamic resource resolver to favor the cookbook version of windows_package over
-  # the internal version (but the internal Chef::Resource::WindowsPackage is still the internal version
-  # and a wrapper cookbook can override this e.g. for users that want to use the windows cookbook but
-  # want the internal windows_package resource)
   Chef.set_resource_priority_array(:windows_package, [Chef::Resource::WindowsCookbookPackage], platform: 'windows')
 end
+
+end # RUBY_PLATFORM guard
