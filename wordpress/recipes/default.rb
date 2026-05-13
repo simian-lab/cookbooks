@@ -584,10 +584,30 @@ log 'debug' do
   level :info
 end
 
+directory '/etc/apt/keyrings' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+remote_file '/tmp/newrelic-infra.gpg.download' do
+  source 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  action :create
+end
+
+# gpg --dearmor is a pure format conversion that does not invoke gpg-agent.
+# Chef 18's apt_repository uses gpg --import which tries to start gpg-agent;
+# gpg-agent fails in SSM headless environments (no systemd user session).
+execute 'install newrelic gpg key' do
+  command 'gpg --batch --no-tty --dearmor < /tmp/newrelic-infra.gpg.download > /etc/apt/keyrings/newrelic-infra.gpg'
+  creates '/etc/apt/keyrings/newrelic-infra.gpg'
+end
+
 apt_repository 'newrelic-infra' do
   uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
   components ['main']
-  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  keyring '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
 package 'newrelic-infra'
