@@ -604,10 +604,16 @@ execute 'install newrelic gpg key' do
   creates '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
-apt_repository 'newrelic-infra' do
-  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
-  components ['main']
-  keyring '/etc/apt/keyrings/newrelic-infra.gpg'
+file '/etc/apt/sources.list.d/newrelic-infra.list' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content lazy { "deb [signed-by=/etc/apt/keyrings/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt #{node['lsb']['codename']} main\n" }
+end
+
+execute 'apt-get update newrelic' do
+  command 'apt-get update -o Dir::Etc::sourcelist="sources.list.d/newrelic-infra.list" -o Dir::Etc::sourcelistd="/dev/null" -o APT::Get::List-Cleanup="0"'
+  action :run
 end
 
 package 'newrelic-infra'
