@@ -419,10 +419,17 @@ log 'debug' do
   level :info
 end
 
+execute 'add newrelic gpg key' do
+  command 'curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor -o /etc/apt/keyrings/newrelic-infra.gpg'
+  creates '/etc/apt/keyrings/newrelic-infra.gpg'
+end
+
 apt_repository 'newrelic-infra' do
   uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
   components ['main']
-  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  distribution 'jammy'
+  arch 'amd64'
+  signed_by '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
 package 'newrelic-infra'
