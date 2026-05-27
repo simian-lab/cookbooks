@@ -6,8 +6,6 @@ description 'Installs/Configures wordpress'
 long_description 'Installs/Configures wordpress'
 version '0.1.0'
 
-depends 'application', '~> 5.0'
-depends 'application_git', '~> 1.1.0'
 depends 'apt', '~> 5.0.1'
 depends 'chef_nginx', '~> 5.0.6'
 depends 'apache2', '~> 3.2.2'

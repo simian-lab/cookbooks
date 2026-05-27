@@ -63,6 +63,8 @@ execute 'update_timezone' do
 end
 # End: Fix the timezone.
 
+# include_recipe 'wordpress::swap'
+
 current_instance_id = node['ec2']['instance_id']
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
@@ -74,7 +76,7 @@ response = ec2_client.describe_tags(filters: [
 component_name = nil
 
 response.tags.each do |tag|
-  if tag.key === 'aws:cloudformation:stack-name'
+  if tag.key == 'aws:cloudformation:stack-name'
     component_name = tag.value
   end
 end
@@ -186,7 +188,7 @@ end
 include_recipe 'yum::default'
 
 execute "latest-apache2" do
-  command "sudo add-apt-repository ppa:ondrej/apache2 -y"
+  command "add-apt-repository ppa:ondrej/apache2 -y"
   user "root"
   action :run
   retries 3
@@ -194,7 +196,7 @@ execute "latest-apache2" do
 end
 
 execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
+  command "add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
   retries 3
@@ -202,7 +204,7 @@ execute "latest-php" do
 end
 
 execute "update-repositories" do
-  command "sudo apt-get update -y"
+  command "apt-get update -y"
   user "root"
   action :run
 end
@@ -343,36 +345,36 @@ end
 domains = ''
 is_multisite = 'no'
 
-if (component_name === 'beta-salud-total-Wordpress-App-1776c2')
+if (component_name == 'beta-salud-total-Wordpress-App-1776c2')
   domains = 'beta.saludtotal.com.co'
 end
 
-if (component_name === 'prod-salud-total-Wordpress-App-8926e3')
+if (component_name == 'prod-salud-total-Wordpress-App-8926e3')
   domains = 'saludtotal.com.co'
 end
 
-if (component_name === 'beta-externado-WordPress-4eddee')
+if (component_name == 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
-if (component_name === 'prod-uexternado-WordPress-154665')
+if (component_name == 'prod-uexternado-WordPress-154665')
   domains = 'www.uexternado.edu.co'
 end
 
-if (component_name === 'ZonaDigitalBeta-WordPress-BETA-abc38d')
+if (component_name == 'ZonaDigitalBeta-WordPress-BETA-abc38d')
   domains = 'beta-zonadigital.uexternado.edu.co'
 end
 
-if (component_name === 'ZonaDigitalProd-WordPress-Prod-bc9a84')
+if (component_name == 'ZonaDigitalProd-WordPress-Prod-bc9a84')
   domains = 'zonadigital.uexternado.edu.co'
 end
 
-if (component_name === 'beta-subsitios-WordPress-28579b')
+if (component_name == 'beta-subsitios-WordPress-28579b')
   domains = 'multisite.simianlab.co'
   is_multisite = 'yes'
 end
 
-if (component_name === 'prod-subsitios-subsitios-prod-28c523')
+if (component_name == 'prod-subsitios-subsitios-prod-28c523')
   domains = 'multisite.uexternado.edu.co'
   is_multisite = 'yes'
 end
@@ -582,10 +584,36 @@ log 'debug' do
   level :info
 end
 
-apt_repository 'newrelic-infra' do
-  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
-  components ['main']
-  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+directory '/etc/apt/keyrings' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+remote_file '/tmp/newrelic-infra.gpg.download' do
+  source 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  action :create
+end
+
+# gpg --dearmor is a pure format conversion that does not invoke gpg-agent.
+# Chef 18's apt_repository uses gpg --import which tries to start gpg-agent;
+# gpg-agent fails in SSM headless environments (no systemd user session).
+execute 'install newrelic gpg key' do
+  command 'gpg --batch --no-tty --dearmor < /tmp/newrelic-infra.gpg.download > /etc/apt/keyrings/newrelic-infra.gpg'
+  creates '/etc/apt/keyrings/newrelic-infra.gpg'
+end
+
+file '/etc/apt/sources.list.d/newrelic-infra.list' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content lazy { "deb [signed-by=/etc/apt/keyrings/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt #{node['lsb']['codename']} main\n" }
+end
+
+execute 'apt-get update newrelic' do
+  command 'apt-get update -o Dir::Etc::sourcelist="sources.list.d/newrelic-infra.list" -o Dir::Etc::sourcelistd="/dev/null" -o APT::Get::List-Cleanup="0"'
+  action :run
 end
 
 package 'newrelic-infra'

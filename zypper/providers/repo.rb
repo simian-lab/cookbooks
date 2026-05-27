@@ -1,6 +1,6 @@
 require 'mixlib/shellout'
 
-use_inline_resources
+use_inline_resources if defined?(use_inline_resources)
 
 action :add do
   if repo_exist?

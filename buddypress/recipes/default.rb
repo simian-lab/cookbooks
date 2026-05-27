@@ -25,6 +25,8 @@ log 'debug' do
   level :info
 end
 
+# include_recipe 'buddypress::swap'
+
 current_instance_id = node['ec2']['instance_id']
 ec2_client = Aws::EC2::Client.new(region: 'us-west-2')
 response = ec2_client.describe_instances(instance_ids: [current_instance_id])
@@ -36,7 +38,7 @@ response = ec2_client.describe_tags(filters: [
 component_name = nil
 
 response.tags.each do |tag|
-  if tag.key === 'aws:cloudformation:stack-name'
+  if tag.key == 'aws:cloudformation:stack-name'
     component_name = tag.value
   end
 end
@@ -65,7 +67,7 @@ aws_ssm_parameter_store 'getDBHost' do
   action :get
 end
 
-if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+if (component_name == 'beta-comunidad-virtual-Wordpress-App-47f171')
   aws_ssm_parameter_store 'getDBReplicas' do
     path "/ApplyChefRecipes-Preset/#{component_name}/DB_REPLICAS"
     return_key 'DB_REPLICAS'
@@ -171,7 +173,7 @@ end
 include_recipe 'apt::default'
 
 execute "latest-php" do
-  command "sudo add-apt-repository ppa:ondrej/php -y"
+  command "add-apt-repository ppa:ondrej/php -y"
   user "root"
   action :run
 end
@@ -310,19 +312,19 @@ end
 domains = ''
 is_multisite = 'no'
 
-if (component_name === 'beta-externado-WordPress-4eddee')
+if (component_name == 'beta-externado-WordPress-4eddee')
   domains = 'beta.uexternado.edu.co'
 end
 
-if(component_name === 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
+if(component_name == 'Davidaclub-Prod-Davidaclub-Prod-a386d3')
   domains = 'davidaclub.com'
 end
 
-if (component_name === 'beta-comunidad-virtual-Wordpress-App-47f171')
+if (component_name == 'beta-comunidad-virtual-Wordpress-App-47f171')
   domains = 'beta-comunidadvirtual.uexternado.edu.co'
 end
 
-if (component_name === 'prod-comunidad-virtual-Wordpress-App-fc620f')
+if (component_name == 'prod-comunidad-virtual-Wordpress-App-fc620f')
   domains = 'comunidadvirtual.uexternado.edu.co'
 end
 
@@ -417,10 +419,17 @@ log 'debug' do
   level :info
 end
 
+execute 'add newrelic gpg key' do
+  command 'curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor -o /etc/apt/keyrings/newrelic-infra.gpg'
+  creates '/etc/apt/keyrings/newrelic-infra.gpg'
+end
+
 apt_repository 'newrelic-infra' do
   uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
   components ['main']
-  key 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  distribution 'jammy'
+  arch 'amd64'
+  signed_by '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
 package 'newrelic-infra'
