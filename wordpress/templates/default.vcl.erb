@@ -106,6 +106,15 @@ sub vcl_backend_response {
     set beresp.http.expires = "Mon, 01 Jan 1970 00:00:00 GMT";
   }
 
+  # unset cookies from backendresponse
+  if (!(bereq.url ~ "(wp-login|wp-admin)")) {
+    set beresp.http.X-Varnish-UnsetCookies = "TRUE";
+    unset beresp.http.set-cookie;
+    # Set how long Varnish will keep it
+    set beresp.ttl = 15m;
+    set beresp.http.cache-control = "public, max-age=900";
+  }
+
   # long ttl for assets
   if (bereq.url ~ "\.(gif|jpg|jpeg|swf|svg|webp|webm|ttf|css|js|flv|mp3|mp4|pdf|ico|png)(\?.*|)$") {
     # Set how long Varnish will keep it
@@ -141,14 +150,6 @@ sub vcl_backend_response {
     # Varnish determined the object was cacheable
     set beresp.http.X-Varnish-Cacheable = "YES";
     set beresp.uncacheable = false;
-
-    # Safe to strip cookies here: we already confirmed there is no
-    # Set-Cookie (see elseif above), so this only cleans up requests
-    # to wp-login|wp-admin, which are excluded from that check.
-    if (!(bereq.url ~ "(wp-login|wp-admin)")) {
-      set beresp.http.X-Varnish-UnsetCookies = "TRUE";
-      unset beresp.http.set-cookie;
-    }
 
     # If not defined set how long Varnish will keep it
     if (!beresp.ttl) {
