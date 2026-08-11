@@ -239,6 +239,10 @@ package 'Install PHP BCmath extension' do
   package_name "php#{php_version}-bcmath"
 end
 
+package 'Install PHP intl' do
+  package_name "php#{php_version}-intl"
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
