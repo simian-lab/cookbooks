@@ -558,6 +558,7 @@ end
 
 file "/root/.ssh/id_rsa" do
   content lazy {node.run_state['RSA_PRIVATE_KEY']}
+  sensitive true
 end
 
 execute "change permissions to key" do
@@ -567,6 +568,7 @@ end
 
 file "/root/.ssh/id_rsa.pub" do
   content lazy {node.run_state['RSA_PUBLIC_KEY']}
+  sensitive true
 end
 
 execute "change permissions to key" do
@@ -635,7 +637,7 @@ file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
           domain: #{domains}
           log_type: apache-error
   EOF
-  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
   notifies :restart, 'service[newrelic-infra]', :delayed
 end
 
@@ -649,13 +651,14 @@ file '/etc/newrelic-infra.yml' do
         domain: #{domains}
     EOF
   }
-  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  sensitive true
+  only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
   notifies :restart, 'service[newrelic-infra]', :delayed
 end
 
 service 'newrelic-infra' do
   action [:enable, :start]
-  only_if { node.run_state['NEW_RELIC_LICENSE_KEY'] }
+  only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
 end
 
 log 'debug' do
