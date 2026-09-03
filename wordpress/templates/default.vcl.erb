@@ -152,17 +152,19 @@ sub vcl_backend_response {
 
     # If not defined set how long Varnish will keep it
     if (!beresp.ttl) {
-      set beresp.ttl = 5m;
+      set beresp.ttl = 450s;
     }
     if (!beresp.http.cache-control) {
       # stale-while-revalidate/stale-if-error let CloudFront (edge cache)
       # also serve stale content while Varnish revalidates or is down
-      set beresp.http.cache-control = "public, max-age=300, stale-while-revalidate=300, stale-if-error=86400";
+      set beresp.http.cache-control = "public, max-age=450, stale-while-revalidate=450, stale-if-error=86400";
     }
 
     # Set expires from varnish not backend
+    # (beresp.ttl is a DURATION; adding it to `now`, a TIME, gives an
+    # absolute TIME that Varnish formats as a proper HTTP-date header)
     unset beresp.http.expires;
-    set beresp.http.expires = beresp.ttl;
+    set beresp.http.expires = now + beresp.ttl;
 
 
     # Set How long browsers will keep the cache
