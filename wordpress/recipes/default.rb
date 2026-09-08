@@ -647,6 +647,7 @@ file '/etc/newrelic-infra.yml' do
       license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
       log_forwarding: false
       docker_enabled: false
+      enable_process_metrics: true
       custom_attributes:
         domain: #{domains}
     EOF
