@@ -135,7 +135,7 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
-aws_ssm_parameter_store 'getBetterStackSourceToken' do
+aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
   return_key "NEW_RELIC_LICENSE_KEY"
   ignore_failure true
