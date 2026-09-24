@@ -361,14 +361,6 @@ if (component_name == 'prod-uexternado-WordPress-154665')
   domains = 'www.uexternado.edu.co'
 end
 
-if (component_name == 'ZonaDigitalBeta-WordPress-BETA-abc38d')
-  domains = 'beta-zonadigital.uexternado.edu.co'
-end
-
-if (component_name == 'ZonaDigitalProd-WordPress-Prod-bc9a84')
-  domains = 'zonadigital.uexternado.edu.co'
-end
-
 if (component_name == 'beta-subsitios-WordPress-28579b')
   domains = 'multisite.simianlab.co'
   is_multisite = 'yes'
@@ -671,7 +663,6 @@ end
 # evaluate data volume. Salud Total is excluded until privacy is reviewed.
 newrelic_browser_components = [
   'beta-externado-WordPress-4eddee',
-  'ZonaDigitalBeta-WordPress-BETA-abc38d',
   'beta-subsitios-WordPress-28579b'
 ]
 newrelic_browser_enabled = newrelic_browser_components.include?(component_name)
