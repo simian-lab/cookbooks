@@ -469,12 +469,12 @@ file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
         file: /var/log/apache2/wordpress-access.log
         attributes:
           domain: #{domains}
-          log_type: apache-access
+          logtype: apache
       - name: apache-error
         file: /var/log/apache2/wordpress-error.log
         attributes:
           domain: #{domains}
-          log_type: apache-error
+          logtype: apache_error
   EOF
   only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
   notifies :restart, 'service[newrelic-infra]', :delayed
