@@ -425,17 +425,36 @@ log 'debug' do
   level :info
 end
 
-execute 'add newrelic gpg key' do
-  command 'curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor -o /etc/apt/keyrings/newrelic-infra.gpg'
+directory '/etc/apt/keyrings' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+remote_file '/tmp/newrelic-infra.gpg.download' do
+  source 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  action :create
+end
+
+# gpg --dearmor is a pure format conversion that does not invoke gpg-agent.
+# Chef 18's apt_repository uses gpg --import which tries to start gpg-agent;
+# gpg-agent fails in SSM headless environments (no systemd user session).
+execute 'install newrelic gpg key' do
+  command 'gpg --batch --no-tty --dearmor < /tmp/newrelic-infra.gpg.download > /etc/apt/keyrings/newrelic-infra.gpg'
   creates '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
-apt_repository 'newrelic-infra' do
-  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
-  components ['main']
-  distribution 'jammy'
-  arch 'amd64'
-  signed_by '/etc/apt/keyrings/newrelic-infra.gpg'
+file '/etc/apt/sources.list.d/newrelic-infra.list' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content lazy { "deb [signed-by=/etc/apt/keyrings/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt #{node['lsb']['codename']} main\n" }
+end
+
+execute 'apt-get update newrelic' do
+  command 'apt-get update -o Dir::Etc::sourcelist="sources.list.d/newrelic-infra.list" -o Dir::Etc::sourcelistd="/dev/null" -o APT::Get::List-Cleanup="0"'
+  action :run
 end
 
 package 'newrelic-infra'
