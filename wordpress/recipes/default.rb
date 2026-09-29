@@ -640,6 +640,9 @@ file '/etc/newrelic-infra.yml' do
       log_forwarding: false
       docker_enabled: false
       enable_process_metrics: true
+      include_matching_metrics:
+        process.name:
+          - regex "^(apache2|varnish|varnishd|cache-main|varnishncsa|newrelic-infra|fluent-bit)$"
       custom_attributes:
         domain: #{domains}
     EOF
