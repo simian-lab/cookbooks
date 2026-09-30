@@ -382,6 +382,9 @@ web_app 'wordpress' do
   server_aliases domains_array.drop(1)
   docroot app_path
   multisite is_multisite
+  # Same order as mod_dir's default minus index.cgi/index.pl: probing them on
+  # every directory request logged "AH01797 client denied" errors
+  directory_index %w(index.html index.php index.xhtml index.htm)
 end
 
 # 5. We configure caching

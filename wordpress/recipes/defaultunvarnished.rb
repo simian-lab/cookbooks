@@ -116,6 +116,9 @@ web_app app['shortname'] do
   server_aliases app['domains'].drop(1)
   docroot app_path
   multisite app['environment']['MULTISITE']
+  # Same order as mod_dir's default minus index.cgi/index.pl: probing them on
+  # every directory request logged "AH01797 client denied" errors
+  directory_index %w(index.html index.php index.xhtml index.htm)
 end
 
 # 6. Call the WordPress cron
