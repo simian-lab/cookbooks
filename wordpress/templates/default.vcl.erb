@@ -44,6 +44,13 @@ sub vcl_recv {
     return (synth(200, "Purged"));
   }
 
+  # Files under /tutorial-programas/ are protected by the WordPress session:
+  # pass them with headers intact (session cookie, video Range) instead of
+  # stripping the cookie as done below for static files
+  if (req.url ~ "^/tutorial-programas(/|$)") {
+    return (pass);
+  }
+
   if (req.url ~ "\.(gif|jpg|jpeg|svg|webp|ttf|css|js|ico|png|mp4|webm)(\?.*|)$") {
     unset req.http.cookie;
   }
@@ -94,6 +101,15 @@ sub vcl_backend_response {
     set beresp.ttl = 0s;
     set beresp.uncacheable = true;
     set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+  }
+
+  # Session-protected files (see vcl_recv): skip the public 1-year asset
+  # headers below so neither CloudFront nor browsers share-cache them
+  if (bereq.url ~ "^/tutorial-programas(/|$)") {
+    set beresp.uncacheable = true;
+    set beresp.ttl = 0s;
+    set beresp.http.cache-control = "private, no-cache, no-store, must-revalidate";
+    return (deliver);
   }
 
   if (bereq.url ~ "^/wp-json/uexternado/api/notificationinapp") {
