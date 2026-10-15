@@ -153,6 +153,13 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   action :get
 end
 
+aws_ssm_parameter_store 'getRdStationApiKey' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/RD_STATION_API_KEY"
+  return_key 'RD_STATION_API_KEY'
+  action :get
+  ignore_failure true
+end
+
 aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
   return_key "NEW_RELIC_LICENSE_KEY"
@@ -169,11 +176,14 @@ ruby_block "define-app" do
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
+        'RD_STATION_API_KEY' => node.run_state['RD_STATION_API_KEY'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE'],
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
       }
     }
+    # Optional parameter: don't export an empty variable when it isn't set
+    app['environment'].delete('RD_STATION_API_KEY') if node.run_state['RD_STATION_API_KEY'].to_s.strip.empty?
   end
 end
 
