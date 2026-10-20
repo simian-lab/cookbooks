@@ -311,13 +311,6 @@ remote_file '/usr/local/bin/wp' do
   group 'root'
 end
 
-# Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
-end
-
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
@@ -450,20 +443,6 @@ ruby_block "set_long_browser_cache" do
   action :run
 end
 
-# Add a force SSL redirection if present
-force_ssl_dns = ""
-
-ruby_block "set_force_ssl_dns" do
-  block do
-    if app['environment']['FORCE_SSL_DNS']
-      force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-    else
-      Chef::Log.info('FORCE_SSL_DNS variable not set, skipping step.')
-    end
-  end
-  action :run
-end
-
 # Add url exclusions if exists
 url_exclusions = ""
 
@@ -504,8 +483,7 @@ varnish_variables = {
   cors: cors,
   browser_cache: browser_cache,
   url_exclusions: url_exclusions,
-  host_exclusions: host_exclusions,
-  force_ssl_dns: force_ssl_dns
+  host_exclusions: host_exclusions
 }
 
 ruby_block 'log_app' do
