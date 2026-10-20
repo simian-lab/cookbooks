@@ -52,12 +52,14 @@ app_path = "/srv/wordpress"
 aws_ssm_parameter_store 'getAwsSmtpUsr' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
   return_key 'AWS_SMTP_USR'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getAwsSmtpPsw' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
   return_key 'AWS_SMTP_PSW'
+  with_decryption true
   action :get
 end
 
@@ -84,12 +86,14 @@ end
 aws_ssm_parameter_store 'getDBPassword' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
   return_key 'DB_PASSWORD'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getDBUser' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
   return_key 'DB_USER'
+  with_decryption true
   action :get
 end
 
@@ -114,6 +118,7 @@ end
 aws_ssm_parameter_store 'getRSAPrivateKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
   return_key 'RSA_PRIVATE_KEY'
+  with_decryption true
   action :get
 end
 
@@ -138,6 +143,7 @@ end
 aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
   return_key "NEW_RELIC_LICENSE_KEY"
+  with_decryption true
   ignore_failure true
 end
 

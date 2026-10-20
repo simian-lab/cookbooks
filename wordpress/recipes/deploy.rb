@@ -31,6 +31,7 @@ app_path = "/srv/wordpress"
 aws_ssm_parameter_store 'getAppSourceUrl' do
   path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
+  with_decryption true
   action :get
 end
 
