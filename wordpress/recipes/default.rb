@@ -156,6 +156,7 @@ end
 aws_ssm_parameter_store 'getRdStationApiKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RD_STATION_API_KEY"
   return_key 'RD_STATION_API_KEY'
+  with_decryption true
   action :get
   ignore_failure true
 end
