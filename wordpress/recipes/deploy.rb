@@ -64,7 +64,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("Variables de app definidas: #{app['environment'].keys.join(', ')}")
   end
   action :run
 end

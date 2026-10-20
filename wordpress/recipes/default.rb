@@ -179,7 +179,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("Variables de app definidas: #{app['environment'].keys.join(', ')}")
   end
   action :run
 end
@@ -306,7 +306,8 @@ ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting apache envvar #{key}")
+      file.search_file_replace_line /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.write_file
     end
@@ -327,7 +328,8 @@ ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/environment')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting ENV variable #{key}")
+      file.search_file_replace_line /^#{key}\=/, "#{key}=\"#{value}\""
       file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
       file.write_file
     end
