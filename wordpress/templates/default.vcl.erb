@@ -16,13 +16,6 @@ sub vcl_recv {
   # Only a single backend
   set req.backend_hint = default;
 
-  <% if @force_ssl_dns != '' -%>
-    # Redirect to SSL
-    if ( (req.http.host ~ "^(?i)<%= @force_ssl_dns%>") && req.http.X-Forwarded-Proto !~ "(?i)https") {
-      return (synth(750, ""));
-    }
-  <% end -%>
-
   # Setting http headers for backend
   if(req.http.X-Forwarded-For) {
     set req.http.X-Forwarded-For = req.http.X-Forwarded-For + ", " + client.ip;
@@ -152,17 +145,19 @@ sub vcl_backend_response {
 
     # If not defined set how long Varnish will keep it
     if (!beresp.ttl) {
-      set beresp.ttl = 5m;
+      set beresp.ttl = 450s;
     }
     if (!beresp.http.cache-control) {
       # stale-while-revalidate/stale-if-error let CloudFront (edge cache)
       # also serve stale content while Varnish revalidates or is down
-      set beresp.http.cache-control = "public, max-age=300, stale-while-revalidate=300, stale-if-error=86400";
+      set beresp.http.cache-control = "public, max-age=450, stale-while-revalidate=450, stale-if-error=86400";
     }
 
     # Set expires from varnish not backend
+    # (beresp.ttl is a DURATION; adding it to `now`, a TIME, gives an
+    # absolute TIME that Varnish formats as a proper HTTP-date header)
     unset beresp.http.expires;
-    set beresp.http.expires = beresp.ttl;
+    set beresp.http.expires = now + beresp.ttl;
 
 
     # Set How long browsers will keep the cache
@@ -245,13 +240,3 @@ sub vcl_miss {
     return (synth(404, "Not cached"));
   }
 }
-
-<% if @force_ssl_dns != '' -%>
-sub vcl_synth {
-  if (resp.status == 750) {
-    set resp.status = 301;
-    set resp.http.Location = "https://<%= @force_ssl_dns%>" + req.url;
-    return(deliver);
-  }
-}
-<% end -%>

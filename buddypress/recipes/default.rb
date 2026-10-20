@@ -52,12 +52,14 @@ app_path = "/srv/wordpress"
 aws_ssm_parameter_store 'getAwsSmtpUsr' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
   return_key 'AWS_SMTP_USR'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getAwsSmtpPsw' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
   return_key 'AWS_SMTP_PSW'
+  with_decryption true
   action :get
 end
 
@@ -84,36 +86,21 @@ end
 aws_ssm_parameter_store 'getDBPassword' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
   return_key 'DB_PASSWORD'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getDBUser' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
   return_key 'DB_USER'
+  with_decryption true
   action :get
 end
-
-# aws_ssm_parameter_store 'getPhpImagickEnable' do
-#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_IMAGICK_ENABLE"
-#   return_key 'PHP_IMAGICK_ENABLE'
-#   action :get
-# end
-
-# aws_ssm_parameter_store 'getPhpMbstringEnable' do
-#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_MBSTRING_ENABLE"
-#   return_key 'PHP_MBSTRING_ENABLE'
-#   action :get
-# end
-
-# aws_ssm_parameter_store 'getPhpZipEnable' do
-#   path "/ApplyChefRecipes-Preset/#{component_name}/PHP_ZIP_ENABLE"
-#   return_key 'PHP_ZIP_ENABLE'
-#   action :get
-# end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
   return_key 'RSA_PRIVATE_KEY'
+  with_decryption true
   action :get
 end
 
@@ -135,9 +122,10 @@ aws_ssm_parameter_store 'getSSLEnable' do
   action :get
 end
 
-aws_ssm_parameter_store 'getBetterStackSourceToken' do
+aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
   return_key "NEW_RELIC_LICENSE_KEY"
+  with_decryption true
   ignore_failure true
 end
 
@@ -152,9 +140,6 @@ ruby_block "define-app" do
         'DB_NAME' => node.run_state['DB_NAME'],
         'DB_PASSWORD' => node.run_state['DB_PASSWORD'],
         'DB_USER' => node.run_state['DB_USER'],
-        'PHP_IMAGICK_ENABLE' => node.run_state['PHP_IMAGICK_ENABLE'],
-        'PHP_MBSTRING_ENABLE' => node.run_state['PHP_MBSTRING_ENABLE'],
-        'PHP_ZIP_ENABLE' => node.run_state['PHP_ZIP_ENABLE'],
         'SITE_URL' => node.run_state['SITE_URL'],
         'SSL_ENABLE' => node.run_state['SSL_ENABLE']
       }
@@ -164,7 +149,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("Variables de app definidas: #{app['environment'].keys.join(', ')}")
   end
   action :run
 end
@@ -258,19 +243,13 @@ remote_file '/usr/local/bin/wp' do
   group 'root'
 end
 
-# Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
-end
-
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting apache envvar #{key}")
+      file.search_file_replace_line /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.write_file
     end
@@ -298,7 +277,8 @@ ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/environment')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting ENV variable #{key}")
+      file.search_file_replace_line /^#{key}\=/, "#{key}=\"#{value}\""
       file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
       file.write_file
     end
@@ -425,17 +405,36 @@ log 'debug' do
   level :info
 end
 
-execute 'add newrelic gpg key' do
-  command 'curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor -o /etc/apt/keyrings/newrelic-infra.gpg'
+directory '/etc/apt/keyrings' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+remote_file '/tmp/newrelic-infra.gpg.download' do
+  source 'https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg'
+  action :create
+end
+
+# gpg --dearmor is a pure format conversion that does not invoke gpg-agent.
+# Chef 18's apt_repository uses gpg --import which tries to start gpg-agent;
+# gpg-agent fails in SSM headless environments (no systemd user session).
+execute 'install newrelic gpg key' do
+  command 'gpg --batch --no-tty --dearmor < /tmp/newrelic-infra.gpg.download > /etc/apt/keyrings/newrelic-infra.gpg'
   creates '/etc/apt/keyrings/newrelic-infra.gpg'
 end
 
-apt_repository 'newrelic-infra' do
-  uri 'https://download.newrelic.com/infrastructure_agent/linux/apt'
-  components ['main']
-  distribution 'jammy'
-  arch 'amd64'
-  signed_by '/etc/apt/keyrings/newrelic-infra.gpg'
+file '/etc/apt/sources.list.d/newrelic-infra.list' do
+  owner 'root'
+  group 'root'
+  mode '0644'
+  content lazy { "deb [signed-by=/etc/apt/keyrings/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt #{node['lsb']['codename']} main\n" }
+end
+
+execute 'apt-get update newrelic' do
+  command 'apt-get update -o Dir::Etc::sourcelist="sources.list.d/newrelic-infra.list" -o Dir::Etc::sourcelistd="/dev/null" -o APT::Get::List-Cleanup="0"'
+  action :run
 end
 
 package 'newrelic-infra'
@@ -450,12 +449,12 @@ file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
         file: /var/log/apache2/wordpress-access.log
         attributes:
           domain: #{domains}
-          log_type: apache-access
+          logtype: apache
       - name: apache-error
         file: /var/log/apache2/wordpress-error.log
         attributes:
           domain: #{domains}
-          log_type: apache-error
+          logtype: apache_error
   EOF
   only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
   notifies :restart, 'service[newrelic-infra]', :delayed
@@ -467,6 +466,10 @@ file '/etc/newrelic-infra.yml' do
       license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
       log_forwarding: false
       docker_enabled: false
+      enable_process_metrics: true
+      include_matching_metrics:
+        process.name:
+          - regex "^(apache2|varnish|varnishd|cache-main|varnishncsa|newrelic-infra|fluent-bit)$"
       custom_attributes:
         domain: #{domains}
     EOF

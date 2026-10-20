@@ -90,12 +90,14 @@ app_path = "/srv/wordpress"
 aws_ssm_parameter_store 'getAwsSmtpUsr' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_USR"
   return_key 'AWS_SMTP_USR'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getAwsSmtpPsw' do
   path "/ApplyChefRecipes-Preset/#{component_name}/AWS_SMTP_PSW"
   return_key 'AWS_SMTP_PSW'
+  with_decryption true
   action :get
 end
 
@@ -114,18 +116,21 @@ end
 aws_ssm_parameter_store 'getDBPassword' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_PASSWORD"
   return_key 'DB_PASSWORD'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getDBUser' do
   path "/ApplyChefRecipes-Preset/#{component_name}/DB_USER"
   return_key 'DB_USER'
+  with_decryption true
   action :get
 end
 
 aws_ssm_parameter_store 'getRSAPrivateKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/RSA_PRIVATE_KEY"
   return_key 'RSA_PRIVATE_KEY'
+  with_decryption true
   action :get
 end
 
@@ -153,9 +158,10 @@ aws_ssm_parameter_store 'getVarnishErrorPage' do
   action :get
 end
 
-aws_ssm_parameter_store 'getBetterStackSourceToken' do
+aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   path "/ApplyChefRecipes-Preset/#{component_name}/NEW_RELIC_LICENSE_KEY"
   return_key "NEW_RELIC_LICENSE_KEY"
+  with_decryption true
   ignore_failure true
 end
 
@@ -179,7 +185,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("Variables de app definidas: #{app['environment'].keys.join(', ')}")
   end
   action :run
 end
@@ -294,19 +300,13 @@ remote_file '/usr/local/bin/wp' do
   group 'root'
 end
 
-# Optionally Install php-ssh2 dependency
-if app['environment']['PHP_SSH_ENABLE']
-  package 'Install PHP ssh' do
-    package_name 'php-ssh2'
-  end
-end
-
 # 2. Set the environment variables for PHP
 ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/apache2/envvars')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting apache envvar #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting apache envvar #{key}")
+      file.search_file_replace_line /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.insert_line_if_no_match /^export #{key}\=/, "export #{key}=\"#{value}\""
       file.write_file
     end
@@ -327,7 +327,8 @@ ruby_block "insert_env_vars" do
   block do
     file = Chef::Util::FileEdit.new('/etc/environment')
     app['environment'].each do |key, value|
-      Chef::Log.info("Setting ENV variable #{key}= #{key}=\"#{value}\"")
+      Chef::Log.info("Setting ENV variable #{key}")
+      file.search_file_replace_line /^#{key}\=/, "#{key}=\"#{value}\""
       file.insert_line_if_no_match /^#{key}\=/, "#{key}=\"#{value}\""
       file.write_file
     end
@@ -359,14 +360,6 @@ end
 
 if (component_name == 'prod-uexternado-WordPress-154665')
   domains = 'www.uexternado.edu.co'
-end
-
-if (component_name == 'ZonaDigitalBeta-WordPress-BETA-abc38d')
-  domains = 'beta-zonadigital.uexternado.edu.co'
-end
-
-if (component_name == 'ZonaDigitalProd-WordPress-Prod-bc9a84')
-  domains = 'zonadigital.uexternado.edu.co'
 end
 
 if (component_name == 'beta-subsitios-WordPress-28579b')
@@ -436,20 +429,6 @@ ruby_block "set_long_browser_cache" do
   action :run
 end
 
-# Add a force SSL redirection if present
-force_ssl_dns = ""
-
-ruby_block "set_force_ssl_dns" do
-  block do
-    if app['environment']['FORCE_SSL_DNS']
-      force_ssl_dns = "#{app['environment']['FORCE_SSL_DNS']}"
-    else
-      Chef::Log.info('FORCE_SSL_DNS variable not set, skipping step.')
-    end
-  end
-  action :run
-end
-
 # Add url exclusions if exists
 url_exclusions = ""
 
@@ -490,8 +469,7 @@ varnish_variables = {
   cors: cors,
   browser_cache: browser_cache,
   url_exclusions: url_exclusions,
-  host_exclusions: host_exclusions,
-  force_ssl_dns: force_ssl_dns
+  host_exclusions: host_exclusions
 }
 
 ruby_block 'log_app' do
@@ -630,12 +608,12 @@ file '/etc/newrelic-infra/logging.d/wordpress-logs.yml' do
         file: /var/log/apache2/wordpress-access.log
         attributes:
           domain: #{domains}
-          log_type: apache-access
+          logtype: apache
       - name: apache-error
         file: /var/log/apache2/wordpress-error.log
         attributes:
           domain: #{domains}
-          log_type: apache-error
+          logtype: apache_error
   EOF
   only_if { !node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip.empty? }
   notifies :restart, 'service[newrelic-infra]', :delayed
@@ -647,6 +625,10 @@ file '/etc/newrelic-infra.yml' do
       license_key: #{node.run_state['NEW_RELIC_LICENSE_KEY'].to_s.strip}
       log_forwarding: false
       docker_enabled: false
+      enable_process_metrics: true
+      include_matching_metrics:
+        process.name:
+          - regex "^(apache2|varnish|varnishd|cache-main|varnishncsa|newrelic-infra|fluent-bit)$"
       custom_attributes:
         domain: #{domains}
     EOF

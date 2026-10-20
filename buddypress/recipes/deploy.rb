@@ -32,6 +32,7 @@ app_path = "/srv/wordpress"
 aws_ssm_parameter_store 'getAppSourceUrl' do
   path "/ApplyChefRecipes-Preset/#{component_name}/APP_SOURCE_URL"
   return_key 'APP_SOURCE_URL'
+  with_decryption true
   action :get
 end
 
@@ -65,7 +66,7 @@ end
 
 ruby_block 'log_app' do
   block do
-    Chef::Log.info("El valor de app es: #{app}")
+    Chef::Log.info("Variables de app definidas: #{app['environment'].keys.join(', ')}")
   end
   action :run
 end

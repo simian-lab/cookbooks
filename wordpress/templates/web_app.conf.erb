@@ -44,7 +44,12 @@ NameVirtualHost *:<%= @params[:server_port] %>
   LogLevel warn
 
   ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-error.log
-  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined
+  # Varnish connects from 127.0.0.1, so log the client IP from the first
+  # X-Forwarded-For entry. Requests without the header keep the combined format.
+  SetEnvIf X-Forwarded-For "^([^,[:space:]]+)" log_client_ip=$1
+  LogFormat "%{log_client_ip}e %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined_xff
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined_xff env=log_client_ip
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined env=!log_client_ip
 
   <% if @params[:directory_index] -%>
   DirectoryIndex <%= [@params[:directory_index]].flatten.join " " %>
