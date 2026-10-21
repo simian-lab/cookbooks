@@ -285,6 +285,39 @@ package 'Install PHP BCmath extension' do
   package_name "php#{php_version}-bcmath"
 end
 
+# PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
+# 1. Keep the PHP core packages on the latest PPA build instead of only installing them.
+%W[php#{php_version} php#{php_version}-common php#{php_version}-cli libapache2-mod-php#{php_version}].each do |pkg|
+  package "Upgrade #{pkg}" do
+    package_name pkg
+    action :upgrade
+  end
+end
+
+# 2. Temporary mitigation; remove once every server runs PHP >= 8.3.36.
+execute 'restart-apache-php2shell' do
+  command 'systemctl restart apache2'
+  action :nothing
+end
+
+file "/etc/php/#{php_version}/apache2/conf.d/99-php2shell-mitigation.ini" do
+  content "; PHP2Shell mitigation - remove once PHP >= 8.3.36\nsession.upload_progress.enabled = 0\n"
+  owner 'root'
+  group 'root'
+  mode '0644'
+  notifies :run, 'execute[restart-apache-php2shell]', :delayed
+end
+
+# 3. Warn (do not fail) while the patched build is not installed, so new instances still boot.
+ruby_block 'php2shell-version-check' do
+  block do
+    installed = shell_out("dpkg-query -W -f='${Version}' libapache2-mod-php#{php_version}").stdout.split('-').first.to_s
+    if installed.empty? || Gem::Version.new(installed) < Gem::Version.new('8.3.36')
+      Chef::Log.warn("PHP2Shell: libapache2-mod-php#{php_version} #{installed} is vulnerable, needs >= 8.3.36")
+    end
+  end
+end
+
 package 'varnish' do
   package_name 'varnish'
 end
