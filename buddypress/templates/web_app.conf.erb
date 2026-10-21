@@ -8,6 +8,12 @@ NameVirtualHost *:<%= @params[:server_port] %>
   <% end -%>
   DocumentRoot <%= @params[:docroot] %>
 
+  # PHP2Shell (CVE-2026-109619) mitigation; php_admin_flag cannot be overridden
+  # from .htaccess or ini_set(). Remove once every server runs PHP >= 8.3.36.
+  <IfModule php_module>
+    php_admin_flag session.upload_progress.enabled off
+  </IfModule>
+
   <Directory <%= @params[:docroot] %>>
     Options <%= [@params[:directory_options] || "FollowSymLinks" ].flatten.join " " %>
     AllowOverride <%= [@params[:allow_override] || "None" ].flatten.join " " %>
