@@ -314,9 +314,9 @@ package 'Upgrade PHP packages' do
   notifies :restart, 'service[apache2]', :delayed
 end
 
-# 2. Temporary mitigation; remove once every server runs PHP >= php_patched_version.
+# 2. Permanent hardening, kept regardless of the installed PHP version.
 file "/etc/php/#{php_version}/apache2/conf.d/99-php2shell-mitigation.ini" do
-  content "; PHP2Shell mitigation - remove once PHP >= #{php_patched_version}\nsession.upload_progress.enabled = 0\n"
+  content "; PHP2Shell hardening - keep regardless of the PHP version\nsession.upload_progress.enabled = 0\n"
   owner 'root'
   group 'root'
   mode '0644'
