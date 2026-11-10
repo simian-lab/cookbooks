@@ -153,6 +153,15 @@ sub vcl_backend_response {
       set beresp.http.cache-control = "public, max-age=450, stale-while-revalidate=450, stale-if-error=86400";
     }
 
+    # An s-maxage sent by WordPress (tiered page cache for old posts in
+    # the theme) is meant for CloudFront, which keeps those pages for days.
+    # Keep them short here (TTL 120 s, grace 10 s below) so the delayed
+    # CloudFront invalidation the theme sends after an edit never refetches
+    # a pre-edit copy from Varnish and caches it again for days.
+    if (beresp.http.Cache-Control ~ "s-maxage" && beresp.ttl > 120s) {
+      set beresp.ttl = 120s;
+    }
+
     # Set expires from varnish not backend
     # (beresp.ttl is a DURATION; adding it to `now`, a TIME, gives an
     # absolute TIME that Varnish formats as a proper HTTP-date header)
@@ -188,7 +197,13 @@ sub vcl_backend_response {
 
   unset beresp.http.server;
   unset beresp.http.Powered-By-X;
-  set beresp.grace = 1w;
+  if (beresp.http.Cache-Control ~ "s-maxage") {
+    # See the s-maxage TTL cap above. CloudFront's stale-if-error still
+    # covers these pages if the backend goes down.
+    set beresp.grace = 10s;
+  } else {
+    set beresp.grace = 1w;
+  }
 }
 
 sub vcl_hash {
