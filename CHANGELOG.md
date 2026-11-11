@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.0] - 2026-11-11
+
+- Instala Apache y PHP desde `packages.sury.org`, el repositorio propio de Ondřej Surý, en lugar de `ppa:ondrej/apache2` y `ppa:ondrej/php` en `wordpress` y `buddypress`. La llave se instala con el paquete oficial `debsuryorg-archive-keyring` y cada source usa `signed-by`, sin depender de `gpg-agent`. Ya no depende de la disponibilidad de Launchpad.
+- `buddypress` ejecuta `apt-get update` después de agregar el repositorio de PHP.
+- Deja de instalar `php8.3-mail`, que no existe en `packages.sury.org`; `mail()` viene incluido en PHP.
+- `wordpress` usa `apt::default` en lugar de `yum::default`, que en Ubuntu solo escribía un `/etc/yum.conf` sin uso.
+- Los paquetes de PHP 8.3 vuelven a instalarse con `:install` en lugar de `:upgrade`: Chef ya no actualiza PHP ni reinicia Apache en ejecuciones posteriores. Las instancias nuevas reciben la versión corregida de PHP2Shell (8.3.36 o posterior).
+- Elimina el recurso redundante de `libapache2-mod-php8.3`, que ya instalan `apache2::mod_php` y la instalación conjunta de paquetes de PHP.
+- La mitigación de PHP2Shell (`session.upload_progress` desactivado) pasa a ser permanente, sin importar la versión de PHP, y en el vhost también se bloquea cuando mod_php se registra como `php7_module` o `php5_module`.
+- Quita `index.cgi` e `index.pl` del `DirectoryIndex` del vhost de `wordpress`, para evitar unas 7.800 líneas diarias de `AH01797 client denied` por servidor en el log de errores de Apache.
+
 ## [5.1.1] - 2026-10-21
 
 - Mitiga PHP2Shell (CVE-2026-109618 / CVE-2026-109619) en `wordpress` y `buddypress`: actualiza en cada ejecución todos los paquetes de PHP 8.3 en una sola transacción de apt, para que las instancias existentes reciban la versión corregida (8.3.36), y reinicia Apache para que mod_php la cargue.
