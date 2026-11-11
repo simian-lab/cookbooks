@@ -191,22 +191,30 @@ ruby_block 'log_app' do
 end
 
 # Installing some required packages
-include_recipe 'yum::default'
+include_recipe 'apt::default'
 
-execute "latest-apache2" do
-  command "add-apt-repository ppa:ondrej/apache2 -y"
-  user "root"
-  action :run
+# Apache and PHP come from packages.sury.org (Ondřej Surý's own repository)
+# instead of ppa:ondrej/*, which depends on Launchpad availability.
+
+remote_file '/tmp/debsuryorg-archive-keyring.deb' do
+  source 'https://packages.sury.org/debsuryorg-archive-keyring.deb'
   retries 3
   retry_delay 10
+  action :create
 end
 
-execute "latest-php" do
-  command "add-apt-repository ppa:ondrej/php -y"
-  user "root"
-  action :run
-  retries 3
-  retry_delay 10
+dpkg_package 'debsuryorg-archive-keyring' do
+  source '/tmp/debsuryorg-archive-keyring.deb'
+  action :install
+end
+
+%w[apache2 php].each do |sury_repo|
+  file "/etc/apt/sources.list.d/sury-#{sury_repo}.list" do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content lazy { "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/#{sury_repo}/ #{node['lsb']['codename']} main\n" }
+  end
 end
 
 execute "update-repositories" do
@@ -234,15 +242,6 @@ php_version = '8.3'
 
 package 'Install PHP' do
   package_name "php#{php_version}"
-end
-
-log 'debug' do
-  message 'Simian-debug: Install PHP libapache'
-  level :info
-end
-
-package 'Install PHP libapache' do
-  package_name "libapache2-mod-php#{php_version}"
 end
 
 package 'Install PHP cURL' do
@@ -273,10 +272,6 @@ package 'Install PHP imagick' do
   package_name "php#{php_version}-imagick"
 end
 
-package 'Install PHP Mail' do
-  package_name "php#{php_version}-mail"
-end
-
 package 'Install PHP zip' do
   package_name "php#{php_version}-zip"
 end
@@ -288,24 +283,23 @@ end
 # PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
 php_patched_version = '8.3.36'
 
-# 1. Keep every package built from the php8.3 source on the latest PPA build.
-#    They depend on the exact same php8.3-common version, so they are upgraded in a
-#    single apt transaction. Apache is restarted so mod_php loads the patched binary.
-#    TODO: go back to :install (or pin the version) once every server is patched.
-package 'Upgrade PHP packages' do
+# 1. Install every package built from the php8.3 source in a single apt transaction,
+#    since they depend on the exact same php8.3-common version. New instances get the
+#    current sury.org build (>= 8.3.36); Chef no longer upgrades PHP on later runs.
+package 'Install PHP packages' do
   package_name %W[
     php#{php_version} php#{php_version}-common php#{php_version}-cli
     php#{php_version}-opcache php#{php_version}-readline libapache2-mod-php#{php_version}
     php#{php_version}-curl php#{php_version}-mbstring php#{php_version}-mysql
     php#{php_version}-xml php#{php_version}-gd php#{php_version}-zip php#{php_version}-bcmath
   ]
-  action :upgrade
+  action :install
   notifies :restart, 'service[apache2]', :delayed
 end
 
-# 2. Temporary mitigation; remove once every server runs PHP >= php_patched_version.
+# 2. Permanent hardening, kept regardless of the installed PHP version.
 file "/etc/php/#{php_version}/apache2/conf.d/99-php2shell-mitigation.ini" do
-  content "; PHP2Shell mitigation - remove once PHP >= #{php_patched_version}\nsession.upload_progress.enabled = 0\n"
+  content "; PHP2Shell hardening - keep regardless of the PHP version\nsession.upload_progress.enabled = 0\n"
   owner 'root'
   group 'root'
   mode '0644'
@@ -420,6 +414,9 @@ web_app 'wordpress' do
   server_aliases domains_array.drop(1)
   docroot app_path
   multisite is_multisite
+  # Same order as mod_dir's default minus index.cgi/index.pl: probing them on
+  # every directory request logged "AH01797 client denied" errors
+  directory_index %w(index.html index.php index.xhtml index.htm)
 end
 
 # 5. We configure caching

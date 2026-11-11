@@ -8,9 +8,16 @@ NameVirtualHost *:<%= @params[:server_port] %>
   <% end -%>
   DocumentRoot <%= @params[:docroot] %>
 
-  # PHP2Shell (CVE-2026-109619) mitigation; php_admin_flag cannot be overridden
-  # from .htaccess or ini_set(). Remove once every server runs PHP >= 8.3.36.
+  # PHP2Shell (CVE-2026-109619) hardening, kept regardless of the PHP version;
+  # php_admin_flag cannot be overridden from .htaccess or ini_set().
+  # mod_php registers as php_module on PHP 8 and as php7_module/php5_module before.
   <IfModule php_module>
+    php_admin_flag session.upload_progress.enabled off
+  </IfModule>
+  <IfModule php7_module>
+    php_admin_flag session.upload_progress.enabled off
+  </IfModule>
+  <IfModule php5_module>
     php_admin_flag session.upload_progress.enabled off
   </IfModule>
 
