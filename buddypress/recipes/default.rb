@@ -202,10 +202,6 @@ package 'Install PHP' do
   package_name "php#{php_version}"
 end
 
-package 'Install PHP libapache' do
-  package_name "libapache2-mod-php#{php_version}"
-end
-
 package 'Install PHP cURL' do
   package_name "php#{php_version}-curl"
 end
