@@ -191,7 +191,7 @@ ruby_block 'log_app' do
 end
 
 # Installing some required packages
-include_recipe 'yum::default'
+include_recipe 'apt::default'
 
 # Apache and PHP come from packages.sury.org (Ondřej Surý's own repository)
 # instead of ppa:ondrej/*, which depends on Launchpad availability.
