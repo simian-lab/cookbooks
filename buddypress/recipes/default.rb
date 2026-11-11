@@ -249,11 +249,10 @@ end
 # PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
 php_patched_version = '8.3.36'
 
-# 1. Keep every package built from the php8.3 source on the latest sury.org build.
-#    They depend on the exact same php8.3-common version, so they are upgraded in a
-#    single apt transaction. Apache is restarted so mod_php loads the patched binary.
-#    TODO: go back to :install (or pin the version) once every server is patched.
-package 'Upgrade PHP packages' do
+# 1. Install every package built from the php8.3 source in a single apt transaction,
+#    since they depend on the exact same php8.3-common version. New instances get the
+#    current sury.org build (>= 8.3.36); Chef no longer upgrades PHP on later runs.
+package 'Install PHP packages' do
   package_name %W[
     php#{php_version} php#{php_version}-common php#{php_version}-cli
     php#{php_version}-opcache php#{php_version}-readline libapache2-mod-php#{php_version}
@@ -261,7 +260,7 @@ package 'Upgrade PHP packages' do
     php#{php_version}-xml php#{php_version}-gd php#{php_version}-zip php#{php_version}-bcmath
     php#{php_version}-intl
   ]
-  action :upgrade
+  action :install
   notifies :restart, 'service[apache2]', :delayed
 end
 
