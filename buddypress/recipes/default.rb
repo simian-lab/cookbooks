@@ -234,10 +234,6 @@ package 'Install PHP imagick' do
   package_name "php#{php_version}-imagick"
 end
 
-package 'Install PHP Mail' do
-  package_name "php#{php_version}-mail"
-end
-
 package 'Install PHP zip' do
   package_name "php#{php_version}-zip"
 end
