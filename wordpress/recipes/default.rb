@@ -193,20 +193,28 @@ end
 # Installing some required packages
 include_recipe 'yum::default'
 
-execute "latest-apache2" do
-  command "add-apt-repository ppa:ondrej/apache2 -y"
-  user "root"
-  action :run
+# Apache and PHP come from packages.sury.org (Ondřej Surý's own repository)
+# instead of ppa:ondrej/*, which depends on Launchpad availability.
+
+remote_file '/tmp/debsuryorg-archive-keyring.deb' do
+  source 'https://packages.sury.org/debsuryorg-archive-keyring.deb'
   retries 3
   retry_delay 10
+  action :create
 end
 
-execute "latest-php" do
-  command "add-apt-repository ppa:ondrej/php -y"
-  user "root"
-  action :run
-  retries 3
-  retry_delay 10
+dpkg_package 'debsuryorg-archive-keyring' do
+  source '/tmp/debsuryorg-archive-keyring.deb'
+  action :install
+end
+
+%w[apache2 php].each do |sury_repo|
+  file "/etc/apt/sources.list.d/sury-#{sury_repo}.list" do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content lazy { "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/#{sury_repo}/ #{node['lsb']['codename']} main\n" }
+  end
 end
 
 execute "update-repositories" do
@@ -288,7 +296,7 @@ end
 # PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
 php_patched_version = '8.3.36'
 
-# 1. Keep every package built from the php8.3 source on the latest PPA build.
+# 1. Keep every package built from the php8.3 source on the latest sury.org build.
 #    They depend on the exact same php8.3-common version, so they are upgraded in a
 #    single apt transaction. Apache is restarted so mod_php loads the patched binary.
 #    TODO: go back to :install (or pin the version) once every server is patched.
