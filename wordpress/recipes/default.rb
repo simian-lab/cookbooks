@@ -279,11 +279,18 @@ package 'Memcached' do
   package_name "php#{php_version}-memcached"
 end
 
-# ImageMagick only gets security fixes through Ubuntu Pro (ESM) on 22.04, so it is not
-# installed. WordPress falls back to GD; only PDF thumbnails are lost.
+# ImageMagick lives in Ubuntu's universe component, so on 22.04 and 24.04 its security
+# fixes only ship through Ubuntu Pro (ESM). It is not installed: WordPress and plugins
+# fall back to GD; PDF thumbnails and HEIC processing are lost.
+# The library packages were renamed for the 64-bit time_t transition in 24.04.
+magick_lib_suffix = node['platform_version'].to_f >= 24.04 ? '7t64' : '6'
+
 package 'Remove PHP imagick and ImageMagick' do
   package_name %W[
-    php#{php_version}-imagick libmagickwand-6.q16-6 libmagickcore-6.q16-6 imagemagick-6-common
+    php#{php_version}-imagick
+    libmagickwand-6.q16-#{magick_lib_suffix}
+    libmagickcore-6.q16-#{magick_lib_suffix}
+    imagemagick-6-common
   ]
   action :purge
   notifies :restart, 'service[apache2]', :delayed
