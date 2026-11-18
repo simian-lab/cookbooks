@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.2.1] - 2026-11-18
+
+- `wordpress` deja de instalar `php8.3-imagick` y purga ImageMagick (`libmagickwand`, `libmagickcore`, `imagemagick-6-common`): en Ubuntu 22.04 y 24.04 sus parches de seguridad solo llegan por Ubuntu Pro (ESM), así que Inspector seguía reportando CVEs críticos con exploit (CVE-2025-57807, CVE-2025-53101, CVE-2025-53014) que apt no podía corregir. WordPress usa GD; se pierden las miniaturas de PDF y el procesamiento de HEIC. Apache se reinicia tras la purga.
+- La purga elige el sufijo de las librerías según la versión de Ubuntu (`7t64` en 24.04, `6` en 22.04), para cubrir también instancias noble como beta.
+
 ## [5.2.0] - 2026-11-11
 
 - Instala Apache y PHP desde `packages.sury.org`, el repositorio propio de Ondřej Surý, en lugar de `ppa:ondrej/apache2` y `ppa:ondrej/php` en `wordpress` y `buddypress`. La llave se instala con el paquete oficial `debsuryorg-archive-keyring` y cada source usa `signed-by`, sin depender de `gpg-agent`. Ya no depende de la disponibilidad de Launchpad.
