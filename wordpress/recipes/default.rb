@@ -268,8 +268,14 @@ package 'Memcached' do
   package_name "php#{php_version}-memcached"
 end
 
-package 'Install PHP imagick' do
-  package_name "php#{php_version}-imagick"
+# ImageMagick only gets security fixes through Ubuntu Pro (ESM) on 22.04, so it is not
+# installed. WordPress falls back to GD; only PDF thumbnails are lost.
+package 'Remove PHP imagick and ImageMagick' do
+  package_name %W[
+    php#{php_version}-imagick libmagickwand-6.q16-6 libmagickcore-6.q16-6 imagemagick-6-common
+  ]
+  action :purge
+  notifies :restart, 'service[apache2]', :delayed
 end
 
 package 'Install PHP zip' do
