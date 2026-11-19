@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.2.2] - 2026-11-19
+
+- `wordpress` configura `DPkg::Lock::Timeout` en 600 segundos (`/etc/apt/apt.conf.d/90-dpkg-lock-timeout`) antes de `apt::default`, para que cada `apt-get` espere el lock de dpkg en lugar de fallar. En el primer arranque de instancias Ubuntu 24.04, `unattended-upgrades` o una asociación de SSM podían tener tomado `/var/lib/dpkg/lock-frontend` y el bootstrap fallaba, dejando la instancia abandonada por timeout del heartbeat.
+
 ## [5.2.1] - 2026-11-18
 
 - `wordpress` deja de instalar `php8.3-imagick` y purga ImageMagick (`libmagickwand`, `libmagickcore`, `imagemagick-6-common`): en Ubuntu 22.04 y 24.04 sus parches de seguridad solo llegan por Ubuntu Pro (ESM), así que Inspector seguía reportando CVEs críticos con exploit (CVE-2025-57807, CVE-2025-53101, CVE-2025-53014) que apt no podía corregir. WordPress usa GD; se pierden las miniaturas de PDF y el procesamiento de HEIC. Apache se reinicia tras la purga.
