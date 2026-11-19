@@ -190,6 +190,15 @@ ruby_block 'log_app' do
   action :run
 end
 
+# On first boot unattended-upgrades or SSM associations may still hold the dpkg lock;
+# make every apt-get wait for it instead of failing the bootstrap.
+file '/etc/apt/apt.conf.d/90-dpkg-lock-timeout' do
+  content "DPkg::Lock::Timeout \"600\";\n"
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
 # Installing some required packages
 include_recipe 'apt::default'
 
