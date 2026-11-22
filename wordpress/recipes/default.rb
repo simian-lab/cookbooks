@@ -542,6 +542,8 @@ end
 
 template '/etc/systemd/system/varnish.service' do
   source 'varnish.service.erb'
+  # Restart= and OOMScoreAdjust= only apply after daemon-reload (below) and a restart
+  notifies :restart, 'service[varnish]', :delayed
 end
 
 template '/etc/systemd/system/varnishlog.service' do
