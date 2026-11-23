@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.3.0] - 2026-11-23
+
+- `wordpress` hace que Varnish se reinicie solo si muere (crash, OOM kill o `kill -9`): la unidad systemd usa `Restart=always` con `RestartSec=2` y `StartLimitIntervalSec=0`, para que nunca deje de reintentar. En la caída del 2026-11-22, `varnishd` y `cache-main` murieron en los cuatro servidores y no volvieron, dejando el puerto 80 cerrado con Apache aún arriba.
+- Varnish baja su prioridad ante el OOM killer (`OOMScoreAdjust=-500`, heredado por `cache-main`), para que el kernel elija primero a Apache.
+- Chef reinicia Varnish cuando cambia la unidad, para que las instancias existentes tomen la nueva configuración tras el `daemon-reload`.
+
 ## [5.2.2] - 2026-11-19
 
 - `wordpress` configura `DPkg::Lock::Timeout` en 600 segundos (`/etc/apt/apt.conf.d/90-dpkg-lock-timeout`) antes de `apt::default`, para que cada `apt-get` espere el lock de dpkg en lugar de fallar. En el primer arranque de instancias Ubuntu 24.04, `unattended-upgrades` o una asociación de SSM podían tener tomado `/var/lib/dpkg/lock-frontend` y el bootstrap fallaba, dejando la instancia abandonada por timeout del heartbeat.
