@@ -14,7 +14,7 @@ StartLimitIntervalSec=0
 Type=simple
 LimitNOFILE=131072
 LimitMEMLOCK=82000
-ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a 0.0.0.0:80 -T 127.0.0.1:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,<%= varnish_mb %>m -p thread_pools=<%= thread_pools %> -p thread_pool_min=5 -p thread_pool_max=<%= thread_pool_max %> -p thread_pool_timeout=300
+ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a 0.0.0.0:80 -T 127.0.0.1:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,<%= varnish_mb %>m -s Transient=malloc,128m -p thread_pools=<%= thread_pools %> -p thread_pool_min=5 -p thread_pool_max=<%= thread_pool_max %> -p thread_pool_timeout=300
 ExecReload=/usr/share/varnish/reload-vcl
 # Come back on its own if varnishd dies (crash, OOM kill, kill -9)
 Restart=always

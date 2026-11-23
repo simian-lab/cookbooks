@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1] - 2026-11-23
+
+- `apache2` calcula `MaxRequestWorkers` con un presupuesto de memoria explícito: RAM total − Varnish (25 %) − SO y agentes (768 MB), dividido por la memoria de cada proceso Apache+PHP. Antes reservaba un 30 % genérico que no alcanzaba para Varnish (~930 MB) más el SO y los agentes (~580 MB), y en la caída del 2026-11-22 la memoria llegó al 92–99 % y el OOM killer mató a Varnish.
+- La memoria por proceso se presupuesta por PSS y no por RSS (el RSS cuenta opcache y las librerías compartidas una vez por proceso y casi duplica el consumo real): 130 MB, el PSS máximo medido en producción con Ubuntu 24.04 (promedio ~103 MB frente a ~203 MB de RSS). En una instancia de 4 GB quedan 16 workers (antes 17), que cubren el pico normal de 14–16. El mínimo de workers baja de 10 a 5.
+- `MaxConnectionsPerChild` baja de 10 000 a 500 para reciclar los procesos de PHP antes de que crezcan.
+- `wordpress` limita el almacenamiento *Transient* de Varnish a 128 MB (`-s Transient=malloc,128m`); hasta ahora no tenía límite y crece con scrapers que piden muchas URLs distintas.
+
 ## [5.3.0] - 2026-11-23
 
 - `wordpress` hace que Varnish se reinicie solo si muere (crash, OOM kill o `kill -9`): la unidad systemd usa `Restart=always` con `RestartSec=2` y `StartLimitIntervalSec=0`, para que nunca deje de reintentar. En la caída del 2026-11-22, `varnishd` y `cache-main` murieron en los cuatro servidores y no volvieron, dejando el puerto 80 cerrado con Apache aún arriba.
