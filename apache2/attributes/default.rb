@@ -312,38 +312,54 @@ default['apache']['info_allow_list'] = '127.0.0.1 ::1'
 default['apache']['mpm_support'] = %w(prefork worker event)
 
 # Simian
-total_ram_kb = node['memory']['total'].gsub('kB', '').to_i
-total_ram_mb = total_ram_kb / 1024
+# Memory budget for MPM prefork (mod_php): every Apache child carries a full
+# PHP interpreter, so MaxRequestWorkers must fit in what is left after
+# Varnish, the OS and the monitoring agents:
+#   Varnish + OS/agents + avg_process_mb * MaxRequestWorkers < RAM total
+#
+# Varnish: wordpress/templates/varnish.service.erb sets -s malloc to 20% of the
+# RAM plus a 128 MB Transient store; with threads and workspaces cache-main's
+# RSS lands around 25% of the RAM (~950 MB on a 4 GB t3a.medium).
+varnish_ram_percent = 0.25
+# OS, page cache headroom, New Relic infra, fluent-bit, snapd, SSM agent, sshd...
+os_reserved_mb = 768
+# Average RSS of an Apache+PHP child under load. Measured in prod (New Relic
+# ProcessSample apache2): Ubuntu 22.04 ~170 MB; Ubuntu 24.04 182-263 MB with
+# peaks of 260-370 MB, so 24.04+ budgets for the high end of the average.
+avg_process_mb =
+  if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 24.04
+    260
+  else
+    170
+  end
+# Floor so a tiny instance still serves something; keep it low or it defeats
+# the budget (10 x 260 MB alone is 2.6 GB).
+min_workers = 5
 
-# Porcentaje de RAM a reservar para el OS, DB, etc.
-reserve_percent = 0.30
+total_ram_mb = node['memory']['total'].gsub('kB', '').to_i / 1024
 
-# Calcular RAM disponible para Apache
-reserved_ram_mb = (total_ram_mb * reserve_percent).to_i
-apache_ram_mb = total_ram_mb - reserved_ram_mb
+varnish_ram_mb = (total_ram_mb * varnish_ram_percent).to_i
+apache_ram_mb = total_ram_mb - varnish_ram_mb - os_reserved_mb
 
-avg_process_mb = 150
 calculated_workers = (apache_ram_mb / avg_process_mb).floor
 
-min_workers = 10
 final_max_workers = [calculated_workers, min_workers].max
 
-start_val = [(final_max_workers * 0.25).floor, 5].max
-max_spare_val = [(final_max_workers * 0.50).floor, 10].max
+start_val = [(final_max_workers * 0.25).floor, 2].max
+max_spare_val = [(final_max_workers * 0.50).floor, 4].max
 
 # Asegurarnos de que min sea menor que max
-if start_val > max_spare_val
-  start_val = max_spare_val
-end
+start_val = max_spare_val if start_val > max_spare_val
 
 # Imprimir en el log de Chef para depuración
-Chef::Log.info("--- Cálculo MPM Prefork ---")
+Chef::Log.info('--- Cálculo MPM Prefork ---')
 Chef::Log.info("RAM Total: #{total_ram_mb}MB")
-Chef::Log.info("RAM Reservada (#{reserve_percent * 100}%): #{reserved_ram_mb}MB")
+Chef::Log.info("RAM Varnish (#{varnish_ram_percent * 100}%): #{varnish_ram_mb}MB")
+Chef::Log.info("RAM OS/agentes: #{os_reserved_mb}MB")
 Chef::Log.info("RAM para Apache: #{apache_ram_mb}MB")
 Chef::Log.info("Promedio por Proceso: #{avg_process_mb}MB")
 Chef::Log.info("=> MaxRequestWorkers calculado: #{final_max_workers}")
-Chef::Log.info("--------------------------")
+Chef::Log.info('--------------------------')
 # End Simian
 
 # Prefork Attributes
@@ -352,7 +368,9 @@ default['apache']['prefork']['minspareservers']     = start_val
 default['apache']['prefork']['maxspareservers']     = max_spare_val
 default['apache']['prefork']['serverlimit']         = final_max_workers
 default['apache']['prefork']['maxrequestworkers']   = final_max_workers
-default['apache']['prefork']['maxconnectionsperchild'] = 10_000
+# Recycle children often: PHP children grow with every request and never
+# give memory back to the OS (Simian)
+default['apache']['prefork']['maxconnectionsperchild'] = 500
 
 # Worker Attributes
 default['apache']['worker']['startservers']        = 4
