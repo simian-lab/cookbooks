@@ -323,17 +323,14 @@ default['apache']['mpm_support'] = %w(prefork worker event)
 varnish_ram_percent = 0.25
 # OS, page cache headroom, New Relic infra, fluent-bit, snapd, SSM agent, sshd...
 os_reserved_mb = 768
-# Average RSS of an Apache+PHP child under load. Measured in prod (New Relic
-# ProcessSample apache2): Ubuntu 22.04 ~170 MB; Ubuntu 24.04 182-263 MB with
-# peaks of 260-370 MB, so 24.04+ budgets for the high end of the average.
-avg_process_mb =
-  if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 24.04
-    260
-  else
-    170
-  end
+# Memory per Apache+PHP child, as PSS (shared pages such as opcache and libs
+# split across processes), not RSS: RSS counts the shared memory once per
+# child and roughly doubles the real footprint. Measured in prod on Ubuntu
+# 24.04 (2026-11-23, 11-12 busy children): PSS avg ~103 MB, max 115-126 MB,
+# while RSS avg was ~203 MB. Budget every child at about the observed max.
+avg_process_mb = 130
 # Floor so a tiny instance still serves something; keep it low or it defeats
-# the budget (10 x 260 MB alone is 2.6 GB).
+# the budget on small instances (a 2 GB node only fits ~5 children).
 min_workers = 5
 
 total_ram_mb = node['memory']['total'].gsub('kB', '').to_i / 1024
