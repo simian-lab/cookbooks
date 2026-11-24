@@ -283,7 +283,12 @@ end
 default['apache']['listen']            = ['*:80']
 default['apache']['contact']           = 'ops@example.com'
 default['apache']['timeout']           = 300
-default['apache']['keepalive']         = 'On'
+# Off: Apache only serves Varnish over loopback (port 8080), where opening a
+# connection per request is free, and MaxConnectionsPerChild counts
+# connections, not requests. With KeepAlive On each Varnish connection served
+# ~7 requests (varnishstat backend_req/backend_conn, 2026-11-24), so 500
+# connections meant ~13 h per child and PHP children were never recycled.
+default['apache']['keepalive']         = 'Off'
 default['apache']['keepaliverequests'] = 100
 default['apache']['keepalivetimeout']  = 5
 default['apache']['locale'] = 'C'
@@ -366,8 +371,10 @@ default['apache']['prefork']['maxspareservers']     = max_spare_val
 default['apache']['prefork']['serverlimit']         = final_max_workers
 default['apache']['prefork']['maxrequestworkers']   = final_max_workers
 # Recycle children often: PHP children grow with every request and never
-# give memory back to the OS (Simian)
-default['apache']['prefork']['maxconnectionsperchild'] = 500
+# give memory back to the OS (Simian). With KeepAlive Off one connection is
+# one request, so 100 recycles each child about every 20-35 minutes at the
+# observed ~0.8 requests/s per instance.
+default['apache']['prefork']['maxconnectionsperchild'] = 100
 
 # Worker Attributes
 default['apache']['worker']['startservers']        = 4
