@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.3.2] - 2026-11-24
+
+- `apache2` apaga `KeepAlive` y baja `MaxConnectionsPerChild` de 500 a 100. `MaxConnectionsPerChild` cuenta conexiones, no requests: con `KeepAlive On` Varnish reutilizaba sus conexiones hacia Apache y cada una servía ~7,3 requests (`backend_req / backend_conn` = 43 876 / 6005 en producción el 2026-11-24), así que 500 conexiones eran ~3650 requests, unas 13 horas por proceso. Los procesos de PHP casi nunca se reciclaban y crecían hasta 340–385 MB de RSS, llevando las instancias al 90–98 % de memoria.
+- Varnish y Apache corren en la misma instancia (Varnish en el 80, Apache en el 8080) y no hay conexiones establecidas en el 443 de Apache, así que abrir una conexión por request no tiene costo apreciable. Con `KeepAlive Off` cada proceso se recicla cada 20–35 minutos con el tráfico observado (~0,8 requests/s por instancia).
+- Verificado en la instancia beta con 1500 requests sin caché: todos `200`, `backend_req / backend_conn` = 1679 / 1679 (antes 7,3) y procesos de Apache de 14 a 58 segundos de vida. Las instancias existentes toman el cambio solo al reemplazarse.
+
 ## [5.3.1] - 2026-11-23
 
 - `apache2` calcula `MaxRequestWorkers` con un presupuesto de memoria explícito: RAM total − Varnish (25 %) − SO y agentes (768 MB), dividido por la memoria de cada proceso Apache+PHP. Antes reservaba un 30 % genérico que no alcanzaba para Varnish (~930 MB) más el SO y los agentes (~580 MB), y en la caída del 2026-11-22 la memoria llegó al 92–99 % y el OOM killer mató a Varnish.
