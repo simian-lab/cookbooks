@@ -208,9 +208,14 @@ apache_service_name = node['apache']['service_name']
 # Simian
 # Cap Apache's memory with its systemd cgroup. Without a cap, when PHP children
 # grow the node runs out of memory and thrashes (CPU at 100 %, ~0 MB free) for
-# half an hour instead of failing fast (multisite outage, 2026-11-25). With
-# MemoryHigh the kernel reclaims and throttles Apache first; at MemoryMax it
-# OOM-kills a child inside the cgroup and prefork spawns a new one.
+# half an hour instead of failing fast (multisite outage, 2026-11-25). At
+# MemoryMax the kernel OOM-kills a child inside the cgroup and prefork spawns
+# a new one.
+# No MemoryHigh on purpose: above it the kernel throttles every allocation
+# instead of killing, and Apache froze. Staging test with the limit lowered
+# to 180M (2026-11-25): MemoryHigh+MemoryMax gave 100 % timeouts, 3 kills and
+# ~97 % memory pressure; MemoryMax alone gave 17 kills, a burst of 503s and
+# then every request served, with ~0.5 % pressure.
 # OOMPolicy=continue keeps the unit running: systemd's default (stop) would
 # take all of Apache down on the first child killed.
 if ::File.directory?('/run/systemd/system')
@@ -230,7 +235,6 @@ if ::File.directory?('/run/systemd/system')
 # Managed by Chef (apache2::default). Budget: RAM - Varnish - OS/agents.
 [Service]
 MemoryAccounting=yes
-MemoryHigh=#{(memory_max_mb * 0.9).to_i}M
 MemoryMax=#{memory_max_mb}M
 OOMPolicy=continue
 EOU
