@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.4.1] - 2026-11-25
+
+- `apache2` limita la memoria de Apache con un drop-in de systemd (`apache2.service.d/memory-limit.conf`): `MemoryMax` igual al presupuesto de Apache (RAM − Varnish − SO/agentes, 2115 MB en una instancia de 4 GB) y `OOMPolicy=continue`. Si Apache llega al límite, el kernel mata un proceso hijo y prefork lo reemplaza, en lugar de que toda la instancia se quede sin memoria y entre en thrashing como en la caída del 2026-11-25. `OOMPolicy=continue` evita que systemd detenga Apache entero al primer hijo eliminado.
+- Sin `MemoryHigh` a propósito: en staging, con el límite bajado a 180 MB, `MemoryHigh` hizo que el kernel frenara a Apache en lugar de matar procesos y el sitio dejó de responder (100 % de timeouts). Solo con `MemoryMax`, Apache tuvo algunos 503 y siguió respondiendo.
+
 ## [5.4.0] - 2026-11-25
 
 - `wordpress` hace que Varnish nunca cachee `healthz.php`, para que el health check del ELB llegue siempre a Apache y no a una respuesta en caché.
