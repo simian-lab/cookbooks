@@ -205,6 +205,50 @@ end
 
 apache_service_name = node['apache']['service_name']
 
+# Simian
+# Cap Apache's memory with its systemd cgroup. Without a cap, when PHP children
+# grow the node runs out of memory and thrashes (CPU at 100 %, ~0 MB free) for
+# half an hour instead of failing fast (multisite outage, 2026-11-25). At
+# MemoryMax the kernel OOM-kills a child inside the cgroup and prefork spawns
+# a new one.
+# No MemoryHigh on purpose: above it the kernel throttles every allocation
+# instead of killing, and Apache froze. Staging test with the limit lowered
+# to 180M (2026-11-25): MemoryHigh+MemoryMax gave 100 % timeouts, 3 kills and
+# ~97 % memory pressure; MemoryMax alone gave 17 kills, a burst of 503s and
+# then every request served, with ~0.5 % pressure.
+# OOMPolicy=continue keeps the unit running: systemd's default (stop) would
+# take all of Apache down on the first child killed.
+if ::File.directory?('/run/systemd/system')
+  memory_max_mb = node['apache']['memory_limit_mb']
+
+  directory "/etc/systemd/system/#{apache_service_name}.service.d" do
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+
+  file "/etc/systemd/system/#{apache_service_name}.service.d/memory-limit.conf" do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content <<-EOU
+# Managed by Chef (apache2::default). Budget: RAM - Varnish - OS/agents.
+[Service]
+MemoryAccounting=yes
+MemoryMax=#{memory_max_mb}M
+OOMPolicy=continue
+EOU
+    notifies :run, 'execute[apache2-systemd-daemon-reload]', :immediately
+  end
+
+  # daemon-reload applies the new limits to a running apache2 too, no restart
+  execute 'apache2-systemd-daemon-reload' do
+    command '/bin/systemctl --system daemon-reload'
+    action :nothing
+  end
+end
+# End Simian
+
 service 'apache2' do
   service_name apache_service_name
   supports [:start, :restart, :reload, :status, :graceful, :reload]
