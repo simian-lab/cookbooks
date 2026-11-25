@@ -50,7 +50,7 @@ sub vcl_recv {
     return (pass);
   }
 
-  if (req.url ~ "(wp-login|wp-admin|preview=true|v1/preview|wp-cron)") {
+  if (req.url ~ "(wp-login|wp-admin|preview=true|v1/preview|wp-cron|healthz\.php)") {
     return (pass);
   }
 
