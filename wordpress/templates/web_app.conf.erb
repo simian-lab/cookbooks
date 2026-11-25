@@ -60,9 +60,12 @@ NameVirtualHost *:<%= @params[:server_port] %>
   # Varnish connects from 127.0.0.1, so log the client IP from the first
   # X-Forwarded-For entry. Requests without the header keep the combined format.
   SetEnvIf X-Forwarded-For "^([^,[:space:]]+)" log_client_ip=$1
-  LogFormat "%{log_client_ip}e %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined_xff
+  # %P (PID del worker) y %D (microsegundos) van al final para poder cruzar cada
+  # petición con el RSS del proceso y con su duración sin romper el parseo existente.
+  LogFormat "%{log_client_ip}e %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" %P %D" combined_xff
+  LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" %P %D" combined_pid
   CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined_xff env=log_client_ip
-  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined env=!log_client_ip
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined_pid env=!log_client_ip
 
   <% if @params[:directory_index] -%>
   DirectoryIndex <%= [@params[:directory_index]].flatten.join " " %>
