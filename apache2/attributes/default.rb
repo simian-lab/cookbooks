@@ -362,6 +362,11 @@ Chef::Log.info("RAM para Apache: #{apache_ram_mb}MB")
 Chef::Log.info("Promedio por Proceso: #{avg_process_mb}MB")
 Chef::Log.info("=> MaxRequestWorkers calculado: #{final_max_workers}")
 Chef::Log.info('--------------------------')
+
+# Output of the budget above, not a knob: the recipe turns it into a systemd
+# memory limit for apache2.service (MemoryMax) so Apache can never eat the
+# memory reserved for Varnish and the OS.
+default['apache']['memory_limit_mb'] = apache_ram_mb
 # End Simian
 
 # Prefork Attributes
