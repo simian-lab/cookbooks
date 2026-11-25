@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.4.0] - 2026-11-25
+
+- `wordpress` hace que Varnish nunca cachee `healthz.php`, para que el health check del ELB llegue siempre a Apache y no a una respuesta en caché.
+- `apache2` agrega el PID del worker (`%P`) y la duración en microsegundos (`%D`) al final de los access logs (formatos `combined_xff` y el nuevo `combined_pid`), para cruzar cada petición con el RSS de su proceso en New Relic. Los campos van después del User-Agent, así que los patrones de parseo existentes siguen funcionando.
+
 ## [5.3.2] - 2026-11-24
 
 - `apache2` apaga `KeepAlive` y baja `MaxConnectionsPerChild` de 500 a 100. `MaxConnectionsPerChild` cuenta conexiones, no requests: con `KeepAlive On` Varnish reutilizaba sus conexiones hacia Apache y cada una servía ~7,3 requests (`backend_req / backend_conn` = 43 876 / 6005 en producción el 2026-11-24), así que 500 conexiones eran ~3650 requests, unas 13 horas por proceso. Los procesos de PHP casi nunca se reciclaban y crecían hasta 340–385 MB de RSS, llevando las instancias al 90–98 % de memoria.
