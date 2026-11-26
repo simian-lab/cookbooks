@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.4.2] - 2026-11-26
+
+- `wordpress` fija la fecha de modificación de `wp-content/plugins/wp-2fa/wp-2fa.php` (`2020-01-01 00:00:00 UTC`) en cada deploy, justo después de sincronizar el repositorio. WP 2FA (clase `Upgrade_Guard`, desde la 4.0) guarda en la base de datos compartida el hash `md5(versión | filemtime(wp-2fa.php))` y, cuando no coincide con el de la instancia que atiende la petición, invalida en opcache los 301 archivos PHP del plugin. Como cada instancia tiene la fecha de su propio deploy, con varias instancias el hash oscilaba en la mayoría de las peticiones: opcache se reiniciaba cada ~30 s (724 reinicios en ~9,6 h en una instancia) y cada reinicio asigna huecos nuevos en la tabla `map_ptr` de PHP, que cada worker nuevo reserva entera en su primera petición (160-175 MB de ceros). Eso llevaba la memoria de las instancias al 85-99 % en 10-17 h.
+- Verificado en producción el 2026-11-25: tras igualar la fecha a mano en las tres instancias y reiniciar Apache, el contador `oom` de opcache dejó de subir, los workers nacen con ~100 MB (antes ~280 MB) y a las 16,8 h las instancias siguen en ~45-47 % de memoria con pendiente casi nula. Las instancias existentes toman el cambio en el siguiente deploy o al reemplazarse.
+
+## [5.4.1] - 2026-11-25
+
+- `apache2` limita la memoria de Apache con un drop-in de systemd (`apache2.service.d/memory-limit.conf`): `MemoryMax` igual al presupuesto de Apache (RAM − Varnish − SO/agentes, 2115 MB en una instancia de 4 GB) y `OOMPolicy=continue`. Si Apache llega al límite, el kernel mata un proceso hijo y prefork lo reemplaza, en lugar de que toda la instancia se quede sin memoria y entre en thrashing como en la caída del 2026-11-25. `OOMPolicy=continue` evita que systemd detenga Apache entero al primer hijo eliminado.
+- Sin `MemoryHigh` a propósito: en staging, con el límite bajado a 180 MB, `MemoryHigh` hizo que el kernel frenara a Apache en lugar de matar procesos y el sitio dejó de responder (100 % de timeouts). Solo con `MemoryMax`, Apache tuvo algunos 503 y siguió respondiendo.
+
+## [5.4.0] - 2026-11-25
+
+- `wordpress` hace que Varnish nunca cachee `healthz.php`, para que el health check del ELB llegue siempre a Apache y no a una respuesta en caché.
+- `apache2` agrega el PID del worker (`%P`) y la duración en microsegundos (`%D`) al final de los access logs (formatos `combined_xff` y el nuevo `combined_pid`), para cruzar cada petición con el RSS de su proceso en New Relic. Los campos van después del User-Agent, así que los patrones de parseo existentes siguen funcionando.
+
 ## [5.3.2] - 2026-11-24
 
 - `apache2` apaga `KeepAlive` y baja `MaxConnectionsPerChild` de 500 a 100. `MaxConnectionsPerChild` cuenta conexiones, no requests: con `KeepAlive On` Varnish reutilizaba sus conexiones hacia Apache y cada una servía ~7,3 requests (`backend_req / backend_conn` = 43 876 / 6005 en producción el 2026-11-24), así que 500 conexiones eran ~3650 requests, unas 13 horas por proceso. Los procesos de PHP casi nunca se reciclaban y crecían hasta 340–385 MB de RSS, llevando las instancias al 90–98 % de memoria.
