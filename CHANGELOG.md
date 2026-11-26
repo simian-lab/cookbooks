@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.4.2] - 2026-11-26
+
+- `wordpress` fija la fecha de modificación de `wp-content/plugins/wp-2fa/wp-2fa.php` (`2020-01-01 00:00:00 UTC`) en cada deploy, justo después de sincronizar el repositorio. WP 2FA (clase `Upgrade_Guard`, desde la 4.0) guarda en la base de datos compartida el hash `md5(versión | filemtime(wp-2fa.php))` y, cuando no coincide con el de la instancia que atiende la petición, invalida en opcache los 301 archivos PHP del plugin. Como cada instancia tiene la fecha de su propio deploy, con varias instancias el hash oscilaba en la mayoría de las peticiones: opcache se reiniciaba cada ~30 s (724 reinicios en ~9,6 h en una instancia) y cada reinicio asigna huecos nuevos en la tabla `map_ptr` de PHP, que cada worker nuevo reserva entera en su primera petición (160-175 MB de ceros). Eso llevaba la memoria de las instancias al 85-99 % en 10-17 h.
+- Verificado en producción el 2026-11-25: tras igualar la fecha a mano en las tres instancias y reiniciar Apache, el contador `oom` de opcache dejó de subir, los workers nacen con ~100 MB (antes ~280 MB) y a las 16,8 h las instancias siguen en ~45-47 % de memoria con pendiente casi nula. Las instancias existentes toman el cambio en el siguiente deploy o al reemplazarse.
+
 ## [5.4.1] - 2026-11-25
 
 - `apache2` limita la memoria de Apache con un drop-in de systemd (`apache2.service.d/memory-limit.conf`): `MemoryMax` igual al presupuesto de Apache (RAM − Varnish − SO/agentes, 2115 MB en una instancia de 4 GB) y `OOMPolicy=continue`. Si Apache llega al límite, el kernel mata un proceso hijo y prefork lo reemplaza, en lugar de que toda la instancia se quede sin memoria y entre en thrashing como en la caída del 2026-11-25. `OOMPolicy=continue` evita que systemd detenga Apache entero al primer hijo eliminado.
