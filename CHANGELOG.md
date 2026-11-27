@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.5.0] - 2026-11-27
+
+- `wordpress` lee desde Parameter Store el parámetro opcional `UEC_CACHE_INVALIDATOR_TOKEN` (igual que `RD_STATION_API_KEY`) y lo agrega a la configuración de la instancia. Si el parámetro no existe, no pasa nada.
+- `wordpress` revierte el ajuste de 5.4.2 que fijaba la fecha de modificación de `wp-content/plugins/wp-2fa/wp-2fa.php` en cada deploy; el deploy vuelve a no tocar esa fecha.
+
 ## [5.4.2] - 2026-11-26
 
 - `wordpress` fija la fecha de modificación de `wp-content/plugins/wp-2fa/wp-2fa.php` (`2020-01-01 00:00:00 UTC`) en cada deploy, justo después de sincronizar el repositorio. WP 2FA (clase `Upgrade_Guard`, desde la 4.0) guarda en la base de datos compartida el hash `md5(versión | filemtime(wp-2fa.php))` y, cuando no coincide con el de la instancia que atiende la petición, invalida en opcache los 301 archivos PHP del plugin. Como cada instancia tiene la fecha de su propio deploy, con varias instancias el hash oscilaba en la mayoría de las peticiones: opcache se reiniciaba cada ~30 s (724 reinicios en ~9,6 h en una instancia) y cada reinicio asigna huecos nuevos en la tabla `map_ptr` de PHP, que cada worker nuevo reserva entera en su primera petición (160-175 MB de ceros). Eso llevaba la memoria de las instancias al 85-99 % en 10-17 h.
