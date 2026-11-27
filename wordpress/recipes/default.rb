@@ -165,6 +165,14 @@ aws_ssm_parameter_store 'getNewRelicLicenseKey' do
   ignore_failure true
 end
 
+aws_ssm_parameter_store 'getUecCacheInvalidatorToken' do
+  path "/ApplyChefRecipes-Preset/#{component_name}/UEC_CACHE_INVALIDATOR_TOKEN"
+  return_key 'UEC_CACHE_INVALIDATOR_TOKEN'
+  with_decryption true
+  ignore_failure true
+  action :get
+end
+
 ruby_block "define-app" do
   block do
     app = {
@@ -180,6 +188,10 @@ ruby_block "define-app" do
         'VARNISH_ERROR_PAGE' => node.run_state['VARNISH_ERROR_PAGE']
       }
     }
+
+    # Optional parameter: only exported when it exists in Parameter Store
+    uec_token = node.run_state['UEC_CACHE_INVALIDATOR_TOKEN'].to_s.strip
+    app['environment']['UEC_CACHE_INVALIDATOR_TOKEN'] = uec_token unless uec_token.empty?
   end
 end
 
