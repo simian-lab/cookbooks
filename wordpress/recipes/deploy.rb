@@ -88,20 +88,6 @@ git 'sync the repo' do
   destination '/srv/wordpress'
 end
 
-# WP 2FA (Upgrade_Guard) guarda en la base de datos compartida el hash
-# md5(versión | filemtime(wp-2fa.php)) y, si no coincide con el de la instancia
-# que atiende la petición, invalida en opcache todos los archivos del plugin.
-# Cada instancia tiene una fecha de archivo distinta (la de su propio deploy),
-# así que con varias instancias el hash oscila en cada petición, opcache se
-# reinicia cada ~30 s y cada worker nuevo reserva una tabla map_ptr de
-# 160-175 MB. Se fija la misma fecha en todas las instancias; una actualización
-# del plugin cambia la versión y regenera el hash una sola vez.
-execute 'normalize wp-2fa mtime' do
-  command "touch -d '2020-01-01 00:00:00 UTC' #{app_path}/wp-content/plugins/wp-2fa/wp-2fa.php"
-  user 'root'
-  only_if { ::File.exist?("#{app_path}/wp-content/plugins/wp-2fa/wp-2fa.php") }
-end
-
 # make sure permissions are correct
 execute "chown-data-www" do
   command "chown -R www-data:www-data #{app_path}"
